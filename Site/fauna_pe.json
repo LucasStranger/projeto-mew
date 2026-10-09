@@ -6,7 +6,7 @@
       "nome_popular": "Peixe-boi-marinho",
       "nome_cientifico": "Trichechus manatus",
       "escala": "1.5",
-      "modelo_gltf": "assets/modelo/animais.glb",
+      "modelo_gltf": "assets/modelo/Peixeboi.glb",
       "cenario_fundo": "assets/ambiente/ambiente.jpg",
       "situacao": "Em perigo de extinção",
       "classe": "Mamíferos",
@@ -101,6 +101,8 @@
       "nome_cientifico": "Tangara fastuosa",
       "situacao": "Ameaçado de extinção",
       "classe": "Aves",
+      "escala": "1.5",
+      "modelo_gltf": "assets/modelo/Sairapintor.glb",
       "habitat": [
         "mata atlântica do nordeste brasileiro"
       ],
@@ -127,6 +129,8 @@
       "nome_cientifico": "Automolus lammi",
       "situacao": "Extinto",
       "classe": "Aves",
+      "escala": "1.5",
+      "modelo_gltf": "assets/modelo/Limpafolha.glb",
       "ordem": "Passeriformes",
       "habitat": [
         "Mata Atlântica do Nordeste"
@@ -273,6 +277,8 @@
       "nome_cientifico": "Paroaria dominicana",
       "situacao": "Pouco preocupante",
       "classe": "Aves",
+      "escala": "1.5",
+      "modelo_gltf": "assets/modelo/Galodecampina.glb",
        "habitat": [
          "caatinga",
          "áreas abertas",
