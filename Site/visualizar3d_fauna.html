@@ -2,44 +2,66 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Visualização 3D — Projeto Mew</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js" crossorigin="anonymous"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #05140c;
       overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
+
+    /* =========================================================
+       BOTÃO VOLTAR (topo-esquerda)
+       ========================================================= */
     .info {
       position: absolute;
       top: 15px; left: 15px; z-index: 100;
-      background: rgba(5, 30, 15, 0.85);
+      background: rgba(5, 30, 15, 0.88);
       border: 2px solid rgba(63, 185, 80, 0.55);
       border-radius: 12px; padding: 10px 18px;
       backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 0 20px rgba(63, 185, 80, 0.35);
+      max-width: 42vw;
     }
     .info a {
       color: #7ee898; text-decoration: none;
       font-family: 'Courier New', monospace; font-weight: bold;
       letter-spacing: 1px; text-transform: uppercase;
       font-size: 0.85rem; transition: all 0.25s;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .info a:hover { color: #fff; text-shadow: 0 0 12px #3fb950; }
+
+    /* =========================================================
+       PAINEL DO ANIMAL (topo-direita)
+       ========================================================= */
     .nome-animal {
       position: absolute; top: 15px; right: 15px; z-index: 100;
-      background: rgba(5, 30, 15, 0.85);
+      background: rgba(5, 30, 15, 0.88);
       border: 2px solid rgba(63, 185, 80, 0.55);
       border-radius: 12px; padding: 10px 18px;
       backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 0 20px rgba(63, 185, 80, 0.35);
       color: #7ee898;
       font-family: 'Courier New', monospace; font-weight: bold;
       letter-spacing: 1px; text-transform: uppercase;
       font-size: 0.82rem;
-      max-width: 340px;
+      max-width: 45vw;
       text-align: right;
       line-height: 1.35;
     }
@@ -62,6 +84,10 @@
       padding-top: 5px;
       border-top: 1px dashed rgba(63, 185, 80, 0.35);
     }
+
+    /* =========================================================
+       LOADING
+       ========================================================= */
     .loading {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -75,26 +101,39 @@
       border: 2px solid rgba(63, 185, 80, 0.4);
       text-align: center; max-width: 90vw;
     }
+
+    /* =========================================================
+       INSTRUÇÕES (rodapé)
+       ========================================================= */
     .instrucoes {
       position: absolute; bottom: 20px; left: 50%;
       transform: translateX(-50%); z-index: 100;
       color: #a8d8b8;
       font-family: 'Courier New', monospace;
       font-size: 0.75rem; letter-spacing: 1px;
-      background: rgba(0, 0, 0, 0.55);
+      background: rgba(0, 0, 0, 0.6);
       padding: 8px 18px; border-radius: 20px;
       border: 1px solid rgba(63, 185, 80, 0.25);
       backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       white-space: nowrap;
+      max-width: calc(100vw - 40px);
+      text-align: center;
     }
     .instrucoes span { color: #7ee898; font-weight: bold; }
+    .instrucoes .instr-mobile { display: none; }
+    .instrucoes .instr-desktop { display: inline; }
+
+    /* =========================================================
+       BOTÕES DE CONTROLE (Pausar/Auto/Resetar)
+       ========================================================= */
     .controles {
       position: absolute; bottom: 60px; left: 50%;
       transform: translateX(-50%); z-index: 100;
       display: flex; gap: 8px;
     }
     .controles button {
-      background: rgba(5, 30, 15, 0.85);
+      background: rgba(5, 30, 15, 0.88);
       border: 2px solid rgba(63, 185, 80, 0.55);
       color: #7ee898;
       font-family: 'Courier New', monospace;
@@ -103,6 +142,9 @@
       border-radius: 8px; cursor: pointer;
       transition: all 0.25s; text-transform: uppercase;
       backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .controles button:hover {
       background: rgba(63, 185, 80, 0.25);
@@ -115,6 +157,10 @@
       border-color: #7ee898; color: #fff;
       box-shadow: 0 0 14px rgba(63, 185, 80, 0.7);
     }
+
+    /* =========================================================
+       TECLAS WASD (só desktop)
+       ========================================================= */
     .teclas-wasd {
       position: absolute; bottom: 20px; right: 20px; z-index: 100;
       display: grid;
@@ -125,7 +171,7 @@
     }
     .teclas-wasd .tecla {
       display: flex; align-items: center; justify-content: center;
-      background: rgba(5, 30, 15, 0.85);
+      background: rgba(5, 30, 15, 0.88);
       border: 2px solid rgba(63, 185, 80, 0.45);
       border-radius: 6px;
       color: #7ee898;
@@ -145,6 +191,10 @@
       color: #fff;
       box-shadow: 0 0 12px rgba(63, 185, 80, 0.7);
     }
+
+    /* =========================================================
+       AVISO FILE://
+       ========================================================= */
     .aviso-file {
       position: fixed; inset: 0;
       background: rgba(3, 15, 8, 0.96);
@@ -198,13 +248,161 @@
       background: rgba(63, 185, 80, 0.3);
       box-shadow: 0 0 14px rgba(63, 185, 80, 0.6);
     }
+
+    /* =========================================================
+       🚨 MEDIA QUERIES — CORREÇÃO MOBILE
+       ========================================================= */
+
+    /* --------- Tablets pequenos (≤ 900px) --------- */
+    @media (max-width: 900px) {
+      .nome-animal {
+        max-width: 48vw;
+        font-size: 0.75rem;
+      }
+      .nome-animal .cientifico { font-size: 0.66rem; }
+      .nome-animal .bioma { font-size: 0.56rem; }
+    }
+
+    /* --------- Celulares (≤ 700px) --------- */
     @media (max-width: 700px) {
-      .instrucoes { font-size: 0.6rem; padding: 6px 12px; white-space: normal; text-align: center; max-width: 90vw; }
-      .info { padding: 8px 12px; }
-      .info a { font-size: 0.7rem; }
-      .nome-animal { padding: 8px 12px; font-size: 0.68rem; max-width: 200px; }
-      .controles button { font-size: 0.65rem; padding: 6px 10px; }
-      .teclas-wasd { transform: scale(0.85); transform-origin: bottom right; }
+      /* --- TOPO: compacta os dois painéis para não sobrepor --- */
+      .info {
+        top: 8px;
+        left: 8px;
+        padding: 6px 10px;
+        border-radius: 9px;
+        max-width: 38vw;
+      }
+      .info a {
+        font-size: 0.62rem;
+        letter-spacing: 0.5px;
+      }
+      /* Esconde o complemento "aos detalhes" no celular */
+      .info .voltar-complemento { display: none; }
+
+      .nome-animal {
+        top: 8px;
+        right: 8px;
+        max-width: 56vw;
+        padding: 6px 10px;
+        border-radius: 9px;
+        font-size: 0.6rem;
+        line-height: 1.3;
+        letter-spacing: 0.5px;
+      }
+      .nome-animal .cientifico {
+        font-size: 0.54rem;
+        margin-top: 2px;
+      }
+      .nome-animal .bioma {
+        font-size: 0.5rem;
+        margin-top: 3px;
+        padding-top: 3px;
+        letter-spacing: 1px;
+      }
+
+      /* --- ESCONDE AS TECLAS WASD (não existe teclado no celular) --- */
+      .teclas-wasd {
+        display: none !important;
+      }
+
+      /* --- INSTRUÇÕES: sobe para não colidir com os controles --- */
+      .instrucoes {
+        bottom: 60px;
+        left: 8px;
+        right: 8px;
+        transform: none;
+        max-width: none;
+        font-size: 0.58rem;
+        padding: 6px 10px;
+        border-radius: 12px;
+        letter-spacing: 0.3px;
+        white-space: normal;
+        line-height: 1.35;
+      }
+      /* Troca o texto para mobile: some o "WASD", entra "Pinça" */
+      .instrucoes .instr-desktop { display: none; }
+      .instrucoes .instr-mobile { display: inline; }
+
+      /* --- CONTROLES: colados no rodapé, botões dividem espaço --- */
+      .controles {
+        bottom: 8px;
+        left: 8px;
+        right: 8px;
+        transform: none;
+        gap: 5px;
+        justify-content: stretch;
+      }
+      .controles button {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.58rem;
+        padding: 9px 4px;
+        letter-spacing: 0.3px;
+        border-width: 1.5px;
+        border-radius: 7px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    /* --------- Celulares muito pequenos (≤ 400px) --------- */
+    @media (max-width: 400px) {
+      .info {
+        padding: 5px 8px;
+        max-width: 34vw;
+      }
+      .info a { font-size: 0.56rem; }
+
+      .nome-animal {
+        padding: 5px 8px;
+        max-width: 60vw;
+        font-size: 0.54rem;
+      }
+      .nome-animal .cientifico { font-size: 0.48rem; }
+      .nome-animal .bioma { font-size: 0.44rem; }
+
+      .controles button {
+        font-size: 0.52rem;
+        padding: 8px 3px;
+      }
+
+      .instrucoes {
+        font-size: 0.52rem;
+        padding: 5px 8px;
+      }
+    }
+
+    /* --------- Paisagem (deitado) — prioriza altura --- */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .nome-animal {
+        max-width: 32vw;
+        font-size: 0.6rem;
+        padding: 6px 10px;
+      }
+      .nome-animal .cientifico { font-size: 0.54rem; }
+      .nome-animal .bioma { font-size: 0.5rem; }
+
+      .info {
+        padding: 6px 10px;
+      }
+      .info a { font-size: 0.6rem; }
+
+      .controles {
+        bottom: 6px;
+        gap: 4px;
+      }
+      .controles button {
+        padding: 6px 10px;
+        font-size: 0.58rem;
+      }
+
+      .instrucoes {
+        bottom: 48px;
+        font-size: 0.52rem;
+        padding: 4px 10px;
+      }
     }
   </style>
 </head>
@@ -224,7 +422,7 @@
   </div>
 
   <div class="info">
-    <a href="#" id="voltar-link">← Voltar aos detalhes</a>
+    <a href="#" id="voltar-link">← Voltar<span class="voltar-complemento"> aos detalhes</span></a>
   </div>
   <div class="nome-animal" id="nome-animal">
     <span id="nome-popular">Carregando...</span>
@@ -235,7 +433,7 @@
 
   <div class="controles" id="controles" style="display:none;">
     <button id="btn-anim" title="Pausar/Retomar rotação">⏸ Pausar</button>
-    <button id="btn-rotacao" title="Ativar rotação automática">🔄 Auto-rotação</button>
+    <button id="btn-rotacao" title="Ativar rotação automática">🔄 Auto</button>
     <button id="btn-reset" title="Resetar câmera">🎯 Resetar</button>
   </div>
 
@@ -247,7 +445,12 @@
   </div>
 
   <div class="instrucoes" id="instrucoes" style="display:none;">
-    <span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>⌨️ WASD</span> mover
+    <span class="instr-desktop">
+      <span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>⌨️ WASD</span> mover
+    </span>
+    <span class="instr-mobile">
+      <span>👆 Arraste</span> girar · <span>🤏 Pinça</span> zoom
+    </span>
   </div>
 
   <div id="scene-container"></div>
@@ -256,14 +459,14 @@
   <script src="biomas_fauna.js"></script>
   <script src="bioma_costeiro.js"></script>
   <script src="bioma_mataatlantica.js"></script>
-  <script src="bioma_caatinga_galo.js"></script>       <!-- NOVO -->
-  <script src="bioma_caatinga_tatu.js"></script>       <!-- NOVO -->
-  <script src="bioma_cerrado_tamandua.js"></script>    <!-- NOVO -->
-  <script src="bioma_mata_limpafolha.js"></script>     <!-- NOVO -->
-  <script src="bioma_mata_maracaja.js"></script>            <!-- NOVO -->
-  <script src="bioma_transicao_jaguatirica.js"></script>     <!-- NOVO -->
-  <script src="bioma_recife_tartaruga_pente.js"></script>    <!-- NOVO -->
-  <script src="bioma_oceano_tartaruga_couro.js"></script>    <!-- NOVO -->
+  <script src="bioma_caatinga_galo.js"></script>
+  <script src="bioma_caatinga_tatu.js"></script>
+  <script src="bioma_cerrado_tamanduá.js"></script>
+  <script src="bioma_mata_limpafolha.js"></script>
+  <script src="bioma_mata_maracaja.js"></script>
+  <script src="bioma_transicao_jaguatirica.js"></script>
+  <script src="bioma_recife_tartaruga_pente.js"></script>
+  <script src="bioma_oceano_tartaruga_couro.js"></script>
 
   <script>
     AFRAME.registerComponent('orbit-camera', {
@@ -291,7 +494,6 @@
         this.keys = {};
         this._pinchStartDist = 0;
         this._pinchStartDistance = 0;
-
         this._initialized = false;
 
         this._onDown       = this.onPointerDown.bind(this);
@@ -550,7 +752,7 @@
           ${fogAttr}
           renderer="antialias: true; colorManagement: true;"
           shadow="type: pcfsoft"
-          style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
+          style="position: fixed; inset: 0; width: 100vw; height: 100vh; touch-action: none;"
         >
           <a-assets>
             <a-asset-item id="modelo-fauna" src="${modeloPath}"></a-asset-item>

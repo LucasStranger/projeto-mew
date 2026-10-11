@@ -792,19 +792,24 @@ async function carregarAnimalFauna(id, container, loading) {
       nomeBioma = 'Genérico';
     }
 
+    // ===== LAYOUT MOBILE-FRIENDLY =====
+    // - clamp() escala fontes/tamanhos entre mínimo e máximo
+    // - look-controls REMOVIDO do camera (evita capturar scroll vertical)
+    // - touch-action: manipulation (evita zoom acidental em botões)
+    // - -webkit-tap-highlight-color: transparent (remove highlight azul Android)
     container.innerHTML = `
       <div class="detalhes-layout">
         <div class="col-esquerda">
 
           <div class="screen ambiente-virtual" style="position: relative; overflow: hidden; border-radius: 15px; padding: 0;">
-            <a-scene embedded style="width: 100%; height: 350px;" vr-mode-ui="enabled: false">
+            <a-scene embedded style="width: 100%; height: clamp(220px, 55vw, 350px); display: block;" vr-mode-ui="enabled: false">
               ${ambienteHtml}
               <a-gltf-model
                 id="modelo-fauna-viewer"
                 src="${modeloPath}"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
               </a-gltf-model>
-              <a-entity camera look-controls position="0 1.6 0"></a-entity>
+              <a-entity camera position="0 1.6 0"></a-entity>
             </a-scene>
 
             <a href="${url3D}" class="link-3d-fauna" title="Clique para ver em tela cheia (3D)">
@@ -812,42 +817,40 @@ async function carregarAnimalFauna(id, container, loading) {
             </a>
           </div>
 
-          <div style="display: flex; gap: 15px; margin-top: 15px; align-items: stretch; justify-content: space-between;">
-
-            <div class="screen screen-identidade" style="flex: 1; margin: 0; display: flex; flex-direction: column; justify-content: center;">
-              <div class="numero-grande">${id.toUpperCase()}</div>
-              <h2>${animal.nome_popular}</h2>
-              <p style="font-style: italic; color: #8b949e; margin-bottom: 6px; font-size: 13px;">${animal.nome_cientifico}</p>
-              <div class="tipos"><span class="tipo" style="background: #3fb950; text-transform: uppercase;">${animal.classe}</span></div>
-              <p style="color: #ff4d4d; font-weight: bold; margin-top: 8px; font-size: 13px;">⚠️ Status: ${animal.situacao}</p>
-              <p style="color: #7ee898; margin-top: 6px; font-size: 11px; font-family: 'Courier New', monospace; letter-spacing: 1px; text-transform: uppercase;">🌿 Bioma: ${nomeBioma}</p>
-            </div>
-
-            <button id="btn-missao-novo" style="flex: 1; margin: 0; position: relative !important; top: auto !important; left: auto !important; transform: none !important; padding: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border-radius: 12px; background: linear-gradient(135deg, #238636, #2ea043); color: white; border: 2px solid #3fb950; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center;">
-              <span style="font-size: 24px; margin-bottom: 8px;">🔬</span>
-              INICIAR MISSÃO<br>ECOLÓGICA
-            </button>
+          <div class="screen screen-identidade" style="margin-top: clamp(8px, 2vw, 15px); display: flex; flex-direction: column; justify-content: center;">
+            <div class="numero-grande" style="font-size: clamp(0.85rem, 3vw, 1.1rem);">${id.toUpperCase()}</div>
+            <h2 style="font-size: clamp(1.1rem, 4.5vw, 1.8rem);">${animal.nome_popular}</h2>
+            <p style="font-style: italic; color: #8b949e; margin-bottom: 6px; font-size: clamp(11px, 2.5vw, 13px);">${animal.nome_cientifico}</p>
+            <div class="tipos"><span class="tipo" style="background: #3fb950; text-transform: uppercase; font-size: clamp(0.65rem, 2.5vw, 0.8rem);">${animal.classe}</span></div>
+            <p style="color: #ff4d4d; font-weight: bold; margin-top: 8px; font-size: clamp(11px, 2.5vw, 13px);">⚠️ Status: ${animal.situacao}</p>
+            <p style="color: #7ee898; margin-top: 6px; font-size: clamp(9px, 2vw, 11px); font-family: 'Courier New', monospace; letter-spacing: 1px; text-transform: uppercase;">🌿 Bioma: ${nomeBioma}</p>
           </div>
         </div>
 
         <div class="col-direita">
           <div class="screen info-bloco">
              <h3>▸ Comportamento e Características</h3>
-             <p style="line-height: 1.5; font-size: 13px; margin-top: 8px;">${animal.caracteristicas.comportamento}</p>
-             <p style="line-height: 1.5; font-size: 13px; margin-top: 6px;"><strong>Coloração:</strong> ${animal.caracteristicas.coloracao}</p>
+             <p style="line-height: 1.5; font-size: clamp(11.5px, 2.5vw, 13px); margin-top: 8px;">${animal.caracteristicas.comportamento}</p>
+             <p style="line-height: 1.5; font-size: clamp(11.5px, 2.5vw, 13px); margin-top: 6px;"><strong>Coloração:</strong> ${animal.caracteristicas.coloracao}</p>
           </div>
 
           <div class="screen info-bloco">
             <h3>▸ Dados Biológicos</h3>
             <div class="fisico" style="margin-top: 8px;">
-              <div class="item"><div class="label">Habitat</div><div class="valor" style="font-size:12px;">${habitatTexto}</div></div>
-              <div class="item"><div class="label">Tamanho</div><div class="valor" style="font-size:12px;">${animal.caracteristicas.tamanho}</div></div>
+              <div class="item"><div class="label">Habitat</div><div class="valor" style="font-size: clamp(11px, 2.3vw, 12px);">${habitatTexto}</div></div>
+              <div class="item"><div class="label">Tamanho</div><div class="valor" style="font-size: clamp(11px, 2.3vw, 12px);">${animal.caracteristicas.tamanho}</div></div>
             </div>
-            <p style="line-height: 1.4; font-size: 12px; margin-top: 10px; color: #ff8c8c;"><strong>Principais Ameaças:</strong> ${ameacasTexto}</p>
+            <p style="line-height: 1.4; font-size: clamp(10.5px, 2.2vw, 12px); margin-top: 10px; color: #ff8c8c;"><strong>Principais Ameaças:</strong> ${ameacasTexto}</p>
           </div>
+
+          <button id="btn-missao-novo" style="flex: 1 1 auto; min-height: clamp(110px, 18vh, 200px); width: 100%; padding: clamp(14px, 3vw, 22px) clamp(12px, 3vw, 16px); font-weight: bold; font-size: clamp(13px, 3vw, 15px); letter-spacing: 1.5px; cursor: pointer; border-radius: 12px; background: linear-gradient(135deg, #238636, #2ea043); color: white; border: 2px solid #3fb950; box-shadow: 0 4px 16px rgba(35, 134, 54, 0.45), inset 0 0 20px rgba(126, 232, 152, 0.08); display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2); font-family: 'Segoe UI', sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+            <span style="font-size: clamp(24px, 6vw, 34px); margin-bottom: clamp(6px, 1.5vw, 10px);">🔬</span>
+            INICIAR MISSÃO<br>ECOLÓGICA
+          </button>
         </div>
       </div>
     `;
+
     const cena = container.querySelector('a-scene');
     cena.addEventListener('loaded', () => {
       const el = container.querySelector('#modelo-fauna-viewer');
@@ -859,7 +862,6 @@ async function carregarAnimalFauna(id, container, loading) {
       const acharMesh = () => {
         let m = el.getObject3D && el.getObject3D('mesh');
         if (!m && el.object3D) {
-          // Procura o primeiro nó com geometria
           el.object3D.traverse((n) => {
             if (!m && n.isMesh) m = n;
           });
@@ -876,13 +878,11 @@ async function carregarAnimalFauna(id, container, loading) {
           return;
         }
 
-        // Reset
         mesh.position.set(0, 0, 0);
         mesh.rotation.set(0, 0, 0);
         mesh.scale.set(1, 1, 1);
         mesh.updateWorldMatrix(true, true);
 
-        // Bounding box
         const box = new THREE.Box3().setFromObject(mesh);
         const size = box.getSize(new THREE.Vector3());
         const centerWorld = box.getCenter(new THREE.Vector3());
@@ -893,14 +893,11 @@ async function carregarAnimalFauna(id, container, loading) {
           return;
         }
 
-        // Posição world do wrapper (o que gira)
         const elWorldPos = new THREE.Vector3();
         el.object3D.getWorldPosition(elWorldPos);
 
-        // Centro em coordenadas locais do wrapper
         const localCenter = centerWorld.clone().sub(elWorldPos);
 
-        // Escala alvo — 1.5 unidades
         const ALVO = 1.5;
         const escala = ALVO / maxDim;
 
@@ -914,7 +911,6 @@ async function carregarAnimalFauna(id, container, loading) {
         );
         mesh.updateWorldMatrix(true, true);
 
-        // Sobe o wrapper pra o pé encostar em y=0
         el.setAttribute('position', `0 ${((size.y * escala) / 2).toFixed(3)} -3.5`);
 
         console.log('[fauna] altura final:', (size.y * escala).toFixed(3));
@@ -927,6 +923,28 @@ async function carregarAnimalFauna(id, container, loading) {
     document.getElementById('btn-missao-novo').addEventListener('click', () => {
         alert("Em breve: Integração C++ / WebAssembly para o Quiz Adaptativo!");
     });
+
+    // Efeito de hover no botão (desktop) — em touch, o :active já dá feedback
+    const btnMissao = document.getElementById('btn-missao-novo');
+    if (btnMissao) {
+      btnMissao.addEventListener('mouseenter', () => {
+        btnMissao.style.transform = 'translateY(-3px) scale(1.02)';
+        btnMissao.style.boxShadow = '0 8px 24px rgba(35, 134, 54, 0.65), inset 0 0 24px rgba(126, 232, 152, 0.15)';
+        btnMissao.style.borderColor = '#7ee898';
+      });
+      btnMissao.addEventListener('mouseleave', () => {
+        btnMissao.style.transform = 'translateY(0) scale(1)';
+        btnMissao.style.boxShadow = '0 4px 16px rgba(35, 134, 54, 0.45), inset 0 0 20px rgba(126, 232, 152, 0.08)';
+        btnMissao.style.borderColor = '#3fb950';
+      });
+      // Feedback tátil em touch (mobile)
+      btnMissao.addEventListener('touchstart', () => {
+        btnMissao.style.transform = 'scale(0.98)';
+      }, { passive: true });
+      btnMissao.addEventListener('touchend', () => {
+        btnMissao.style.transform = 'scale(1)';
+      }, { passive: true });
+    }
 
   } catch (erro) {
     loading.style.display = 'none';
