@@ -800,10 +800,9 @@ async function carregarAnimalFauna(id, container, loading) {
             <a-scene embedded style="width: 100%; height: 350px;" vr-mode-ui="enabled: false">
               ${ambienteHtml}
               <a-gltf-model
+                id="modelo-fauna-viewer"
                 src="${modeloPath}"
-                position="0 -1.2 -4"
-                scale="${escala3d} ${escala3d} ${escala3d}"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 12000">
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
               </a-gltf-model>
               <a-entity camera look-controls position="0 1.6 0"></a-entity>
             </a-scene>
@@ -849,7 +848,58 @@ async function carregarAnimalFauna(id, container, loading) {
         </div>
       </div>
     `;
+    const cena = container.querySelector('a-scene');
+    cena.addEventListener('loaded', () => {
+      const el = container.querySelector('#modelo-fauna-viewer');
+      if (!el) return;
 
+      let tentativas = 0;
+      const ajustar = () => {
+        const mesh = el.getObject3D('mesh');
+        if (!mesh) {
+          if (tentativas++ < 60) setTimeout(ajustar, 100);
+          return;
+        }
+
+        // 1) Reseta o mesh
+        mesh.position.set(0, 0, 0);
+        mesh.rotation.set(0, 0, 0);
+        mesh.scale.set(1, 1, 1);
+        mesh.updateWorldMatrix(true, true); // ← atualiza pais E filhos
+
+        // 2) Bounding box em WORLD
+        const box = new THREE.Box3().setFromObject(mesh);
+        const size = box.getSize(new THREE.Vector3());
+        const centerWorld = box.getCenter(new THREE.Vector3());
+
+        // 3) Posição world do wrapper do A-Frame (o el.object3D)
+        const elWorldPos = new THREE.Vector3();
+        el.object3D.getWorldPosition(elWorldPos);
+
+        // 4) Centro em coordenadas LOCAIS do wrapper do A-Frame
+        const localCenter = centerWorld.clone().sub(elWorldPos);
+
+        const maxDim = Math.max(size.x, size.y, size.z);
+        if (!isFinite(maxDim) || maxDim <= 0.0001) return;
+
+        const alvo = 1.5;
+        const escala = alvo / maxDim;
+
+        // 5) Centraliza o mesh na origem do wrapper E aplica escala
+        mesh.scale.set(escala, escala, escala);
+        mesh.position.set(
+          -localCenter.x * escala,
+          -localCenter.y * escala,
+          -localCenter.z * escala
+        );
+        mesh.updateWorldMatrix(true, true);
+
+        // 6) Sobe o próprio a-gltf-model pra o pé tocar y=0
+        el.setAttribute('position', `0 ${(size.y * escala) / 2} -3.5`);
+      };
+
+      ajustar();
+    });
     document.title = `${animal.nome_popular} — Projeto Mew`;
 
     document.getElementById('btn-missao-novo').addEventListener('click', () => {
