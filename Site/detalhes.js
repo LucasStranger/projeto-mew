@@ -854,38 +854,58 @@ async function carregarAnimalFauna(id, container, loading) {
       if (!el) return;
 
       let tentativas = 0;
+      const MAX_TENTATIVAS = 80; // ~8s
+
+      const acharMesh = () => {
+        let m = el.getObject3D && el.getObject3D('mesh');
+        if (!m && el.object3D) {
+          // Procura o primeiro nó com geometria
+          el.object3D.traverse((n) => {
+            if (!m && n.isMesh) m = n;
+          });
+        }
+        return m;
+      };
+
       const ajustar = () => {
-        const mesh = el.getObject3D('mesh');
+        const mesh = acharMesh();
+
         if (!mesh) {
-          if (tentativas++ < 60) setTimeout(ajustar, 100);
+          if (tentativas++ < MAX_TENTATIVAS) return void setTimeout(ajustar, 100);
+          console.warn('[fauna] mesh do modelo nunca apareceu');
           return;
         }
 
-        // 1) Reseta o mesh
+        // Reset
         mesh.position.set(0, 0, 0);
         mesh.rotation.set(0, 0, 0);
         mesh.scale.set(1, 1, 1);
-        mesh.updateWorldMatrix(true, true); // ← atualiza pais E filhos
+        mesh.updateWorldMatrix(true, true);
 
-        // 2) Bounding box em WORLD
+        // Bounding box
         const box = new THREE.Box3().setFromObject(mesh);
         const size = box.getSize(new THREE.Vector3());
         const centerWorld = box.getCenter(new THREE.Vector3());
 
-        // 3) Posição world do wrapper do A-Frame (o el.object3D)
+        const maxDim = Math.max(size.x, size.y, size.z);
+        if (!isFinite(maxDim) || maxDim <= 0.0001) {
+          console.warn('[fauna] maxDim inválido:', maxDim, size);
+          return;
+        }
+
+        // Posição world do wrapper (o que gira)
         const elWorldPos = new THREE.Vector3();
         el.object3D.getWorldPosition(elWorldPos);
 
-        // 4) Centro em coordenadas LOCAIS do wrapper do A-Frame
+        // Centro em coordenadas locais do wrapper
         const localCenter = centerWorld.clone().sub(elWorldPos);
 
-        const maxDim = Math.max(size.x, size.y, size.z);
-        if (!isFinite(maxDim) || maxDim <= 0.0001) return;
+        // Escala alvo — 1.5 unidades
+        const ALVO = 1.5;
+        const escala = ALVO / maxDim;
 
-        const alvo = 1.5;
-        const escala = alvo / maxDim;
+        console.log('[fauna] maxDim bruto:', maxDim.toFixed(3), '→ escala:', escala.toFixed(5));
 
-        // 5) Centraliza o mesh na origem do wrapper E aplica escala
         mesh.scale.set(escala, escala, escala);
         mesh.position.set(
           -localCenter.x * escala,
@@ -894,8 +914,10 @@ async function carregarAnimalFauna(id, container, loading) {
         );
         mesh.updateWorldMatrix(true, true);
 
-        // 6) Sobe o próprio a-gltf-model pra o pé tocar y=0
-        el.setAttribute('position', `0 ${(size.y * escala) / 2} -3.5`);
+        // Sobe o wrapper pra o pé encostar em y=0
+        el.setAttribute('position', `0 ${((size.y * escala) / 2).toFixed(3)} -3.5`);
+
+        console.log('[fauna] altura final:', (size.y * escala).toFixed(3));
       };
 
       ajustar();

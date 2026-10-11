@@ -1,37 +1,10 @@
 /* =========================================================
    bioma_costeiro.js — v3
    Bioma Costeiro/Marinho — Peixe-boi-marinho.
-   Componentes exclusivos: sway-grass, bobber
    Depende de: bioma_componentes.js
    ========================================================= */
 (function () {
   'use strict';
-
-  /* ---------- sway-grass ---------- */
-  AFRAME.registerComponent('sway-grass', {
-    schema: { ampl: { default: 8 } },
-    init: function () {
-      const a = this.data.ampl;
-      const dur = 2400 + Math.random() * 1800;
-      this.el.setAttribute('animation__swx',
-        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + dur +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
-      this.el.setAttribute('animation__swz',
-        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.7) + '; dur: ' + (dur + 400) +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
-    }
-  });
-
-  /* ---------- bobber ---------- */
-  AFRAME.registerComponent('bobber', {
-    schema: { amp: { default: 0.12 }, dur: { default: 2600 } },
-    init: function () {
-      const y = this.el.object3D.position.y;
-      this.el.setAttribute('animation',
-        'property: position; from: 0 ' + y + ' 0; to: 0 ' + (y + this.data.amp) + ' 0; dur: ' +
-        this.data.dur + '; dir: alternate; loop: true; easing: easeInOutSine');
-    }
-  });
 
   function rand(a, b) { return a + Math.random() * (b - a); }
   function randInt(a, b) { return Math.floor(rand(a, b + 1)); }
@@ -39,26 +12,20 @@
   function pos(minR, maxR) {
     const a = Math.random() * Math.PI * 2;
     const r = rand(minR, maxR);
-    return { x: Math.cos(a) * r, z: Math.sin(a) * r, ang: a, r };
+    return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
   function gerarMangue(x, z, rot, h) {
-    const tronco = '#2E3D2E';
-    const folha  = '#26402C';
-    const folha2 = '#1F3624';
-    const raiz   = '#243024';
+    const tronco = '#2E3D2E', folha = '#26402C', folha2 = '#1F3624', raiz = '#243024';
     const altura = h || rand(1.6, 2.6);
-    const rf     = rand(0.7, 1.1);
+    const rf = rand(0.7, 1.1);
     let raizes = '';
     for (let i = 0; i < 5; i++) {
       const ang = (i / 5) * Math.PI * 2;
       const dx = Math.cos(ang) * 0.32;
       const dz = Math.sin(ang) * 0.32;
       const incl = rand(15, 30) * (i % 2 === 0 ? 1 : -1);
-      raizes +=
-        '<a-cylinder position="' + dx.toFixed(2) + ' ' + (altura * 0.16).toFixed(2) + ' ' + dz.toFixed(2) + '" ' +
-        'radius="0.024" height="' + (altura * 0.38).toFixed(2) + '" color="' + raiz + '" ' +
-        'rotation="' + incl.toFixed(1) + ' 0 ' + (-incl * 0.6).toFixed(1) + '"></a-cylinder>';
+      raizes += '<a-cylinder position="' + dx.toFixed(2) + ' ' + (altura * 0.16).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="0.024" height="' + (altura * 0.38).toFixed(2) + '" color="' + raiz + '" rotation="' + incl.toFixed(1) + ' 0 ' + (-incl * 0.6).toFixed(1) + '"></a-cylinder>';
     }
     return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
       raizes +
@@ -84,20 +51,14 @@
       const dz = Math.sin(a) * 0.05;
       const hh = h * rand(0.7, 1.25);
       const tilt = rand(-14, 14);
-      html +=
-        '<a-cone position="' + dx.toFixed(3) + ' ' + (hh / 2).toFixed(3) + ' ' + dz.toFixed(3) + '" ' +
-        'radius-bottom="0.04" radius-top="0.003" height="' + hh.toFixed(3) + '" ' +
-        'color="' + cor + '" rotation="' + tilt.toFixed(1) + ' 0 ' + (tilt * 0.5).toFixed(1) + '"></a-cone>';
+      html += '<a-cone position="' + dx.toFixed(3) + ' ' + (hh / 2).toFixed(3) + ' ' + dz.toFixed(3) + '" radius-bottom="0.04" radius-top="0.003" height="' + hh.toFixed(3) + '" color="' + cor + '" rotation="' + tilt.toFixed(1) + ' 0 ' + (tilt * 0.5).toFixed(1) + '"></a-cone>';
     }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" ' +
-      'sway-grass="ampl: ' + swayAmp + '" ' +
-      'animation__dur="property: rotation; dur: ' + dur + '">' + html + '</a-entity>';
+    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" sway-grass="ampl: ' + swayAmp + '" animation__dur="property: rotation; dur: ' + dur + '">' + html + '</a-entity>';
   }
 
   function gerarCoralRamo(x, z, cor) {
     const h = rand(0.28, 0.5);
-    const rot = rand(0, 360);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
+    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
       '<a-cylinder position="0 ' + (h/2).toFixed(2) + ' 0" radius="0.05" height="' + h.toFixed(2) + '" color="' + cor + '"></a-cylinder>' +
       '<a-cylinder position="0.08 ' + (h*0.75).toFixed(2) + ' 0" radius="0.035" height="' + (h*0.55).toFixed(2) + '" color="' + cor + '" rotation="0 0 -30"></a-cylinder>' +
       '<a-cylinder position="-0.08 ' + (h*0.8).toFixed(2) + ' 0" radius="0.035" height="' + (h*0.5).toFixed(2) + '" color="' + cor + '" rotation="0 0 30"></a-cylinder>' +
@@ -115,8 +76,7 @@
 
   function gerarCoralLeque(x, z, cor) {
     const h = rand(0.4, 0.7);
-    const rot = rand(0, 360);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
+    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
       '<a-circle position="0 ' + (h*0.55).toFixed(2) + ' 0" radius="' + (h*0.45).toFixed(2) + '" color="' + cor + '" material="shader: flat; side: double; opacity: 0.75; transparent: true"></a-circle>' +
       '<a-circle position="0 ' + (h*0.55).toFixed(2) + ' 0" rotation="90 0 0" radius="' + (h*0.38).toFixed(2) + '" color="' + cor + '" material="shader: flat; side: double; opacity: 0.6; transparent: true"></a-circle>' +
       '<a-cylinder position="0 ' + (h*0.25).toFixed(2) + ' 0" radius="0.025" height="' + (h*0.5).toFixed(2) + '" color="' + cor + '"></a-cylinder>' +
@@ -161,7 +121,6 @@
 
   function gerarEstrela(x, z, cor) {
     const r = rand(0.08, 0.13);
-    const rot = rand(0, 360);
     let bracos = '';
     for (let i = 0; i < 5; i++) {
       const a = (i / 5) * Math.PI * 2;
@@ -169,22 +128,19 @@
       const dz = Math.sin(a) * r * 0.9;
       bracos += '<a-cone position="' + dx.toFixed(3) + ' 0.015 ' + dz.toFixed(3) + '" radius-bottom="' + (r*0.35).toFixed(3) + '" radius-top="0.005" height="' + (r*1.1).toFixed(3) + '" color="' + cor + '" rotation="90 ' + (a*180/Math.PI).toFixed(1) + ' 0"></a-cone>';
     }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 0.015 0" radius="' + (r*0.55).toFixed(3) + '" height="0.03" color="' + cor + '"></a-cylinder>' + bracos + '</a-entity>';
+    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0"><a-cylinder position="0 0.015 0" radius="' + (r*0.55).toFixed(3) + '" height="0.03" color="' + cor + '"></a-cylinder>' + bracos + '</a-entity>';
   }
 
   function gerarOurico(x, z) {
     const r = rand(0.06, 0.1);
-    const qtd = 12;
     let espinhos = '';
-    for (let i = 0; i < qtd; i++) {
-      const a = (i / qtd) * Math.PI * 2;
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
       const dx = Math.cos(a) * r * 0.7;
       const dz = Math.sin(a) * r * 0.7;
       espinhos += '<a-cone position="' + dx.toFixed(3) + ' ' + (r*0.6).toFixed(3) + ' ' + dz.toFixed(3) + '" radius-bottom="0.008" radius-top="0" height="' + (r*1.3).toFixed(3) + '" color="#3A2A20" rotation="' + rand(-30,30).toFixed(1) + ' ' + (a*180/Math.PI).toFixed(1) + ' ' + rand(-30,30).toFixed(1) + '"></a-cone>';
     }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' +
-      '<a-sphere position="0 ' + (r*0.6).toFixed(3) + ' 0" radius="' + r.toFixed(3) + '" color="#4A3528"></a-sphere>' + espinhos + '</a-entity>';
+    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '"><a-sphere position="0 ' + (r*0.6).toFixed(3) + ' 0" radius="' + r.toFixed(3) + '" color="#4A3528"></a-sphere>' + espinhos + '</a-entity>';
   }
 
   function gerarConcha(x, z) {
@@ -287,9 +243,7 @@
     opts = opts || {};
     const denso = opts.densidade !== 'baixa';
 
-    const skyTopo = '#3FA8C8';
-    const skyBase = '#B8E8F0';
-    const areia   = '#D8C896';
+    const skyTopo = '#3FA8C8', skyBase = '#B8E8F0', areia = '#D8C896';
 
     const skySrc = window.MewBiomas && window.MewBiomas.criarTexturaGradiente
       ? window.MewBiomas.criarTexturaGradiente(skyTopo, skyBase)
@@ -417,7 +371,6 @@
     }
     html += gerarPlacaItamaraca(-9, -5, 30);
 
-    /* Hotspots */
     html += '<a-entity position="-3 0.75 -3.5" info-hotspot="titulo: Capim-marinho; descricao: Principal alimento do peixe-boi. Cada adulto come 30-50 kg por dia.; cor: #7ee898"></a-entity>';
     html += '<a-entity position="4 0.95 -4" info-hotspot="titulo: Recife de corais; descricao: Berçário de peixes e invertebrados. Peixes-boi usam como abrigo e área de descanso.; cor: #FF8C69"></a-entity>';
     html += '<a-entity position="0 3.2 -30" info-hotspot="titulo: Manguezal; descricao: Raízes aéreas seguram o lodo e protegem filhotes. Fonte de água doce para o peixe-boi.; cor: #2E8B57"></a-entity>';
@@ -432,16 +385,10 @@
             '<a-entity position="-6 5 -3" light="type: point; color: #B8E8F8; intensity: 0.4; distance: 12"></a-entity>' +
             '<a-entity position="5 3 -8" light="type: point; color: #C8F5FF; intensity: 0.3; distance: 10"></a-entity>';
 
-    return {
-      html,
-      bioma: { nome: 'Costeiro e Marinho', skyTopo, skyBase, fog: '#A8D8E8', fogDensity: 0.018 }
-    };
+    return { html, bioma: { nome: 'Costeiro e Marinho', skyTopo, skyBase, fog: '#A8D8E8', fogDensity: 0.018 } };
   }
 
-  if (!window.MewBiomas) {
-    console.warn('[bioma_costeiro] biomas_fauna.js precisa vir ANTES.');
-    return;
-  }
+  if (!window.MewBiomas) { console.warn('[bioma_costeiro] biomas_fauna.js ausente.'); return; }
 
   const _detectar = window.MewBiomas.detectarBioma;
   window.MewBiomas.detectarBioma = function (animal) {

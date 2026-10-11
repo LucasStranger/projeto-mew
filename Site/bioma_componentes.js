@@ -1,18 +1,17 @@
 /* =========================================================
-   bioma_componentes.js
-   Componentes A-Frame compartilhados por TODOS os biomas.
-   DEVE ser carregado ANTES de qualquer bioma_*.js
+   bioma_componentes.js — MASTER
+   TODOS os componentes A-Frame usados pelos biomas.
+   DEVE vir ANTES de qualquer bioma_*.js no HTML.
    ========================================================= */
 (function () {
   'use strict';
 
-  if (AFRAME.components['billboard-y']) {
-    console.log('[bioma_componentes] já registrados, pulando.');
-    return;
-  }
+  const R = (nome, def) => {
+    if (!AFRAME.components[nome]) AFRAME.registerComponent(nome, def);
+  };
 
   /* ---------- billboard-y ---------- */
-  AFRAME.registerComponent('billboard-y', {
+  R('billboard-y', {
     tick: function () {
       const cam = this.el.sceneEl && this.el.sceneEl.camera;
       if (!cam) return;
@@ -23,7 +22,7 @@
   });
 
   /* ---------- info-hotspot ---------- */
-  AFRAME.registerComponent('info-hotspot', {
+  R('info-hotspot', {
     schema: {
       titulo:    { type: 'string', default: 'Elemento' },
       descricao: { type: 'string', default: '' },
@@ -100,6 +99,150 @@
     remove: function () { clearTimeout(this._t); }
   });
 
+  /* ---------- sway-grass (capim marinho / caatinga) ---------- */
+  R('sway-grass', {
+    schema: { ampl: { default: 8 } },
+    init: function () {
+      const a = this.data.ampl;
+      const dur = 2400 + Math.random() * 1800;
+      this.el.setAttribute('animation__swx',
+        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + dur +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__swz',
+        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.7) + '; dur: ' + (dur + 400) +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+    }
+  });
+
+  /* ---------- sway-capim (Cerrado) ---------- */
+  R('sway-capim', {
+    schema: { ampl: { default: 10 } },
+    init: function () {
+      const a = this.data.ampl;
+      const d = 2400 + Math.random() * 1600;
+      this.el.setAttribute('animation__cx',
+        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__cz',
+        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.6) + '; dur: ' + (d + 400) +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+    }
+  });
+
+  /* ---------- sway-dry (galhos secos / Caatinga) ---------- */
+  R('sway-dry', {
+    schema: { ampl: { default: 6 } },
+    init: function () {
+      const a = this.data.ampl;
+      const d = 2800 + Math.random() * 1600;
+      this.el.setAttribute('animation__dx',
+        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__dz',
+        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.7) + '; dur: ' + (d + 400) +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+    }
+  });
+
+  /* ---------- sway-leaf (folhagem) ---------- */
+  R('sway-leaf', {
+    schema: { ampl: { default: 5 }, dur: { default: 3000 } },
+    init: function () {
+      const a = this.data.ampl;
+      const d = this.data.dur + Math.random() * 1200;
+      this.el.setAttribute('animation__lx',
+        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__lz',
+        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.6) + '; dur: ' + (d + 500) +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+    }
+  });
+
+  /* ---------- sway-bamboo ---------- */
+  R('sway-bamboo', {
+    schema: { ampl: { default: 12 } },
+    init: function () {
+      const a = this.data.ampl;
+      const d = 2200 + Math.random() * 1600;
+      this.el.setAttribute('animation',
+        'property: rotation; from: 0 0 ' + (-a) + ' 0 0 ' + a +
+        '; dur: ' + d + '; dir: alternate; loop: true; easing: easeInOutSine');
+    }
+  });
+
+  /* ---------- bobber (flutuação — boias, barcos) ---------- */
+  R('bobber', {
+    schema: { amp: { default: 0.12 }, dur: { default: 2600 } },
+    init: function () {
+      const y = this.el.object3D.position.y;
+      this.el.setAttribute('animation',
+        'property: position; from: 0 ' + y + ' 0; to: 0 ' + (y + this.data.amp) + ' 0; dur: ' +
+        this.data.dur + '; dir: alternate; loop: true; easing: easeInOutSine');
+    }
+  });
+
+  /* ---------- flutter-by (borboletas / voo suave) ---------- */
+  R('flutter-by', {
+    schema: { raio: { default: 1.5 }, alt: { default: 1.2 }, dur: { default: 8000 } },
+    init: function () {
+      const d = this.data.dur + Math.random() * 3000;
+      this.el.setAttribute('animation__y',
+        'property: position; from: 0 ' + this.data.alt + ' 0; to: 0 ' + (this.data.alt + 0.4) +
+        ' 0; dur: 1400; dir: alternate; loop: true; easing: easeInOutSine');
+      const raio = this.data.raio;
+      let i = 0;
+      const pontos = 6;
+      const step = () => {
+        const a = (i % pontos) / pontos * Math.PI * 2;
+        const nx = Math.cos(a) * raio;
+        const nz = Math.sin(a) * raio;
+        this.el.setAttribute('animation__p',
+          'property: position; to: ' + nx.toFixed(2) + ' ' +
+          (this.data.alt + (Math.random() * 0.3)).toFixed(2) + ' ' + nz.toFixed(2) +
+          '; dur: ' + (d / pontos) + '; easing: easeInOutSine');
+        i++;
+      };
+      step();
+      this._int = setInterval(step, d / pontos);
+    },
+    remove: function () { clearInterval(this._int); }
+  });
+
+  /* ---------- flutter-bird (pássaros voando em círculo) ---------- */
+  R('flutter-bird', {
+    schema: { raio: { default: 3 }, alt: { default: 2 }, dur: { default: 9000 } },
+    init: function () {
+      const d = this.data.dur + Math.random() * 3000;
+      const raio = this.data.raio;
+      let i = 0;
+      const pontos = 6;
+      const step = () => {
+        const a = (i % pontos) / pontos * Math.PI * 2;
+        const nx = Math.cos(a) * raio;
+        const nz = Math.sin(a) * raio;
+        this.el.setAttribute('animation__p',
+          'property: position; to: ' + nx.toFixed(2) + ' ' +
+          (this.data.alt + (Math.random() * 0.4)).toFixed(2) + ' ' + nz.toFixed(2) +
+          '; dur: ' + (d / pontos) + '; easing: easeInOutSine');
+        i++;
+      };
+      step();
+      this._int = setInterval(step, d / pontos);
+    },
+    remove: function () { clearInterval(this._int); }
+  });
+
+  /* ---------- ghost-fade (memorial do limpa-folha) ---------- */
+  R('ghost-fade', {
+    schema: { dur: { default: 6000 } },
+    init: function () {
+      this.el.setAttribute('animation',
+        'property: material.opacity; from: 0.15; to: 0.55; dur: ' + this.data.dur +
+        '; dir: alternate; loop: true; easing: easeInOutSine');
+    }
+  });
+
   /* ---------- ensureCursorBioma (helper global) ---------- */
   window.ensureCursorBioma = function (sceneEl) {
     if (!sceneEl || sceneEl.dataset.cursorOk === '1') return;
@@ -116,5 +259,5 @@
     else sceneEl.addEventListener('loaded', add, { once: true });
   };
 
-  console.log('[bioma_componentes] Componentes compartilhados registrados.');
+  console.log('[bioma_componentes] TODOS os componentes registrados.');
 })();

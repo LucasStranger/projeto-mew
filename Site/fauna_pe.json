@@ -41,6 +41,7 @@
       "nome_popular": "Tamanduá-bandeira",
       "nome_cientifico": "Myrmecophaga tridactyla",
       "classe": "Mamíferos",
+      "modelo_gltf": "assets/modelo/tamandua_bandeira.glb",
       "situacao": "Vulnerável",
       "habitat": [
         "áreas abertas",
@@ -73,6 +74,7 @@
       "nome_cientifico": "Tolypeutes tricinctus",
       "situacao": "Em perigo de extinção",
       "classe": "Mamíferos",
+      "modelo_gltf": "assets/modelo/tatubola_donordeste.glb",
       "habitat": [
         "caatinga"
     ],  
@@ -156,6 +158,7 @@
       "nome_cientifico": "Leopardus wiedii",
       "situacao": "Vulnerável",
       "classe": "Mamíferos",
+      "modelo_gltf": "assets/modelo/Gato_Maracaja.glb",
       "habitat": [
         "florestas tropicais",
         "cerrado",
@@ -189,6 +192,7 @@
       "nome_cientifico": "Leopardus pardalis",
       "situacao": "Vulnerável",
       "classe": "Mamíferos",
+      "modelo_gltf": "assets/modelo/Jaguatirica.glb",
       "habitat": [
         "caatinga",
         "florestas tropicais"
@@ -219,6 +223,7 @@
       "nome_cientifico": "Eretmochelys imbricata",
       "situacao": "Ameaçado de extinção",
       "classe": "Répteis",
+      "modelo_gltf": "assets/modelo/tartaruga_de_pente.glb",
       "habitat": [
         "recifes de corais",
         "costões rochosos em águas costeiras rasas"
@@ -249,6 +254,7 @@
       "nome_cientifico": "Dermochelys coriacea",
       "situacao": "Vulnerável",
       "classe": "Répteis",
+      "modelo_gltf": "assets/modelo/tartaruga_de_couro.glb",
       "habitat": [
         "oceano",
         "litoral na épocas de desova"
