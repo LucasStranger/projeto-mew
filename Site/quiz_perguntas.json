@@ -1,0 +1,751 @@
+{
+  "pe-1": {
+    "nome": "Peixe-boi-marinho",
+    "facil": [
+      {
+        "id": "pe1-f1",
+        "pergunta": "Qual é o bioma costeiro e marinho predominante onde o peixe-boi marinho é encontrado no litoral de Pernambuco?",
+        "opcoes": ["Caatinga", "Bioma Marinho e Costeiro (incluindo manguezais e estuários)", "Pampa", "Floresta Amazônica"],
+        "correta": 1,
+        "explicacao": "O peixe-boi-marinho vive em ambientes costeiros, incluindo manguezais, estuários e recifes.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe1-f2",
+        "pergunta": "Qual destes locais é considerado o habitat típico de abrigo e reprodução para os peixes-boi marinhos nos estuários de Pernambuco?",
+        "opcoes": ["Águas profundas e gélidas do oceano aberto", "Rios de corredeira e água doce de altitude", "Águas calmas de estuários, baías e áreas protegidas por recifes de corais e manguezais", "Dunas de areia seca"],
+        "correta": 2,
+        "explicacao": "Estuários, baías e áreas protegidas por recifes e manguezais são os habitats preferenciais para abrigo e reprodução.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe1-f3",
+        "pergunta": "Qual é o principal tipo de alimento que compõe a base da dieta do peixe-boi marinho em seu habitat natural?",
+        "opcoes": ["Peixes carnívoros de médio porte", "Plantas aquáticas, capim-marinho e algas (sendo um animal herbívoro)", "Insetos terrestres levados pelo vento", "Carcaças de animais marinhos"],
+        "correta": 1,
+        "explicacao": "O peixe-boi é herbívoro: alimenta-se de plantas aquáticas, capim-marinho e algas.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-f4",
+        "pergunta": "Na fase adulta, qual é o principal fator que ameaça a sobrevivência do peixe-boi marinho, reduzindo sua população no litoral pernambucano?",
+        "opcoes": ["A predação natural por tubarões-tigre em grande escala", "A predação por bandos de golfinhos", "A ação humana (pesca predatória, colisões com embarcações, caça e degradação ambiental)", "Competição direta por alimento com baleias"],
+        "correta": 2,
+        "explicacao": "A ação humana é a principal ameaça: pesca predatória, colisões com embarcações, caça e degradação ambiental.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe1-f5",
+        "pergunta": "Por que as águas protegidas pelos recifes e estuários em Pernambuco são importantes para os filhotes de peixe-boi?",
+        "opcoes": ["Porque possuem água doce gelada para natação rápida", "Porque oferecem águas calmas e rasas, protegendo os filhotes de fortes correntes e predadores oceânicos", "Porque impedem totalmente a entrada de luz solar", "Porque possuem fundo de rocha vulcânica seca"],
+        "correta": 1,
+        "explicacao": "Águas calmas e rasas protegem filhotes de correntes fortes e predadores oceânicos.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe1-f6",
+        "pergunta": "Dentro da cadeia alimentar aquática, qual o papel ecológico primário exercido pelo peixe-boi marinho?",
+        "opcoes": ["Consumidor secundário de alta agressividade", "Decompositor de matéria orgânica no fundo do mar", "Herbívoro que ajuda na manutenção e ciclagem de nutrientes em pradarias marinhas e estuários", "Predador topo de cadeia de peixes ósseos"],
+        "correta": 2,
+        "explicacao": "Como herbívoro, mantém pradarias marinhas e participa da ciclagem de nutrientes nos estuários.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-f7",
+        "pergunta": "O litoral de Pernambuco faz parte de qual grande região biogeográfica costeira do Brasil que abriga os peixes-boi?",
+        "opcoes": ["Costa Sul-Sudeste", "Costa Nordeste, caracterizada por águas mornas e ecossistemas de mangues e recifes", "Pantanal Sul-Mato-Grossense", "Pradarias dos Pampas"],
+        "correta": 1,
+        "explicacao": "A Costa Nordeste é marcada por águas mornas, mangues e recifes — habitat ideal do peixe-boi.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe1-f8",
+        "pergunta": "Filhotes de peixe-boi marinho que se perdem ou ficam isolados em praias de Pernambuco correm risco severo de predação natural e desidratação. Qual instituição costuma atuar no resgate e reabilitação desses animais no estado?",
+        "opcoes": ["Instituto Chico Mendes de Conservação da Biodiversidade (ICMBio) / Fundação Mamíferos Aquáticos (FMA)", "Empresa Brasileira de Correios", "Companhia de Trânsito Urbano", "Sindicato da Indústria Têxtil"],
+        "correta": 0,
+        "explicacao": "O ICMBio e a FMA atuam no resgate e reabilitação de peixes-boi no litoral pernambucano.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe1-f9",
+        "pergunta": "O peixe-boi marinho precisa vir à superfície da água periodicamente, por qual motivo biológico está ligado ao seu habitat?",
+        "opcoes": ["Para se alimentar de insetos voadores", "Para respirar ar atmosférico, já que possui pulmões", "Para absorver luz solar e regular a temperatura corporal (ectotermia)", "Para fugir de correntes marinhas profundas"],
+        "correta": 1,
+        "explicacao": "Sendo mamífero, respira por pulmões e precisa subir à superfície para respirar ar atmosférico.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe1-f10",
+        "pergunta": "O consumo de capim-marinho e algas pelo peixe-boi contribui para:",
+        "opcoes": ["O esgotamento total da flora marinha local", "A poda natural das plantas aquáticas, estimulando o crescimento saudável das pradarias submarinas", "A transformação da água salgada em água doce", "A extinção dos peixes herbívoros menores"],
+        "correta": 1,
+        "explicacao": "Ao se alimentar, ele 'poda' naturalmente as plantas marinhas, estimulando brotos novos e saudáveis.",
+        "topico": "cadeia_alimentar"
+      }
+    ],
+    "intermediario": [
+      {
+        "id": "pe1-i1",
+        "pergunta": "Em Pernambuco, áreas como a APA Costa dos Corais e estuários específicos são refúgios para o peixe-boi. Qual característica hidrográfica dessas regiões favorece a espécie?",
+        "opcoes": ["A presença exclusiva de água doce com temperaturas abaixo de 10°C", "A mistura de águas doces de rios com águas marinhas (estuários), formando abrigos ricos em alimento e calmos", "A ausência total de marés e correntes de água", "O fundo oceânico abissal sem incidência de luz"],
+        "correta": 1,
+        "explicacao": "A mistura de águas doce e salgada nos estuários cria abrigos calmos e ricos em alimento.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe1-i2",
+        "pergunta": "Na cadeia alimentar dos ecossistemas estuarinos pernambucanos, o peixe-boi atua como consumidor primário. Qual é o impacto indireto de sua alimentação sobre outras espécies marinhas?",
+        "opcoes": ["Reduz drasticamente o oxigênio dissolvido na água, sufocando peixes", "Mantém o fluxo de energia consumindo produtores primários e servindo de elo para a ciclagem de nutrientes, além de criar clareiras nas pradarias que servem de viveiro para peixes e crustáceos", "Introduz toxinas vegetais letais na cadeia trófica de tubarões", "Provoca a desertificação completa do leito marinho"],
+        "correta": 1,
+        "explicacao": "As clareiras criadas pelo peixe-boi viram viveiros para peixes e crustáceos — efeito cascata positivo.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-i3",
+        "pergunta": "O peixe-boi marinho (Trichechus manatus) que habita a costa de Pernambuco sofreu isolamento histórico. Do ponto de vista bioclimático, por que as águas do litoral pernambucano são adequadas?",
+        "opcoes": ["São águas tropicais permanentemente mornas, essenciais para uma espécie com baixa taxa metabólica e pouca gordura subcutânea", "São águas com altíssima salinidade comparadas ao Mar Morto", "Possuem correntes oceânicas polares que trazem nutrientes do Ártico", "São águas livres de qualquer influência de maré"],
+        "correta": 0,
+        "explicacao": "A espécie tem baixa taxa metabólica e pouca gordura isolante — depende de águas mornas para sobreviver.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe1-i4",
+        "pergunta": "Embora os adultos tenham poucos predadores naturais, filhotes e jovens são vulneráveis. No entanto, a principal pressão de 'predação' antrópica em Pernambuco decorre de:",
+        "opcoes": ["Pesca esportiva de captura e soltura regulamentada", "Atropelamentos por embarcações motorizadas (jet skis e lanchas) e redes de pesca em áreas de estuário", "Ataques coordenados de aves marinhas migratórias", "Competição alimentar severa com tartarugas marinhas gigantes"],
+        "correta": 1,
+        "explicacao": "Colisões com embarcações e captura acidental em redes são as principais causas de morte.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe1-i5",
+        "pergunta": "Um peixe-boi adulto consome diariamente uma porcentagem considerável do seu peso corporal em vegetação aquática. Qual o reflexo disso na dinâmica energética do ecossistema costeiro de Pernambuco?",
+        "opcoes": ["Há uma transferência eficiente de biomassa dos produtores (capim-marinho) para o consumidor herbívoro, regulando o crescimento vegetal", "Ocorre um colapso imediato da fotossíntese em todo o Oceano Atlântico Sul", "O peixe-boi acumula metais pesados e os converte em oxigênio puro", "A cadeia alimentar torna-se curta e dependente de carcaças terrestres"],
+        "correta": 0,
+        "explicacao": "Ele transfere biomassa dos produtores para si, regulando o crescimento das pradarias.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-i6",
+        "pergunta": "A salinidade da água é um fator limitante para o peixe-boi marinho em Pernambuco. Embora vivam no mar, eles dependem de rios e estuários principalmente para:",
+        "opcoes": ["Obter água doce para beber, já que não conseguem metabolizar o excesso de sal sem fontes terrestres ou estuarinas", "Reproduzir-se exclusivamente em água doce congelada", "Encontrar rochas para afiar seus dentes molares", "Esconder-se de predadores abissais"],
+        "correta": 0,
+        "explicacao": "Mesmo marinhos, dependem de água doce dos rios/estuários para osmorregulação.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe1-i7",
+        "pergunta": "O bioma marinho-costeiro de Pernambuco sofre com intensa urbanização e turismo. Como isso afeta diretamente o habitat do peixe-boi?",
+        "opcoes": ["Aumenta a quantidade de alimento artificial nas praias", "Fragmenta o habitat natural, gera poluição sonora de barcos que desorienta os animais e causa destruição de manguezais essenciais", "Favorece a expansão descontrolada das pradarias de capim-marinho", "Elimina totalmente os tubarões predadores da região"],
+        "correta": 1,
+        "explicacao": "Fragmentação, poluição sonora e destruição de manguezais afetam diretamente a espécie.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe1-i8",
+        "pergunta": "Qual é a principal estratégia comportamental do peixe-boi marinho para se defender ou minimizar riscos de predação e colisões em seu habitat natural?",
+        "opcoes": ["Nadar em grandes cardumes em alta velocidade fazendo barulhos estridentes", "Hábitos solitários ou em pequenos grupos familiares, com deslocamentos lentos e permanência em áreas rasas protegidas e turvas onde passam despercebidos", "Enterrar-se totalmente na lama dos mangues por semanas consecutivas", "Produzir veneno cutâneo através de glândulas epidérmicas"],
+        "correta": 1,
+        "explicacao": "Deslocamentos lentos em áreas rasas e turvas reduzem encontros com predadores e barcos.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe1-i9",
+        "pergunta": "Caso ocorra uma drástica redução das pradarias de capim-marinho (Halodule wrightii e Syringodium filiforme) nos estuários de Pernambuco devido à poluição, qual será o impacto imediato na cadeia alimentar local envolvendo o peixe-boi?",
+        "opcoes": ["O peixe-boi migrará para o topo da cadeia tornando-se um superpredador carnívoro", "Fuga ou desnutrição severa da população de peixes-boi por escassez de seu recurso alimentar básico", "Aumento exponencial da população de peixes-boi devido à dieta alternativa baseada em plâncton", "Substituição do capim por correntes de lava vulcânica"],
+        "correta": 1,
+        "explicacao": "Sem o capim-marinho, base da dieta, os peixes-boi migram ou definham.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-i10",
+        "pergunta": "Os manguezais pernambucanos são berçários fundamentais para diversas espécies. Para o peixe-boi, os canais de mangue funcionam principalmente como:",
+        "opcoes": ["Zonas de alta salinidade e ondas gigantescas", "Corredores de trânsito seguro, áreas de descanso e proteção contra intempéries e correntes oceânicas fortes", "Locais secos para reprodução terrestre", "Fontes exclusivas de água salgada pura"],
+        "correta": 1,
+        "explicacao": "Canais de mangue são corredores seguros com proteção natural contra correntes e intempéries.",
+        "topico": "habitat"
+      }
+    ],
+    "dificil": [
+      {
+        "id": "pe1-d1",
+        "pergunta": "O peixe-boi marinho possui uma taxa metabólica basal relativamente baixa e pouca gordura isolante. Do ponto de vista trófico e energético, qual é a consequência adaptativa dessa característica em Pernambuco?",
+        "opcoes": ["Exige o consumo contínuo de grande volume de biomassa vegetal de baixa qualidade nutricional (rica em celulose) para suprir as demandas energéticas mantidas pelas águas tropicais mornas", "Permite que o animal fique sem se alimentar por períodos de até um ano em águas profundas", "Força o animal a migrar anualmente para as águas congeladas da Patagônia para acelerar o metabolismo", "Torna o peixe-boi um carnívoro estrito de alta eficiência energética"],
+        "correta": 0,
+        "explicacao": "Baixa eficiência metabólica + dieta pobre exige grande volume contínuo de vegetação.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-d2",
+        "pergunta": "Nos estuários de Pernambuco, a dinâmica de marés altera drasticamente a salinidade e a profundidade. Como o peixe-boi marinho lida fisiologicamente com essas flutuações?",
+        "opcoes": ["Possui rins altamente especializados na regulação osmótica e busca constante por pontos de vertentes de água doce nos rios para evitar desidratação osmótica", "Muda de escamas dérmicas impermeáveis a cada ciclo de maré", "Suspende totalmente a respiração pulmonar durante a maré alta", "Altera sua dieta de herbívora para carnívora dependendo da altura da lua"],
+        "correta": 0,
+        "explicacao": "Rins especializados + busca ativa por água doce garantem equilíbrio osmótico.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe1-d3",
+        "pergunta": "A população de peixes-boi em Pernambuco enfrenta desafios de conectividade com outras regiões do Nordeste (Paraíba, Alagoas). Sob a ótica da biologia da conservação, qual o principal risco associado a esse isolamento populacional?",
+        "opcoes": ["Aumento da deriva genética e endogamia, reduzindo a diversidade genética e a resiliência a doenças", "Mutação rápida que transforma o peixe-boi em uma espécie anfíbia terrestre", "Desaparecimento total da água doce nos rios pernambucanos", "Aumento imediato da predação por tubarões brancos oceânicos"],
+        "correta": 0,
+        "explicacao": "Isolamento = deriva genética + endogamia = menor diversidade e maior vulnerabilidade.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe1-d4",
+        "pergunta": "Analise o impacto das colisões com embarcações motorizadas no litoral de Pernambuco sobre a mortalidade de peixes-boi. Por que essa forma de 'predação antrópica' é particularmente letal?",
+        "opcoes": ["Os peixes-boi emitem vocalizações que atraem propositalmente as hélices dos barcos", "Os peixes-boi possuem audição voltada para baixas frequências e hábito de nadar rente à superfície para respirar, somados a uma baixa capacidade de desvio rápido frente a embarcações velozes", "Os barcos liberam substâncias químicas venenosas que paralisam o sistema nervoso", "As embarcações competem diretamente pelo mesmo tipo de capim marinho"],
+        "correta": 1,
+        "explicacao": "A combinação de hábito de superfície + baixa mobilidade = altíssima letalidade das colisões.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe1-d5",
+        "pergunta": "Considerando a cadeia trófica dos ambientes estuarinos degradados em Pernambuco, o peixe-boi marinho pode bioacumular poluentes (metais pesados, compostos orgânicos persistentes)?",
+        "opcoes": ["Não, pois o metabolismo herbívoro impede totalmente a absorção de toxinas", "Sim, através da ingestão contínua de plantas aquáticas e sedimentos contaminados por efluentes industriais e urbanos, o que pode comprometer seu sistema imune", "Sim, mas apenas através da predação direta de peixes contaminados no topo da cadeia", "Não, pois possuem glândulas especiais que filtram 100% dos poluentes"],
+        "correta": 1,
+        "explicacao": "Plantas e sedimentos contaminados são via direta de bioacumulação de poluentes.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-d6",
+        "pergunta": "O conceito de 'habitat crítico' para o peixe-boi marinho em Pernambuco engloba áreas de refúgio, alimentação e reprodução. Qual combinação de fatores ambientais define espacialmente essas zonas?",
+        "opcoes": ["Zonas abissais de alta pressão atmosférica e fundos lamacentos sem oxigênio", "Estuários protegidos por barreiras recifais, com baixa energia hidrodinâmica, presença de bancos de fanerógamas marinhas (capim-marinho) e aporte de água doce", "Áreas de arrebentação de ondas fortes em praias abertas sem vegetação costeira", "Manguezais secos situados acima do nível máximo da maré astronômica"],
+        "correta": 1,
+        "explicacao": "Habitat crítico = estuários protegidos + baixa energia + capim-marinho + água doce.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe1-d7",
+        "pergunta": "Grandes tubarões (como o tubarão-tigre) são citados como predadores potenciais de filhotes ou subadultos de peixe-boi. Como a estrutura de habitat em Pernambuco afeta essa pressão de predação natural?",
+        "opcoes": ["Os estuários e manguezais rasos funcionam como zonas de refúgio estrutural, onde grandes tubarões oceânicos encontram dificuldades de locomoção, reduzindo a taxa de predação sobre os filhotes", "Os tubarões utilizam os manguezais como berçário exclusivo para caçar peixes-boi adultos em grupo", "A predação por tubarões é o principal fator regulador da população de peixes-boi adultos em Pernambuco", "Não há qualquer relação entre a morfologia do habitat e a predação"],
+        "correta": 0,
+        "explicacao": "Águas rasas dos estuários são refúgio estrutural natural contra predadores oceânicos.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe1-d8",
+        "pergunta": "O hábito alimentar do peixe-boi nas pradarias de capim-marinho em Pernambuco desempenha um papel de engenheiro de ecossistema. Qual o efeito dessa herbivoria sobre a sucessão e produtividade primária?",
+        "opcoes": ["A remoção da biomassa vegetal velha estimula o crescimento de brotos novos mais nutritivos, evita o acúmulo de detritos anaeróbicos e mantém a diversidade de microhabitats bentônicos", "Provoca a desertificação irreversível do sedimento marinho", "Estimula o crescimento descontrolado de algas tóxicas que exterminam peixes herbívoros concorrentes", "Interrompe o ciclo biogeoquímico do nitrogênio"],
+        "correta": 0,
+        "explicacao": "Herbivoria seletiva renova a pradaria e mantém a diversidade de microhabitats.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe1-d9",
+        "pergunta": "As alterações climáticas globais impactam o bioma costeiro de Pernambuco. Qual seria um efeito direto previsível sobre o habitat do peixe-boi decorrente de aumento do nível do mar e eventos extremos de precipitação?",
+        "opcoes": ["Aumento drástico da salinidade em todos os rios, eliminando pontos de água doce", "Alteração na salinidade e na dinâmica de inundação dos estuários e manguezais, podendo destruir bancos de capim-marinho e modificar as rotas tradicionais de uso do habitat", "Transformação completa dos estuários pernambucanos em desertos de sal congelados", "Migração obrigatória de todos os peixes-boi para biomas terrestres de altitude"],
+        "correta": 1,
+        "explicacao": "Mudanças na salinidade e inundação destroem pradarias e alteram rotas migratórias.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe1-d10",
+        "pergunta": "Modelos de conservação para o peixe-boi marinho integram a proteção de corredores ecológicos marinhos e estuarinos. Qual é a justificativa teórica para essa abordagem?",
+        "opcoes": ["O peixe-boi possui grandes áreas de vida (home range) e requer a integridade de múltiplos habitats conectados (mangues, estuários e áreas marinhas rasas) para suprir necessidades alimentares sazonais e ciclos reprodutivos complexos", "Os peixes-boi mudam de espécie periodicamente ao longo de rotas migratórias lineares", "Corredores ecológicos servem apenas para isolar a espécie do contato com o ecossistema marinho", "A espécie alimenta-se exclusivamente em alto-mar e descansa em montanhas terrestres"],
+        "correta": 0,
+        "explicacao": "A espécie precisa de múltiplos habitats conectados para completar seu ciclo de vida.",
+        "topico": "habitat"
+      }
+    ]
+  },
+
+  "pe-2": {
+    "nome": "Tamanduá-bandeira",
+    "facil": [
+      {
+        "id": "pe2-f1",
+        "pergunta": "Qual é a principal característica anatômica do tamanduá-bandeira que o especializa em sua cadeia alimentar baseada em formigas e cupins?",
+        "opcoes": ["Presença de presas longas e afiadas na mandíbula para triturar ossos", "Focinho alongado, ausência de dentes e uma língua longa e pegajosa coberta de saliva viscosa", "Patas traseiras adaptadas para saltos de até 10 metros de altura", "Asas membranosas que permitem planar sobre os formigueiros"],
+        "correta": 1,
+        "explicacao": "Focinho alongado, sem dentes, língua longa e pegajosa — adaptação perfeita para capturar insetos sociais.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe2-f2",
+        "pergunta": "Embora seja originalmente associado a biomas como o Cerrado e o Pantanal, em Pernambuco o tamanduá-bandeira histórico e atualmente reintroduzido habita principalmente qual bioma?",
+        "opcoes": ["Floresta Amazônica de terra firme", "Pampa gaúcho", "Mata Atlântica (com remanescentes de florestas de terras baixas e brejos de altitude)", "Campos de altitude da Cordilheira dos Andes"],
+        "correta": 2,
+        "explicacao": "Em Pernambuco, o tamanduá é encontrado em remanescentes de Mata Atlântica e brejos de altitude.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe2-f3",
+        "pergunta": "Qual é a principal função do tamanduá-bandeira na cadeia alimentar dos ecossistemas onde vive?",
+        "opcoes": ["Consumidor primário herbívoro (alimenta-se de folhas de árvores altas)", "Consumidor secundário/especializado mirmecófago (controle de populações de insetos sociais como formigas e cupins)", "Consumidor terciário de topo (predador de grandes mamíferos)", "Decompositor primário de matéria orgânica vegetal morta"],
+        "correta": 1,
+        "explicacao": "É mirmecófago especializado — controla populações de formigas e cupins.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-f4",
+        "pergunta": "Como o tamanduá-bandeira utiliza suas fortes garras dianteiras em seu habitat natural?",
+        "opcoes": ["Para cavar tocas subterrâneas profundas onde passa a maior parte do ano hibernando", "Para escalar árvores frondosas e colher frutos silvestres suculentos", "Para abrir cupinzeiros rígidos e ninhos subterrâneos de formigas, além de defesa contra predadores", "Para nadar em rios caudalosos em busca de peixes"],
+        "correta": 2,
+        "explicacao": "As garras servem para abrir cupinzeiros/formigueiros e para defesa — chegam a matar uma onça.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe2-f5",
+        "pergunta": "Qual é o tipo de habitat preferencial do tamanduá-bandeira na região de transição e remanescentes florestais de Pernambuco?",
+        "opcoes": ["Áreas estritamente urbanizadas e praias de areia fofa", "Mosaicos de florestas tropicais abertas, bordas de matas, capoeiras e áreas de vegetação arbustiva próxima a cursos d'água", "Cavernas rochosas escuras e profundas nas serras áridas", "Topos de montanhas rochosas sem vegetação"],
+        "correta": 1,
+        "explicacao": "Prefere mosaicos de floresta aberta, bordas de mata e capoeiras próximas a rios.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe2-f6",
+        "pergunta": "Em relação à predação natural na fase adulta, quais características protegem o tamanduá-bandeira de grande parte dos predadores?",
+        "opcoes": ["Sua capacidade de correr a mais de 80 km/h em linha reta", "Seu grande porte físico, unhas defensivas poderosas e a postura erguida de ameaça", "A camuflagem perfeita que o torna invisível no escuro total", "A emissão de veneno letal através da pele"],
+        "correta": 1,
+        "explicacao": "Porte grande + garras + postura erguida = defesa formidável contra predadores naturais.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe2-f7",
+        "pergunta": "Qual é o hábito reprodutivo mais marcante do tamanduá-bandeira fêmea em relação ao transporte do filhote?",
+        "opcoes": ["A fêmea constrói um ninho de galhos no alto das árvores e deixa o filhote sozinho por semanas", "O filhote nasce com asas e voa junto com a mãe logo após o nascimento", "A fêmea carrega o único filhote nas costas por quase um ano, onde sua pelagem se alinha perfeitamente com a da mãe para camuflagem", "Os filhotes são abandonados em cavernas logo na primeira semana de vida"],
+        "correta": 2,
+        "explicacao": "O filhote fica nas costas da mãe por meses, camuflado pela pelagem alinhada.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe2-f8",
+        "pergunta": "Por que o tamanduá-bandeira é frequentemente ameaçado por atropelamentos em rodovias que cortam áreas de vegetação em Pernambuco (BR-101 ou estradas estaduais)?",
+        "opcoes": ["Porque ele é atraído pelo brilho dos faróis e voa em direção a eles", "Devido à sua visão e audição relativamente fracas, além de seu deslocamento lento e hábito de cruzar estradas à noite ou ao entardecer", "Porque ele persegue ativamente os automóveis para defendê-los de insetos", "Porque ele salta sobre os carros para pegar carona"],
+        "correta": 1,
+        "explicacao": "Visão/audição fraca + deslocamento lento + hábito noturno = alto risco de atropelamento.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe2-f9",
+        "pergunta": "Como o tamanduá-bandeira regula sua temperatura corporal em ambientes tropicais quentes como os de Pernambuco, visto que possui baixa taxa metabólica basal e pelagem densa?",
+        "opcoes": ["Ele sua profusamente por todo o corpo como os seres humanos", "Ele ajusta sua atividade (frequentemente tornando-se mais noturno ou crepuscular no calor) e descansa em áreas sombreadas", "Ele entra em estivação congelando o próprio sangue", "Ele mergulha na lama marinha salgada todos os dias"],
+        "correta": 1,
+        "explicacao": "Alterna hábitos para horários frescos e descansa em áreas sombreadas.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe2-f10",
+        "pergunta": "Do ponto de vista físico e de locomoção, por que o tamanduá-bandeira caminha apoiando-se sobre os nós dos dedos das patas dianteiras?",
+        "opcoes": ["Para proteger suas longas e afiadas garras curvas de curvar-se ou desgastar-se excessivamente no solo", "Para conseguir correr mais rápido como um felino", "Porque suas patas dianteiras não possuem ossos nos dedos", "Para saltar com maior facilidade por cima de cercas e troncos"],
+        "correta": 0,
+        "explicacao": "Caminha sobre os nós dos dedos para proteger as garras — que são sua principal ferramenta.",
+        "topico": "taxonomia"
+      }
+    ],
+    "intermediario": [
+      {
+        "id": "pe2-i1",
+        "pergunta": "Considerando o status histórico de conservação da fauna em Pernambuco, qual foi a situação do tamanduá-bandeira no estado durante grande parte do século XX e início do século XXI?",
+        "opcoes": ["Encontrava-se amplamente abundante em qualquer parque urbano de Recife", "Foi considerado extinto na natureza no estado de Pernambuco, motivando projetos de reintrodução com espécimes trazidos de outras regiões", "Nunca habitou o território pernambucano, sendo restrito apenas à Região Sul", "Vivia exclusivamente em cativeiro em zoológicos privados"],
+        "correta": 1,
+        "explicacao": "Foi considerado extinto em PE e hoje é alvo de projetos de reintrodução.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe2-i2",
+        "pergunta": "Na cadeia alimentar dos fragmentos de Mata Atlântica em Pernambuco, qual é a estratégia alimentar do tamanduá-bandeira para evitar a exaustão das defesas químicas de formigas e cupins?",
+        "opcoes": ["Ele destrói totalmente e consome 100% de todos os insetos do ninho de uma só vez", "Consome apenas uma pequena fração dos insetos de cada formigueiro/cupinzeiro e se move rapidamente para outro, evitando a ingestão excessiva de toxinas (como o ácido fórmico) e permitindo a sobrevivência da colônia", "Alimenta-se exclusivamente de larvas que não possuem defesa", "Consome formigas apenas durante o inverno"],
+        "correta": 1,
+        "explicacao": "Consome pouco de cada ninho e alterna — evita intoxicação e permite a colônia se recuperar.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-i3",
+        "pergunta": "Quais animais podem representar riscos de predação sobre filhotes de tamanduá-bandeira ou indivíduos jovens/debilitados nos fragmentos florestais nordestinos?",
+        "opcoes": ["Grandes felinos nativos (como a onça-parda ou jaguatirica, onde presentes), cães domésticos soltos em bordas de matas e grandes aves de rapina", "Tubarões de água doce e jacarés-açu exclusivamente", "Búfalos selvagens e javalis asiáticos", "Abelhas africanas e formigas-correição"],
+        "correta": 0,
+        "explicacao": "Felinos nativos, cães domésticos e aves de rapina são os principais predadores potenciais.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe2-i4",
+        "pergunta": "Qual é o impacto ecológico positivo gerado pelas cavidades que o tamanduá-bandeira abre em cupinzeiros e troncos podres durante a busca por alimento?",
+        "opcoes": ["Destroem permanentemente o solo, causando erosão irreversível", "Criam abrigos e micro-habitats que podem ser utilizados posteriormente por outras espécies, como aves, anfíbios e pequenos mamíferos", "Poluem o solo com toxinas digestivas", "Facilitam a infiltração de água salgada nos aquíferos"],
+        "correta": 1,
+        "explicacao": "As cavidades criadas viram abrigo para outras espécies — efeito ecológico positivo.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-i5",
+        "pergunta": "Em termos de adaptação ao habitat fragmentado da Mata Atlântica pernambucana, qual é o principal obstáculo espacial para a sobrevivência a longo prazo de populações de tamanduá-bandeira?",
+        "opcoes": ["A escassez total de formigas e cupins no bioma", "A fragmentação extrema da paisagem por monoculturas (como a cana-de-açúcar), rodovias e cidades, isolando populações e dificultando o fluxo gênico", "O excesso de frio e neve nas serras do interior do estado", "A competição direta por alimento com bandos de macacos-prego"],
+        "correta": 1,
+        "explicacao": "Monoculturas de cana, rodovias e cidades fragmentam o habitat e isolam populações.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe2-i6",
+        "pergunta": "Como a fisiologia digestiva do tamanduá-bandeira lida com a carência de dentes e a ingestão de exoesqueletos quitinosos de formigas e cupins?",
+        "opcoes": ["O estômago possui paredes musculosas muito fortes (semelhante à moela das aves) e secreta ácido clorídrico potente para triturar e digerir a quitina", "O animal vomita todo o alimento após dez minutos para absorver apenas os líquidos", "Os insetos passam pelo trato digestivo completamente vivos e intactos", "Ele utiliza bactérias intestinais que transformam a quitina em celulose"],
+        "correta": 0,
+        "explicacao": "Estômago musculoso tipo moela + ácido potente digerem a quitina dos insetos.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe2-i7",
+        "pergunta": "O que caracteriza o comportamento de marcação de território e comunicação olfativa do tamanduá-bandeira em seu habitat?",
+        "opcoes": ["Urinar fortemente sobre as árvores para afastar invasores", "Esfregar glândulas anais e raspar as garras em troncos de árvores, deixando marcas visuais e odores químicos para demarcação de área e atração sexual", "Emitir cantos agudos comparáveis aos de aves migratórias", "Uivar em coro durante as noites de lua cheia"],
+        "correta": 1,
+        "explicacao": "Glândulas anais + marcas de garra em troncos marcam território e atraem parceiros.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe2-i8",
+        "pergunta": "Qual é a relação trófica indireta entre o tamanduá-bandeira e a saúde fitossanitária das árvores da Mata Atlântica pernambucana?",
+        "opcoes": ["Ao consumir insetos xilófagos e formigas cortadeiras, ele ajuda a conter desequilíbrios populacionais de pragas que poderiam danificar a vegetação", "Ele causa a morte de todas as árvores ao arrancar suas cascas", "Ele planta sementes de árvores exóticas invasoras em seus ninhos", "Ele não exerce nenhuma influência sobre a flora florestal"],
+        "correta": 0,
+        "explicacao": "Ao controlar pragas como formigas cortadeiras, protege indiretamente a vegetação.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-i9",
+        "pergunta": "Em projetos de reintrodução de tamanduás-bandeira em áreas protegidas de Pernambuco, por que o monitoramento por telemetria (rádio-colares ou GPS) é indispensável?",
+        "opcoes": ["Para controlar o voo noturno dos animais", "Para rastrear a dispersão dos indivíduos, avaliar a adaptação ao novo habitat, monitorar taxas de sobrevivência e identificar mortalidades por atropelamento ou conflitos com cães domésticos", "Para calcular o peso exato de cada formiga consumida diariamente", "Para emitir sons de alerta contra caçadores furtivos"],
+        "correta": 1,
+        "explicacao": "Telemetria rastreia dispersão, adaptação e mortalidade — essencial para reintrodução.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe2-i10",
+        "pergunta": "Como o olfato altamente apurado do tamanduá-bandeira atua na sua estratégia de caça e sobrevivência no habitat?",
+        "opcoes": ["Ele utiliza o olfato (cerca de 40 vezes mais potente que o humano) para localizar ninhos subterrâneos e de superfície de formigas e cupins, além de detectar predadores à distância", "Ele utiliza o olfato para encontrar fontes de água potável subterrânea através das rochas", "Ele caça frutos caídos no chão guiando-se pelo cheiro de açúcar", "O olfato é pouco desenvolvido, dependendo exclusivamente da visão diurna"],
+        "correta": 0,
+        "explicacao": "Olfato ~40x mais potente que o humano — usado para caça e detecção de predadores.",
+        "topico": "taxonomia"
+      }
+    ],
+    "dificil": [
+      {
+        "id": "pe2-d1",
+        "pergunta": "O tamanduá-bandeira apresenta uma das temperaturas corporais mais baixas entre os mamíferos placentários (32-34°C). Qual é a implicação evolutiva e ecológica dessa característica para sua sobrevivência trófica?",
+        "opcoes": ["Permite que ele resida exclusivamente em tocas subterrâneas geladas", "Reduz drasticamente sua exigência energética basal diária, compensando o baixo valor nutricional e energético de uma dieta de insetos sociais de pequeno porte", "Torna o animal incapaz de se mover em climas tropicais", "Facilita a absorção direta de calor solar através de escamas dorsais"],
+        "correta": 1,
+        "explicacao": "Baixa temperatura corporal = baixa exigência energética = compensa dieta pobre em calorias.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-d2",
+        "pergunta": "Na análise de dinâmica de populações reintroduzidas de tamanduá-bandeira em fragmentos de Mata Atlântica nordestina, o conceito de capacidade de suporte (carrying capacity) é limitado primariamente por qual fator ecológico?",
+        "opcoes": ["A quantidade de oxigênio dissolvido nos rios da região", "A densidade e a biomassa disponível de colônias de formigas e cupins por hectare, somada à extensão contínua de área florestal livre de perturbações antrópicas intensas", "A disponibilidade de carcaças de grandes mamíferos", "A incidência de ventos alísios que impedem o deslocamento"],
+        "correta": 1,
+        "explicacao": "Densidade de formigas/cupins + área florestal contínua definem a capacidade de suporte.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-d3",
+        "pergunta": "Do ponto de vista da genética da conservação, o repovoamento de áreas em Pernambuco com indivíduos procedentes de outras regiões do Brasil (como o Cerrado) exige cautela em relação a qual fenômeno?",
+        "opcoes": ["A hibridização imediata com espécies de tamanduás marinhos", "O risco de perda de adaptações locais regionais e a introdução de depressão por outbreeding ou mistura genética inadequada entre linhagens morfologicamente e geneticamente distintas", "A mutação instantânea que transformaria o animal em outra ordem taxonômica", "A perda total de imunidade contra formigas da Mata Atlântica"],
+        "correta": 1,
+        "explicacao": "Misturar linhagens muito diferentes pode causar depressão por outbreeding.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe2-d4",
+        "pergunta": "Como o tamanduá-bandeira lida comportamental e fisiologicamente com as variações sazonais de pluviosidade (seca x chuva) características do Nordeste e dos brejos de Pernambuco?",
+        "opcoes": ["Migra centenas de quilômetros para o sul do país durante o inverno", "Ajusta a seleção de presas (alternando entre formigas subterrâneas na seca e cupins arborícolas nas águas) e modula abrigos e horários de atividade para minimizar estresse térmico e hídrico", "Entra em dormência total de seis meses em tocas alagadas", "Consome água salgada diretamente do mar"],
+        "correta": 1,
+        "explicacao": "Alterna presas conforme a estação e ajusta comportamento para lidar com o clima.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe2-d5",
+        "pergunta": "Na matriz de paisagem fragmentada da Zona da Mata de Pernambuco, a conversão para agroindústria canavieira gera barreiras de dispersão. Qual é o papel dos corredores ecológicos e fragmentos ciliares na manutenção da conectividade?",
+        "opcoes": ["Impedem completamente o trânsito de qualquer animal terrestre de médio porte", "Funcionam como vias de deslocamento seguro que permitem o fluxo gênico entre subpopulações isoladas, o acesso a novas fontes de alimento e a colonização de novos remanescentes", "Servem exclusivamente como armadilhas ecológicas para cães ferais", "Não exercem nenhuma influência, pois o tamanduá é sedentário"],
+        "correta": 1,
+        "explicacao": "Corredores permitem fluxo gênico e acesso a recursos — conectividade essencial.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe2-d6",
+        "pergunta": "Qual é a sinergia ecológica entre o forrageamento do tamanduá-bandeira e a regulação de nutrientes nos solos dos ecossistemas florestais?",
+        "opcoes": ["Ao cavar o solo para acessar formigueiros, ele aerifica a terra, altera microtopografias e redistribui matéria orgânica superficial, influenciando indiretamente a ciclagem de nutrientes e a regeneração de plântulas", "Ele acidifica o solo de forma permanente, destruindo a vegetação", "Suas fezes ricas em quitina pura transformam o solo em rocha calcária", "Ele consome os minerais do subsolo, esgotando a fertilidade"],
+        "correta": 0,
+        "explicacao": "Ao cavar, ele aerifica o solo e redistribui matéria orgânica — efeito engenheiro de ecossistema.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-d7",
+        "pergunta": "Em termos de interações interespecíficas, a especialização extrema do tamanduá-bandeira em mirmecofagia o coloca em qual situação de nicho frente a outros vertebrados simpátricos (tatus, tamanduás menores)?",
+        "opcoes": ["Competição intensa e letal que resulta em exclusão competitiva total", "Partição de nicho trófico bem estabelecida, onde o tamanduá-bandeira explora cupinzeiros duros e ninhos maiores no solo devido ao seu grande porte e garras potentes, enquanto outras espécies menores exploram microhabitats arbóreos ou formigas de superfície", "Simbiose obrigatória onde o tamanduá alimenta os filhotes de tatus", "O tamanduá-bandeira não possui nenhuma relação ecológica com outros animais do sub-bosque"],
+        "correta": 1,
+        "explicacao": "Partição de nicho: cada espécie explora um tipo de presa/habitat diferente.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe2-d8",
+        "pergunta": "Considerando a vulnerabilidade a cães domésticos errantes nas bordas dos fragmentos florestais pernambucanos, qual é a resposta comportamental típica de defesa do tamanduá-bandeira que, ironicamente, pode resultar em sua própria morte?",
+        "opcoes": ["Ele foge em disparada veloz subindo no topo das árvores mais altas", "Deita-se de costas e ergue-se sobre os posteriores, abrindo os braços com as garras expostas para desferir abraços defensivos mortais, o que muitas vezes o deixa vulnerável a ataques múltiplos de matilhas de cães ágeis", "Libera um odor fétido paralisante que desmaia qualquer canídeo", "Finge-se de morto até que o predador se afaste por tédio"],
+        "correta": 1,
+        "explicacao": "A postura de defesa é eficaz contra um predador, mas fatal contra matilhas coordenadas de cães.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe2-d9",
+        "pergunta": "Como a baixa taxa reprodutiva do tamanduá-bandeira (gestação de ~190 dias, um único filhote e intervalos de 1 a 2 anos) afeta a resiliência demográfica da espécie em áreas fragmentadas sob pressão antrópica em Pernambuco?",
+        "opcoes": ["Permite que a população dobre a cada seis meses após qualquer impacto ambiental", "Torna a espécie extremamente vulnerável a declínios populacionais rápidos, dificultando a recuperação numérica de populações reduzidas por atropelamentos, caça ou perda de habitat", "Garante imunidade demográfica contra catástrofes ambientais e desmatamentos", "Estimula a fêmea a adotar filhotes de outras espécies para compensar"],
+        "correta": 1,
+        "explicacao": "Baixa natalidade = recuperação lenta = alta vulnerabilidade a perdas rápidas.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe2-d10",
+        "pergunta": "Sob a ótica da biogeografia histórica e da paleodistribuição da fauna brasileira, o registro atual de populações (nativas ou reintroduzidas) de tamanduá-bandeira em refúgios florestais de Pernambuco reflete qual processo histórico-ecológico?",
+        "opcoes": ["A expansão recente de desertos que empurraram a espécie para o litoral úmido", "A retração e fragmentação de antigas conexões de biomas abertos e florestas estacionais do Pleistoceno, onde áreas de refúgio úmido e brejos nordestinos mantiveram condições adaptativas para a persistência ou reintrodução da megafauna mirmecófaga regional", "A migração artificial da espécie trazida por embarcações europeias no século XVI", "A adaptação evolutiva rápida para o ambiente estritamente marinho nas praias"],
+        "correta": 1,
+        "explicacao": "Refúgios do Pleistoceno e brejos de altitude mantêm condições para a espécie no Nordeste.",
+        "topico": "bioma"
+      }
+    ]
+  },
+
+  "pe-3": {
+    "nome": "Tatu-bola-do-nordeste",
+    "facil": [
+      {
+        "id": "pe3-f1",
+        "pergunta": "Qual é a principal defesa do tatu-bola quando se sente ameaçado?",
+        "opcoes": ["Correr em alta velocidade", "Cavar um buraco fundo", "Enrolar-se completamente em forma de bola, protegendo as partes moles com a carapaça rígida", "Emitir um som estridente"],
+        "correta": 2,
+        "explicacao": "O tatu-bola se enrola em uma esfera rígida — comportamento único que dá o nome à espécie.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe3-f2",
+        "pergunta": "Em qual bioma o tatu-bola-do-nordeste é encontrado principalmente?",
+        "opcoes": ["Amazônia", "Caatinga", "Pantanal", "Pampa"],
+        "correta": 1,
+        "explicacao": "O tatu-bola é endêmico do Brasil e ocorre principalmente na Caatinga.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe3-f3",
+        "pergunta": "Do que o tatu-bola se alimenta?",
+        "opcoes": ["Apenas capim e folhas", "Formigas, cupins, larvas e frutos na época das chuvas", "Pequenos roedores e aves", "Néctar de flores e frutos maduros"],
+        "correta": 1,
+        "explicacao": "É insetívoro especializado (formigas e cupins), mas complementa com frutos na estação chuvosa.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe3-f4",
+        "pergunta": "O tatu-bola-do-nordeste ficou mundialmente conhecido por qual motivo?",
+        "opcoes": ["Ser o mascote Fuleco da Copa do Mundo FIFA 2014 no Brasil", "Aparecer em uma novela da TV Globo", "Ser o símbolo do IBAMA", "Viver em zoológicos europeus há décadas"],
+        "correta": 0,
+        "explicacao": "Ele inspirou o Fuleco, mascote da Copa de 2014, símbolo da conservação da Caatinga.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-f5",
+        "pergunta": "Qual é o tamanho aproximado do tatu-bola-do-nordeste?",
+        "opcoes": ["Cerca de 15 cm", "Entre 40 e 43 cm", "Cerca de 80 cm", "Mais de 1 metro"],
+        "correta": 1,
+        "explicacao": "É o menor tatu do Brasil, medindo entre 40 e 43 cm e pesando até 1,8 kg.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe3-f6",
+        "pergunta": "Qual é o status de conservação do tatu-bola-do-nordeste?",
+        "opcoes": ["Pouco preocupante", "Em perigo de extinção no Brasil e Vulnerável na IUCN", "Extinto na natureza", "Sem avaliação"],
+        "correta": 1,
+        "explicacao": "É classificado como Em Perigo no Brasil e Vulnerável globalmente pela IUCN.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-f7",
+        "pergunta": "Em qual grande região do Brasil o tatu-bola-do-nordeste ocorre naturalmente?",
+        "opcoes": ["Somente na Região Sul", "Nordeste brasileiro, especialmente na Caatinga", "Amazônia Central", "Pantanal Matogrossense"],
+        "correta": 1,
+        "explicacao": "É endêmico do Nordeste, ocorrendo na Caatinga e transições para o Cerrado.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe3-f8",
+        "pergunta": "Qual é o peso aproximado de um tatu-bola-do-nordeste adulto?",
+        "opcoes": ["Entre 100 e 300 gramas", "Entre 1 kg e 1,8 kg", "Cerca de 5 kg", "Mais de 10 kg"],
+        "correta": 1,
+        "explicacao": "É bem pequeno: pesa entre 1 kg e 1,8 kg.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe3-f9",
+        "pergunta": "Além da Caatinga, o tatu-bola-do-nordeste também pode ocorrer em qual bioma adjacente?",
+        "opcoes": ["Pampa", "Pantanal", "Transições para o Cerrado", "Mata Atlântica litorânea"],
+        "correta": 2,
+        "explicacao": "Ocorre principalmente na Caatinga com transições para o Cerrado.",
+        "topico": "bioma"
+      },
+      {
+        "id": "pe3-f10",
+        "pergunta": "Por que o tatu-bola-do-nordeste corre risco de atropelamento em rodovias?",
+        "opcoes": ["Porque sua defesa é se enrolar em bola em vez de fugir, ficando imóvel na pista", "Porque ele persegue carros", "Porque é atraído pelo barulho dos motores", "Porque salta em direção aos faróis"],
+        "correta": 0,
+        "explicacao": "Sua defesa natural (enrolar-se em bola) é inútil contra veículos — ele fica parado na pista.",
+        "topico": "predacao"
+      }
+    ],
+    "intermediario": [
+      {
+        "id": "pe3-i1",
+        "pergunta": "Qual é o nome científico do tatu-bola-do-nordeste?",
+        "opcoes": ["Tolypeutes tricinctus", "Trichechus manatus", "Leopardus wiedii", "Paroaria dominicana"],
+        "correta": 0,
+        "explicacao": "Tolypeutes tricinctus — o tatu-bola do gênero que só existe no Brasil.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe3-i2",
+        "pergunta": "Qual é a principal ameaça ao tatu-bola-do-nordeste em Pernambuco?",
+        "opcoes": ["Apenas mudanças climáticas", "Caça ilegal, atropelamentos, desmatamento e expansão da agropecuária e de usinas eólicas/solares", "Predadores naturais como onças", "Doenças virais desconhecidas"],
+        "correta": 1,
+        "explicacao": "Múltiplas pressões humanas afetam a espécie — caça, atropelamento, desmatamento e energia.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-i3",
+        "pergunta": "Como o tatu-bola-do-nordeste contribui para o equilíbrio ecológico da Caatinga?",
+        "opcoes": ["Dispersando sementes de grandes árvores", "Controlando populações de formigas e cupins por meio de sua alimentação insetívora", "Polinizando flores de mandacaru", "Servindo de presa exclusiva para onças"],
+        "correta": 1,
+        "explicacao": "Como insetívoro, controla naturalmente populações de formigas e cupins.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe3-i4",
+        "pergunta": "Por que o tatu-bola é chamado de 'endêmico do Brasil'?",
+        "opcoes": ["Porque só existe naturalmente no território brasileiro", "Porque migra para o Brasil durante o inverno", "Porque foi criado em cativeiro por brasileiros", "Porque apareceu apenas em 2014"],
+        "correta": 0,
+        "explicacao": "Endêmico = ocorre naturalmente apenas em um lugar. O tatu-bola só existe no Brasil.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe3-i5",
+        "pergunta": "Em qual tipo de solo o tatu-bola-do-nordeste costuma construir suas tocas?",
+        "opcoes": ["Rochas vulcânicas duras", "Solo arenoso e fofo, permitindo escavação rápida", "Areia de praia marinha", "Solo congelado de alta altitude"],
+        "correta": 1,
+        "explicacao": "O solo arenoso e fofo da Caatinga permite escavação rápida de tocas.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe3-i6",
+        "pergunta": "Qual característica comportamental ajuda o tatu-bola a sobreviver aos períodos mais secos da Caatinga?",
+        "opcoes": ["Migração para regiões úmidas durante a seca", "Hábitos noturnos e permanência em tocas durante as horas mais quentes do dia", "Hibernação de seis meses", "Armazenamento de água nas patas"],
+        "correta": 1,
+        "explicacao": "Ele é mais ativo à noite e se refugia nas tocas durante o calor — economiza água e energia.",
+        "topico": "habitat"
+      },
+      {
+        "id": "pe3-i7",
+        "pergunta": "Como as usinas eólicas e solares no interior de Pernambuco ameaçam o tatu-bola?",
+        "opcoes": ["Pela poluição sonora dos equipamentos", "Pela destruição de áreas de Caatinga nativa para instalação e vias de acesso, fragmentando o habitat", "Pelo excesso de energia gerada", "Não ameaçam, pois são fontes limpas"],
+        "correta": 1,
+        "explicacao": "Mesmo energia limpa, a instalação destrói grandes áreas de Caatinga e fragmenta o habitat.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-i8",
+        "pergunta": "Qual é a relação entre o tatu-bola e os cupinzeiros da Caatinga?",
+        "opcoes": ["Ele vive dentro dos cupinzeiros", "Ele se alimenta dos cupins e usa os cupinzeiros como fonte de alimento em períodos de escassez", "Ele constrói cupinzeiros", "Ele usa cupinzeiros como ninho de reprodução"],
+        "correta": 1,
+        "explicacao": "Cupinzeiros são sua principal fonte de alimento, especialmente na seca.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe3-i9",
+        "pergunta": "Qual é a gestação aproximada do tatu-bola-do-nordeste?",
+        "opcoes": ["Cerca de 30 dias", "Cerca de 120 dias", "Cerca de 60 a 64 dias", "Cerca de 9 meses"],
+        "correta": 2,
+        "explicacao": "A gestação é de aproximadamente 60 a 64 dias, gerando 1 a 2 filhotes.",
+        "topico": "taxonomia"
+      },
+      {
+        "id": "pe3-i10",
+        "pergunta": "Como o tatu-bola-do-nordeste se diferencia dos outros tatus do Brasil?",
+        "opcoes": ["É o menor tatu do Brasil e o único que se enrola completamente em bola", "É o maior tatu do Brasil", "É o único que voa", "É o único que vive na água"],
+        "correta": 0,
+        "explicacao": "É o menor tatu do país e o único com capacidade de se enrolar totalmente em bola.",
+        "topico": "taxonomia"
+      }
+    ],
+    "dificil": [
+      {
+        "id": "pe3-d1",
+        "pergunta": "Se o tatu-bola-do-nordeste desaparecer da Caatinga, qual seria o efeito dominó ecológico mais provável?",
+        "opcoes": ["Aumento da população de onças", "Explosão populacional de formigas e cupins, alterando a vegetação e o solo e afetando a regeneração da Caatinga", "Extinção imediata do mandacaru", "Nenhum impacto significativo"],
+        "correta": 1,
+        "explicacao": "Sem o tatu-bola, formigas e cupins explodem, destruindo mudas e afetando o solo — efeito cascata.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe3-d2",
+        "pergunta": "Por que o tatu-bola-do-nordeste é especialmente vulnerável a atropelamentos, mesmo sendo um animal pequeno e ágil?",
+        "opcoes": ["Porque voa baixo sobre as estradas", "Porque sua defesa natural é se enrolar em bola em vez de fugir, ficando imóvel na pista quando ameaçado por um veículo", "Porque é atraído pelo calor do asfalto e dorme sobre ele", "Porque persegue insetos que cruzam a rodovia"],
+        "correta": 1,
+        "explicacao": "Sua principal defesa (enrolar-se) é ineficaz contra veículos — ele fica imóvel na pista.",
+        "topico": "predacao"
+      },
+      {
+        "id": "pe3-d3",
+        "pergunta": "Como a expansão da agropecuária em Pernambuco afeta indiretamente o tatu-bola-do-nordeste?",
+        "opcoes": ["Aumenta a disponibilidade de alimento nas plantações", "Destrói e fragmenta o habitat da Caatinga, isola populações e ainda expõe o tatu a agrotóxicos usados nas lavouras", "Melhora o solo da Caatinga", "Atrai predadores naturais para longe do tatu"],
+        "correta": 1,
+        "explicacao": "A agropecuária fragmenta o habitat, isola populações e expõe o tatu a agrotóxicos.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-d4",
+        "pergunta": "Como o comportamento solitário e territorial do tatu-bola afeta sua capacidade de sobreviver em fragmentos de Caatinga isolados por atividades humanas?",
+        "opcoes": ["Facilita a formação de grandes colônias colaborativas", "Dificulta a reconexão de populações isoladas, pois os indivíduos evitam atravessar áreas abertas e têm baixa capacidade de dispersão por longas distâncias", "Permite migrações sazonais em massa", "Não tem relação com a fragmentação do habitat"],
+        "correta": 1,
+        "explicacao": "Hábitos solitários + baixa dispersão = populações fragmentadas raramente se reconectam.",
+        "topico": "ecologia"
+      },
+      {
+        "id": "pe3-d5",
+        "pergunta": "Qual é a relação entre a perda de habitat da Caatinga e a vulnerabilidade genética do tatu-bola-do-nordeste?",
+        "opcoes": ["Maior fragmentação leva a populações menores e isoladas, aumentando a endogamia e reduzindo a diversidade genética", "A fragmentação aumenta a diversidade genética pela mistura de populações", "Não há relação entre habitat e genética", "A perda de habitat torna a espécie mais resistente a doenças"],
+        "correta": 0,
+        "explicacao": "Fragmentação = populações menores + isoladas = endogamia + perda de diversidade.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-d6",
+        "pergunta": "Considerando a dieta insetívora especializada do tatu-bola, qual seria o impacto de uma redução drástica de cupins e formigas na Caatinga (por uso de pesticidas, por exemplo)?",
+        "opcoes": ["O tatu-bola se adaptaria facilmente a uma dieta herbívora", "A população de tatus-bola sofreria desnutrição severa e declínio, pois a espécie é altamente dependente desse recurso alimentar especializado", "O tatu-bola começaria a caçar pequenos roedores", "Não haveria impacto, pois o tatu pode ficar meses sem comer"],
+        "correta": 1,
+        "explicacao": "Especialização alimentar = alta dependência = colapso populacional quando a presa desaparece.",
+        "topico": "cadeia_alimentar"
+      },
+      {
+        "id": "pe3-d7",
+        "pergunta": "Como o tatu-bola-do-nordeste atua como engenheiro do ecossistema da Caatinga?",
+        "opcoes": ["Construindo grandes barragens naturais", "Ao cavar tocas, aerifica o solo, mistura camadas de terra e cria microhabitats usados por outros animais, influenciando a ciclagem de nutrientes e a regeneração da vegetação", "Polinizando flores de mandacaru", "Disputando território com tamanduás e onças"],
+        "correta": 1,
+        "explicacao": "Suas escavações aerificam o solo, criam microhabitats e ciclam nutrientes — engenheiro do ecossistema.",
+        "topico": "ecologia"
+      },
+      {
+        "id": "pe3-d8",
+        "pergunta": "Se o tatu-bola-do-nordeste fosse oficialmente extinto, qual seria a perda mais significativa para a biodiversidade brasileira?",
+        "opcoes": ["Apenas a perda de uma espécie carismática", "A perda de uma espécie endêmica do Brasil e de sua função ecológica única como inseto-controlador e engenheiro de solo da Caatinga, com efeitos cascata em toda a cadeia trófica e no solo", "A perda de uma espécie de valor apenas econômico", "Nenhuma perda, pois outras espécies ocupariam seu nicho"],
+        "correta": 1,
+        "explicacao": "Endemismo + função única = perda irrecuperável para a biodiversidade e o ecossistema.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-d9",
+        "pergunta": "Qual é a diferença entre 'vulnerável' (IUCN) e 'em perigo' (MMA/ICMBio) no caso do tatu-bola?",
+        "opcoes": ["São sinônimos exatos", "São escalas de avaliação diferentes: a IUCN avalia globalmente, enquanto o MMA/ICMBio avalia nacionalmente; por isso a espécie pode ter status mais grave no Brasil do que globalmente", "O status nacional é sempre menos grave", "A IUCN é brasileira e o MMA é internacional"],
+        "correta": 1,
+        "explicacao": "IUCN = escala global; MMA/ICMBio = escala nacional. Podem divergir conforme o contexto regional.",
+        "topico": "conservacao"
+      },
+      {
+        "id": "pe3-d10",
+        "pergunta": "Como o uso do tatu-bola como mascote da Copa de 2014 (Fuleco) contribuiu para a conservação da espécie?",
+        "opcoes": ["Não teve nenhum impacto relevante", "Aumentou a visibilidade internacional da espécie e da Caatinga, gerando mais atenção midiática, investimento em pesquisa e projetos de conservação da espécie e de seu habitat", "Reduziu a caça ilegal da espécie instantaneamente", "Transformou a espécie em animal doméstico"],
+        "correta": 1,
+        "explicacao": "Visibilidade internacional gerou mais atenção, pesquisa e investimento em conservação.",
+        "topico": "conservacao"
+      }
+    ]
+  }
+}

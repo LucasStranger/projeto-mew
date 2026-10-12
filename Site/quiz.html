@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MewQuiz — Projeto Mew</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --pk-vermelho: #dc0a2d;
+      --pk-vermelho-escuro: #a3081f;
+      --pk-vermelho-borda: #7a0417;
+      --screen-1: #0a1628;
+      --screen-2: #051020;
+      --cyan: #00e0ff;
+      --cyan-claro: #7ee8fa;
+      --cyan-suave: rgba(0, 224, 255, 0.35);
+      --amarelo: #ffcb05;
+      --amarelo-escuro: #e8a020;
+      --verde-ok: #3fb950;
+      --verde-ok-escuro: #238636;
+      --vermelho-erro: #ef5350;
+      --vermelho-erro-escuro: #b91c1c;
+      --texto-forte: #e0f4ff;
+      --texto-medio: #d0f4ff;
+      --texto-fraco: #7a9fb8;
+    }
+
+    html, body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a2e;
+      background-image:
+        radial-gradient(circle at 20% 10%, rgba(220, 10, 45, 0.15), transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(0, 224, 255, 0.1), transparent 40%);
+      min-height: 100vh;
+      color: var(--texto-medio);
+      padding: clamp(12px, 3vw, 30px);
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* =========================================================
+       SPARKLES (amarelas, como referência)
+       ========================================================= */
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+      filter: drop-shadow(0 0 10px rgba(255, 203, 5, 0.9));
+      animation: sparklePulse 2.5s ease-in-out infinite;
+      z-index: 5;
+    }
+    .sparkle svg { display: block; }
+    .sparkle.s1 { top: -10px; left: -10px; width: clamp(24px, 5vw, 42px); }
+    .sparkle.s2 { top: 5px; left: 25px; width: clamp(12px, 3vw, 22px); animation-delay: 0.4s; }
+    .sparkle.s3 { bottom: -12px; right: -12px; width: clamp(20px, 4vw, 34px); animation-delay: 0.8s; }
+    .sparkle.s4 { top: 12px; right: 12px; width: clamp(10px, 2.5vw, 18px); animation-delay: 1.2s; }
+
+    @keyframes sparklePulse {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.15) rotate(15deg); opacity: 0.85; }
+    }
+
+    /* =========================================================
+       WRAPPER
+       ========================================================= */
+    .quiz-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(14px, 3vw, 22px);
+    }
+
+    /* =========================================================
+       TOPBAR
+       ========================================================= */
+    .quiz-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-voltar {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--pk-vermelho) 0%, var(--pk-vermelho-escuro) 100%);
+      border: 2px solid var(--pk-vermelho-borda);
+      border-radius: 20px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 12px rgba(220, 10, 45, 0.4);
+    }
+    .btn-voltar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(220, 10, 45, 0.6);
+      border-color: #fff;
+    }
+    .animal-tag {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--screen-1) 0%, var(--screen-2) 100%);
+      color: var(--cyan);
+      border: 2px solid var(--cyan-suave);
+      border-radius: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 0 16px rgba(0, 224, 255, 0.35);
+    }
+    .animal-tag .cientifico {
+      display: block;
+      font-style: italic;
+      font-weight: normal;
+      font-size: 0.68rem;
+      color: var(--texto-fraco);
+      text-transform: none;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+    }
+
+    /* =========================================================
+       CARD PRINCIPAL (screen-style)
+       ========================================================= */
+    .quiz-card {
+      position: relative;
+      background: linear-gradient(135deg, var(--screen-1) 0%, var(--screen-2) 100%);
+      border-radius: 24px;
+      padding: clamp(24px, 5vw, 44px);
+      border: 4px solid var(--cyan);
+      box-shadow:
+        0 0 40px rgba(0, 224, 255, 0.35),
+        inset 0 0 40px rgba(0, 0, 0, 0.9);
+      color: var(--texto-medio);
+      animation: cardEntrar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+      overflow: hidden;
+    }
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg,
+        rgba(0, 255, 200, 0.03) 0px, rgba(0, 255, 200, 0.03) 1px,
+        transparent 1px, transparent 3px);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .quiz-card > * { position: relative; z-index: 2; }
+
+    @keyframes cardEntrar {
+      from { opacity: 0; transform: scale(0.95) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* =========================================================
+       TELA DIFICULDADE
+       ========================================================= */
+    .tela-dificuldade {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 3vw, 26px);
+    }
+    .titulo-quiz {
+      font-size: clamp(2rem, 7vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: clamp(4px, 1.5vw, 8px);
+      color: var(--cyan);
+      text-transform: uppercase;
+      position: relative;
+      padding: clamp(10px, 2vw, 18px) clamp(20px, 5vw, 40px);
+      display: inline-block;
+      margin: 0 auto;
+      text-shadow: 0 0 20px rgba(0, 224, 255, 0.8), 0 0 40px rgba(0, 224, 255, 0.4);
+    }
+    .titulo-interrogacao {
+      font-size: 1.6rem;
+      color: var(--amarelo);
+      opacity: 0.85;
+      font-weight: bold;
+      text-shadow: 0 0 12px rgba(255, 203, 5, 0.8);
+    }
+
+    .subtitulo-quiz {
+      color: var(--texto-medio);
+      font-size: clamp(0.9rem, 2.4vw, 1.05rem);
+      line-height: 1.6;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 0 10px;
+      opacity: 0.9;
+    }
+    .subtitulo-quiz strong { color: var(--amarelo); }
+
+    .titulo-dificuldade {
+      color: var(--cyan);
+      font-family: 'Courier New', monospace;
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(0, 224, 255, 0.6);
+    }
+    .subtitulo-dificuldade {
+      color: var(--texto-fraco);
+      font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+
+    .opcoes-dificuldade {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: clamp(10px, 2vw, 16px);
+    }
+    @media (max-width: 600px) {
+      .opcoes-dificuldade { grid-template-columns: 1fr; }
+    }
+
+    .btn-dificuldade {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: clamp(16px, 3vw, 24px) clamp(12px, 2vw, 18px);
+      background: rgba(0, 224, 255, 0.04);
+      border: 3px solid var(--cyan-suave);
+      border-radius: 20px;
+      color: var(--texto-forte);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+      text-align: center;
+      font-family: inherit;
+    }
+    .btn-dificuldade:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: var(--cyan);
+      background: rgba(0, 224, 255, 0.12);
+      box-shadow: 0 12px 24px rgba(0, 224, 255, 0.25), 0 0 0 4px rgba(0, 224, 255, 0.15);
+    }
+    .btn-dificuldade:active { transform: scale(0.98); }
+
+    .btn-dificuldade .icone {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      line-height: 1;
+      filter: drop-shadow(0 3px 8px rgba(0, 224, 255, 0.5));
+    }
+    .btn-dificuldade .nome {
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+    }
+    .btn-dificuldade .desc {
+      font-size: clamp(0.68rem, 1.7vw, 0.78rem);
+      color: var(--texto-fraco);
+      font-style: italic;
+      line-height: 1.35;
+    }
+    .btn-dificuldade .estrelas {
+      display: flex;
+      gap: 4px;
+      margin-top: 2px;
+      font-size: 1rem;
+      color: var(--amarelo);
+      filter: drop-shadow(0 0 6px rgba(255, 203, 5, 0.7));
+    }
+
+    /* =========================================================
+       TELA PERGUNTA
+       ========================================================= */
+    .tela-pergunta {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 3vw, 24px);
+    }
+
+    .progresso-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progresso-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      text-shadow: 0 0 8px rgba(0, 224, 255, 0.5);
+    }
+    .progresso-info .badge-dificuldade {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+    }
+    .badge-facil { background: rgba(63, 185, 80, 0.18); color: var(--verde-ok); border: 1px solid var(--verde-ok); }
+    .badge-intermediario { background: rgba(255, 203, 5, 0.18); color: var(--amarelo); border: 1px solid var(--amarelo); }
+    .badge-dificil { background: rgba(239, 83, 80, 0.18); color: var(--vermelho-erro); border: 1px solid var(--vermelho-erro); }
+
+    .progresso-barra {
+      height: 12px;
+      background: rgba(0, 224, 255, 0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 224, 255, 0.2);
+    }
+    .progresso-preenchimento {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--cyan-claro));
+      border-radius: 20px;
+      width: 0%;
+      transition: width 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+      box-shadow: 0 0 14px rgba(0, 224, 255, 0.8);
+    }
+
+    .pergunta-texto {
+      background: rgba(0, 224, 255, 0.05);
+      border-radius: 20px;
+      padding: clamp(18px, 3.5vw, 28px);
+      border: 1px solid rgba(0, 224, 255, 0.25);
+      border-left: 4px solid var(--cyan);
+    }
+    .pergunta-texto .topico-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(255, 203, 5, 0.15);
+      color: var(--amarelo);
+      border: 1px solid rgba(255, 203, 5, 0.5);
+      border-radius: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.62rem;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .pergunta-texto p {
+      font-size: clamp(1rem, 2.8vw, 1.25rem);
+      font-weight: 700;
+      line-height: 1.45;
+      color: var(--texto-forte);
+    }
+
+    .opcoes-resposta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(10px, 2vw, 14px);
+    }
+    @media (max-width: 600px) {
+      .opcoes-resposta { grid-template-columns: 1fr; }
+    }
+
+    .btn-opcao {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: clamp(14px, 2.5vw, 18px) clamp(16px, 3vw, 22px);
+      background: rgba(0, 224, 255, 0.03);
+      border: 3px solid rgba(0, 224, 255, 0.3);
+      border-radius: 18px;
+      color: var(--texto-forte);
+      font-family: inherit;
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+      line-height: 1.35;
+    }
+    .btn-opcao:hover:not(:disabled) {
+      border-color: var(--cyan);
+      background: rgba(0, 224, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 224, 255, 0.25);
+    }
+    .btn-opcao:disabled { cursor: default; }
+
+    .btn-opcao .letra {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(0, 224, 255, 0.12);
+      color: var(--cyan);
+      font-family: 'Courier New', monospace;
+      font-size: 1.05rem;
+      font-weight: 900;
+      flex-shrink: 0;
+      transition: all 0.25s;
+      border: 1px solid rgba(0, 224, 255, 0.35);
+    }
+    .btn-opcao:hover:not(:disabled) .letra {
+      background: var(--cyan);
+      color: var(--screen-2);
+      box-shadow: 0 0 14px rgba(0, 224, 255, 0.7);
+    }
+
+    .btn-opcao.correta {
+      border-color: var(--verde-ok);
+      background: rgba(63, 185, 80, 0.12);
+      animation: bounceOk 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+      box-shadow: 0 0 20px rgba(63, 185, 80, 0.4);
+    }
+    .btn-opcao.correta .letra {
+      background: var(--verde-ok);
+      color: #fff;
+      border-color: var(--verde-ok);
+      box-shadow: 0 0 14px rgba(63, 185, 80, 0.7);
+    }
+    .btn-opcao.errada {
+      border-color: var(--vermelho-erro);
+      background: rgba(239, 83, 80, 0.1);
+      animation: shakeErro 0.4s ease-out;
+    }
+    .btn-opcao.errada .letra {
+      background: var(--vermelho-erro);
+      color: #fff;
+      border-color: var(--vermelho-erro);
+    }
+    .btn-opcao.revelada {
+      border-color: var(--verde-ok);
+      background: rgba(63, 185, 80, 0.08);
+      opacity: 0.85;
+    }
+    .btn-opcao.revelada .letra {
+      background: var(--verde-ok);
+      color: #fff;
+    }
+
+    @keyframes bounceOk {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.04); }
+      70% { transform: scale(0.98); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shakeErro {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    /* =========================================================
+       FEEDBACK
+       ========================================================= */
+    .feedback {
+      border-radius: 16px;
+      padding: clamp(14px, 2.5vw, 20px) clamp(16px, 3vw, 22px);
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      animation: feedbackEntrar 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    }
+    .feedback.ok {
+      background: rgba(63, 185, 80, 0.1);
+      border: 2px solid var(--verde-ok);
+      box-shadow: 0 0 20px rgba(63, 185, 80, 0.2);
+    }
+    .feedback.erro {
+      background: rgba(239, 83, 80, 0.08);
+      border: 2px solid var(--vermelho-erro);
+      box-shadow: 0 0 20px rgba(239, 83, 80, 0.2);
+    }
+    .feedback .icone-feedback {
+      font-size: 1.8rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .feedback .texto-feedback {
+      flex: 1;
+      color: var(--texto-medio);
+    }
+    .feedback .titulo-feedback {
+      font-weight: 800;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      font-family: 'Courier New', monospace;
+    }
+    .feedback.ok .titulo-feedback { color: var(--verde-ok); text-shadow: 0 0 8px rgba(63, 185, 80, 0.5); }
+    .feedback.erro .titulo-feedback { color: var(--vermelho-erro); text-shadow: 0 0 8px rgba(239, 83, 80, 0.5); }
+    .feedback .explicacao {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--texto-medio);
+      opacity: 0.9;
+    }
+    @keyframes feedbackEntrar {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================================
+       BOTÃO PRINCIPAL
+       ========================================================= */
+    .btn-principal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: clamp(14px, 2.5vw, 18px) clamp(24px, 4vw, 40px);
+      background: linear-gradient(135deg, var(--pk-vermelho) 0%, var(--pk-vermelho-escuro) 100%);
+      border: 2px solid var(--pk-vermelho-borda);
+      border-radius: 18px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+      box-shadow: 0 8px 24px rgba(220, 10, 45, 0.5), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+      align-self: center;
+      min-width: 180px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-principal:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 32px rgba(220, 10, 45, 0.65), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+      border-color: #fff;
+    }
+    .btn-principal:active { transform: scale(0.98); }
+    .btn-principal:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* =========================================================
+       TELA RESULTADO
+       ========================================================= */
+    .tela-resultado {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(16px, 3vw, 24px);
+      text-align: center;
+    }
+    .resultado-emoji {
+      font-size: clamp(4rem, 14vw, 7rem);
+      line-height: 1;
+      animation: popEntrada 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+      filter: drop-shadow(0 8px 20px rgba(0, 224, 255, 0.4));
+    }
+    @keyframes popEntrada {
+      0% { transform: scale(0.3) rotate(-20deg); opacity: 0; }
+      60% { transform: scale(1.15) rotate(8deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .resultado-titulo {
+      font-size: clamp(1.4rem, 4.5vw, 2rem);
+      font-weight: 900;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0, 224, 255, 0.7);
+    }
+    .resultado-placar {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(2.5rem, 9vw, 4rem);
+      font-weight: 900;
+      color: var(--amarelo);
+      line-height: 1;
+      text-shadow: 0 0 24px rgba(255, 203, 5, 0.6);
+    }
+    .resultado-placar small {
+      font-size: 0.4em;
+      opacity: 0.6;
+      font-weight: bold;
+      color: var(--texto-medio);
+    }
+    .resultado-msg {
+      color: var(--texto-medio);
+      font-size: clamp(0.85rem, 2.3vw, 1rem);
+      line-height: 1.6;
+      max-width: 500px;
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    /* Selo */
+    .selo-credencial {
+      position: relative;
+      padding: clamp(20px, 4vw, 28px);
+      background: linear-gradient(160deg, rgba(255, 203, 5, 0.15) 0%, rgba(232, 160, 32, 0.08) 100%);
+      border: 4px solid var(--amarelo);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 203, 5, 0.5), inset 0 0 20px rgba(255, 203, 5, 0.1);
+      max-width: 420px;
+      width: 100%;
+    }
+    .selo-credencial::before {
+      content: '★';
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--amarelo), var(--amarelo-escuro));
+      color: var(--screen-2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 20px rgba(255, 203, 5, 0.9);
+      border: 3px solid var(--screen-1);
+    }
+    .selo-titulo {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      color: var(--amarelo);
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 6px;
+      text-shadow: 0 0 10px rgba(255, 203, 5, 0.6);
+    }
+    .selo-nome {
+      font-size: clamp(1.1rem, 3.2vw, 1.4rem);
+      font-weight: 900;
+      color: var(--texto-forte);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      text-shadow: 0 0 12px rgba(0, 224, 255, 0.5);
+    }
+    .selo-desc {
+      font-size: 0.75rem;
+      color: var(--texto-medio);
+      font-style: italic;
+      line-height: 1.4;
+      opacity: 0.85;
+    }
+    .selo-data {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255, 203, 5, 0.3);
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      color: var(--texto-fraco);
+      letter-spacing: 1px;
+    }
+
+    /* Tópicos */
+    .detalhes-topicos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      max-width: 500px;
+      width: 100%;
+    }
+    .topico-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(0, 224, 255, 0.05);
+      border: 2px solid rgba(0, 224, 255, 0.3);
+      border-radius: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .topico-badge .mini-barra {
+      width: 40px;
+      height: 6px;
+      background: rgba(0, 224, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .topico-badge .mini-barra > div {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .topico-badge.ok .mini-barra > div { background: var(--verde-ok); box-shadow: 0 0 6px rgba(63, 185, 80, 0.7); }
+    .topico-badge.medio .mini-barra > div { background: var(--amarelo); box-shadow: 0 0 6px rgba(255, 203, 5, 0.7); }
+    .topico-badge.ruim .mini-barra > div { background: var(--vermelho-erro); box-shadow: 0 0 6px rgba(239, 83, 80, 0.7); }
+
+    /* Ações */
+    .acoes-resultado {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-secundario {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 22px;
+      background: transparent;
+      border: 2px solid var(--cyan-suave);
+      color: var(--cyan);
+      border-radius: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-secundario:hover {
+      background: var(--cyan);
+      color: var(--screen-2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 224, 255, 0.5);
+      border-color: var(--cyan);
+    }
+
+    /* Loading / erro */
+    .loading-tela, .erro-tela {
+      text-align: center;
+      padding: clamp(30px, 6vw, 50px) 20px;
+      color: var(--cyan);
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: bold;
+      text-shadow: 0 0 12px rgba(0, 224, 255, 0.6);
+    }
+    .erro-tela { color: var(--vermelho-erro); text-shadow: 0 0 12px rgba(239, 83, 80, 0.6); }
+
+    @media (max-width: 500px) {
+      .quiz-topbar { font-size: 0.7rem; }
+      .btn-voltar, .animal-tag { padding: 6px 12px; font-size: 0.68rem; }
+      .pergunta-texto p { line-height: 1.4; }
+      .btn-opcao { padding: 12px 14px; }
+      .btn-opcao .letra { min-width: 34px; height: 34px; font-size: 0.9rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-wrapper">
+
+    <div class="quiz-topbar">
+      <a href="index.html" class="btn-voltar" id="btnVoltar">← Voltar</a>
+      <div class="animal-tag" id="animalTag">
+        <span id="animalNome">Carregando...</span>
+        <span class="cientifico" id="animalCientifico"></span>
+      </div>
+    </div>
+
+    <div id="quizArea">
+      <div class="loading-tela">🌀 Carregando quiz...</div>
+    </div>
+
+  </div>
+
+  <script>
+    /* =========================================================
+       CONFIG
+       ========================================================= */
+    const DB_URL = 'quiz_perguntas.json';
+    const STATS_KEY = 'mewdex_quiz_stats_v1';
+    const CREDENCIAL_MIN = 0.7;
+    const QTD_PERGUNTAS = 5;
+
+    /* =========================================================
+       STATE
+       ========================================================= */
+    const state = {
+      animalId: null,
+      animalInfo: null,
+      banco: null,
+      dificuldade: null,
+      perguntas: [],
+      indice: 0,
+      acertos: 0,
+      respondidas: [],
+      topicosStatus: {}
+    };
+
+    /* =========================================================
+       INIT
+       ========================================================= */
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      state.animalId = params.get('animal');
+
+      if (!state.animalId) {
+        renderErro('Nenhum animal especificado na URL.');
+        return;
+      }
+
+      document.getElementById('btnVoltar').href = `detalhes.html?id=${state.animalId}`;
+
+      try {
+        const res = await fetch(DB_URL);
+        if (!res.ok) throw new Error('Banco de perguntas não encontrado.');
+        state.banco = await res.json();
+      } catch (e) {
+        console.error(e);
+        renderErro('Erro ao carregar o banco de perguntas.');
+        return;
+      }
+
+      state.animalInfo = state.banco[state.animalId];
+      if (!state.animalInfo) {
+        renderErro('Este animal ainda não possui quiz cadastrado.');
+        return;
+      }
+
+      document.getElementById('animalNome').textContent = state.animalInfo.nome || state.animalId.toUpperCase();
+      document.getElementById('animalCientifico').textContent = '';
+
+      try {
+        const resFauna = await fetch('fauna_pe.json');
+        const fauna = await resFauna.json();
+        const idx = parseInt(state.animalId.replace('pe-', ''), 10) - 1;
+        const animal = fauna.especies_ameacadas[idx];
+        if (animal) {
+          document.getElementById('animalCientifico').textContent = animal.nome_cientifico || '';
+        }
+      } catch (e) { /* silencioso */ }
+
+      renderTelaDificuldade();
+    });
+
+    /* =========================================================
+       TELA DIFICULDADE
+       ========================================================= */
+    function renderTelaDificuldade() {
+      const area = document.getElementById('quizArea');
+      const temFacil = (state.animalInfo.facil || []).length > 0;
+      const temInter = (state.animalInfo.intermediario || []).length > 0;
+      const temDificil = (state.animalInfo.dificil || []).length > 0;
+
+      area.innerHTML = `
+        <div class="quiz-card tela-dificuldade">
+          <div style="position:relative; display:inline-block; margin: 0 auto;">
+            <span class="sparkle s1">
+              <svg viewBox="0 0 24 24"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#FFCB05"/></svg>
+            </span>
+            <span class="sparkle s2">
+              <svg viewBox="0 0 24 24"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#FFCB05"/></svg>
+            </span>
+            <h1 class="titulo-quiz">
+              <span class="titulo-interrogacao">?</span>
+              QUIZ
+              <span class="titulo-interrogacao">?</span>
+            </h1>
+          </div>
+
+          <p class="subtitulo-quiz">
+            Bem-vindo à <strong>Missão Ecológica</strong> com o(a) <strong>${state.animalInfo.nome}</strong>.<br>
+            Escolha um nível de dificuldade para começar. Suas respostas ajudam a personalizar os próximos desafios.
+          </p>
+
+          <div>
+            <div class="titulo-dificuldade">▸ Escolha o desafio</div>
+            <div class="subtitulo-dificuldade">Cada nível tem um conjunto diferente de perguntas</div>
+
+            <div class="opcoes-dificuldade">
+              ${temFacil ? `
+                <button class="btn-dificuldade" data-nivel="facil">
+                  <span class="icone">🌱</span>
+                  <span class="nome">Fácil</span>
+                  <span class="desc">Conceitos básicos sobre o bioma e a espécie</span>
+                  <span class="estrelas">★☆☆</span>
+                </button>
+              ` : ''}
+
+              ${temInter ? `
+                <button class="btn-dificuldade" data-nivel="intermediario">
+                  <span class="icone">🔥</span>
+                  <span class="nome">Intermediário</span>
+                  <span class="desc">Detalhes, ameaças e características específicas</span>
+                  <span class="estrelas">★★☆</span>
+                </button>
+              ` : ''}
+
+              ${temDificil ? `
+                <button class="btn-dificuldade" data-nivel="dificil">
+                  <span class="icone">💀</span>
+                  <span class="nome">Difícil</span>
+                  <span class="desc">Efeito dominó ecológico e raciocínio sistêmico</span>
+                  <span class="estrelas">★★★</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      area.querySelectorAll('.btn-dificuldade').forEach(btn => {
+        btn.addEventListener('click', () => {
+          iniciarQuiz(btn.dataset.nivel);
+        });
+      });
+    }
+
+    /* =========================================================
+       INICIAR
+       ========================================================= */
+    function iniciarQuiz(dificuldade) {
+      state.dificuldade = dificuldade;
+      const pool = state.animalInfo[dificuldade] || [];
+
+      if (pool.length === 0) {
+        renderErro('Nenhuma pergunta neste nível.');
+        return;
+      }
+
+      state.perguntas = embaralhar([...pool]).slice(0, Math.min(QTD_PERGUNTAS, pool.length));
+      state.indice = 0;
+      state.acertos = 0;
+      state.respondidas = [];
+      state.topicosStatus = {};
+
+      renderPergunta();
+    }
+
+    /* =========================================================
+       TELA PERGUNTA
+       ========================================================= */
+    function renderPergunta() {
+      const area = document.getElementById('quizArea');
+      const p = state.perguntas[state.indice];
+      const total = state.perguntas.length;
+      const atual = state.indice + 1;
+      const pct = ((atual - 1) / total) * 100;
+
+      const dificuldadeLabel = {
+        facil: 'Fácil',
+        intermediario: 'Intermediário',
+        dificil: 'Difícil'
+      }[state.dificuldade];
+
+      const topicosLabel = {
+        bioma: 'Bioma',
+        habitat: 'Habitat',
+        cadeia_alimentar: 'Cadeia Alimentar',
+        predacao: 'Predação',
+        conservacao: 'Conservação',
+        ecologia: 'Ecologia',
+        taxonomia: 'Taxonomia'
+      };
+
+      const letras = ['A', 'B', 'C', 'D'];
+
+      area.innerHTML = `
+        <div class="quiz-card tela-pergunta">
+          <div class="progresso-wrap">
+            <div class="progresso-info">
+              <span>Pergunta ${atual} de ${total}</span>
+              <span class="badge-dificuldade badge-${state.dificuldade}">${dificuldadeLabel}</span>
+            </div>
+            <div class="progresso-barra">
+              <div class="progresso-preenchimento" style="width: ${pct}%"></div>
+            </div>
+          </div>
+
+          <div class="pergunta-texto">
+            <span class="topico-tag">${topicosLabel[p.topico] || p.topico || 'Geral'}</span>
+            <p>${p.pergunta}</p>
+          </div>
+
+          <div class="opcoes-resposta" id="opcoesResposta">
+            ${p.opcoes.map((op, i) => `
+              <button class="btn-opcao" data-index="${i}">
+                <span class="letra">${letras[i]}</span>
+                <span>${op}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <div id="feedbackArea"></div>
+          <div id="acaoArea" style="display:flex; justify-content:center;"></div>
+        </div>
+      `;
+
+      requestAnimationFrame(() => {
+        const bar = area.querySelector('.progresso-preenchimento');
+        if (bar) bar.style.width = `${(atual / total) * 100}%`;
+      });
+
+      area.querySelectorAll('.btn-opcao').forEach(btn => {
+        btn.addEventListener('click', () => responder(parseInt(btn.dataset.index, 10)));
+      });
+    }
+
+    /* =========================================================
+       RESPONDER
+       ========================================================= */
+    function responder(escolha) {
+      const p = state.perguntas[state.indice];
+      const acertou = escolha === p.correta;
+      const botoes = document.querySelectorAll('.btn-opcao');
+      const letras = ['A', 'B', 'C', 'D'];
+
+      botoes.forEach(b => b.disabled = true);
+      botoes[p.correta].classList.add('correta');
+
+      if (!acertou) {
+        botoes[escolha].classList.add('errada');
+      }
+
+      if (acertou) state.acertos++;
+      state.respondidas.push({
+        id: p.id,
+        topico: p.topico,
+        acertou,
+        escolha
+      });
+
+      const top = p.topico || 'geral';
+      if (!state.topicosStatus[top]) state.topicosStatus[top] = { acertos: 0, total: 0 };
+      state.topicosStatus[top].total++;
+      if (acertou) state.topicosStatus[top].acertos++;
+
+      const feedbackArea = document.getElementById('feedbackArea');
+      feedbackArea.innerHTML = `
+        <div class="feedback ${acertou ? 'ok' : 'erro'}">
+          <span class="icone-feedback">${acertou ? '✅' : '❌'}</span>
+          <div class="texto-feedback">
+            <div class="titulo-feedback">${acertou ? 'Correto!' : 'Resposta correta: ' + letras[p.correta]}</div>
+            <div class="explicacao">${p.explicacao}</div>
+          </div>
+        </div>
+      `;
+
+      const acaoArea = document.getElementById('acaoArea');
+      const ultima = state.indice === state.perguntas.length - 1;
+      acaoArea.innerHTML = `
+        <button class="btn-principal" id="btnProxima">
+          ${ultima ? '🏆 Ver Resultado' : 'Próxima →'}
+        </button>
+      `;
+      document.getElementById('btnProxima').addEventListener('click', proximaPergunta);
+    }
+
+    function proximaPergunta() {
+      if (state.indice === state.perguntas.length - 1) {
+        finalizarQuiz();
+      } else {
+        state.indice++;
+        renderPergunta();
+      }
+    }
+
+    /* =========================================================
+       RESULTADO
+       ========================================================= */
+    function finalizarQuiz() {
+      const total = state.perguntas.length;
+      const acertos = state.acertos;
+      const pct = acertos / total;
+      const acertouSelo = pct >= CREDENCIAL_MIN;
+
+      salvarEstatisticas();
+
+      let emoji, titulo, msg;
+      if (pct === 1) {
+        emoji = '🏆'; titulo = 'Perfeito!'; msg = 'Você dominou completamente o tema. Impressionante!';
+      } else if (pct >= 0.7) {
+        emoji = '🌟'; titulo = 'Muito bem!'; msg = 'Você tem um ótimo domínio sobre a espécie. Continue assim!';
+      } else if (pct >= 0.5) {
+        emoji = '📚'; titulo = 'Bom trabalho!'; msg = 'Você está no caminho certo. Revise os tópicos mais fracos para evoluir.';
+      } else {
+        emoji = '🌱'; titulo = 'Continue tentando!'; msg = 'Cada erro é uma chance de aprender. Releia a página do animal e tente de novo.';
+      }
+
+      const labels = {
+        bioma: 'Bioma',
+        habitat: 'Habitat',
+        cadeia_alimentar: 'Cadeia Alimentar',
+        predacao: 'Predação',
+        conservacao: 'Conservação',
+        ecologia: 'Ecologia',
+        taxonomia: 'Taxonomia'
+      };
+
+      const topicosHTML = Object.entries(state.topicosStatus).map(([top, st]) => {
+        const p = st.acertos / st.total;
+        const cls = p >= 0.7 ? 'ok' : (p >= 0.5 ? 'medio' : 'ruim');
+        const pctTopico = Math.round(p * 100);
+        return `
+          <div class="topico-badge ${cls}">
+            <span>${labels[top] || top}</span>
+            <div class="mini-barra"><div style="width: ${pctTopico}%"></div></div>
+            <span>${st.acertos}/${st.total}</span>
+          </div>
+        `;
+      }).join('');
+
+      const seloHTML = acertouSelo ? `
+        <div class="selo-credencial">
+          <div class="selo-titulo">★ Credencial Conquistada ★</div>
+          <div class="selo-nome">Analista Ambiental</div>
+          <div class="selo-desc">Mestre da Taxonomia · ${state.animalInfo.nome}</div>
+          <div class="selo-data">
+            ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+            · ID: ${state.animalId.toUpperCase()}-${state.dificuldade.toUpperCase()}
+          </div>
+        </div>
+      ` : `
+        <div class="resultado-msg" style="padding: 16px 20px; background: rgba(0, 224, 255, 0.05); border-radius: 16px; border: 2px dashed rgba(0, 224, 255, 0.35);">
+          💡 Acerte <strong style="color:#ffcb05;">${Math.ceil(CREDENCIAL_MIN * total)}</strong> de ${total} para conquistar o selo de <strong style="color:#ffcb05;">Analista Ambiental</strong>.
+        </div>
+      `;
+
+      document.getElementById('quizArea').innerHTML = `
+        <div class="quiz-card tela-resultado">
+          <div style="position:relative; display:inline-block;">
+            <span class="sparkle s1">
+              <svg viewBox="0 0 24 24"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#FFCB05"/></svg>
+            </span>
+            <span class="sparkle s3">
+              <svg viewBox="0 0 24 24"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#FFCB05"/></svg>
+            </span>
+            <div class="resultado-emoji">${emoji}</div>
+          </div>
+
+          <div class="resultado-titulo">${titulo}</div>
+          <div class="resultado-placar">${acertos}<small>/${total}</small></div>
+          <div class="resultado-msg">${msg}</div>
+
+          ${topicosHTML ? `
+            <div style="margin-top: 4px;">
+              <div style="font-family:'Courier New',monospace; font-size:0.7rem; letter-spacing:2px; color:#00e0ff; text-transform:uppercase; margin-bottom:10px; text-shadow: 0 0 10px rgba(0,224,255,0.5);">
+                ▸ Desempenho por tópico
+              </div>
+              <div class="detalhes-topicos">${topicosHTML}</div>
+            </div>
+          ` : ''}
+
+          ${seloHTML}
+
+          <div class="acoes-resultado" style="margin-top: 8px;">
+            <button class="btn-secundario" id="btnRefazer">🔄 Jogar de novo</button>
+            <button class="btn-secundario" id="btnTrocarNivel">🎯 Trocar nível</button>
+            <a class="btn-secundario" href="detalhes.html?id=${state.animalId}">🐾 Voltar ao animal</a>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btnRefazer').addEventListener('click', () => iniciarQuiz(state.dificuldade));
+      document.getElementById('btnTrocarNivel').addEventListener('click', renderTelaDificuldade);
+    }
+
+    /* =========================================================
+       SALVAR STATS (ML / C++)
+       ========================================================= */
+    function salvarEstatisticas() {
+      try {
+        const stats = JSON.parse(localStorage.getItem(STATS_KEY) || '{}');
+        const a = state.animalId;
+        const d = state.dificuldade;
+
+        if (!stats[a]) stats[a] = {};
+        if (!stats[a][d]) stats[a][d] = { acertos: 0, total: 0, topicos: {}, sessoes: 0 };
+
+        stats[a][d].acertos += state.acertos;
+        stats[a][d].total += state.perguntas.length;
+        stats[a][d].sessoes += 1;
+        stats[a][d].ultimaSessao = Date.now();
+
+        state.respondidas.forEach(r => {
+          if (!r.acertou) {
+            const t = r.topico || 'geral';
+            stats[a][d].topicos[t] = (stats[a][d].topicos[t] || 0) + 1;
+          }
+        });
+
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      } catch (e) {
+        console.warn('Não foi possível salvar estatísticas:', e);
+      }
+    }
+
+    /* =========================================================
+       HELPERS
+       ========================================================= */
+    function embaralhar(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function renderErro(msg) {
+      document.getElementById('quizArea').innerHTML = `
+        <div class="quiz-card">
+          <div class="erro-tela">
+            ⚠ ${msg}<br><br>
+            <a class="btn-secundario" href="index.html" style="margin-top:14px;">← Voltar para a Pokédex</a>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+
+</body>
+</html>

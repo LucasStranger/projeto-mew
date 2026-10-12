@@ -921,7 +921,7 @@ async function carregarAnimalFauna(id, container, loading) {
     document.title = `${animal.nome_popular} — Projeto Mew`;
 
     document.getElementById('btn-missao-novo').addEventListener('click', () => {
-        alert("Em breve: Integração C++ / WebAssembly para o Quiz Adaptativo!");
+          window.location.href = `quiz.html?animal=${id}`;
     });
 
     // Efeito de hover no botão (desktop) — em touch, o :active já dá feedback
