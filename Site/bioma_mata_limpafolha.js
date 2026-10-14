@@ -1,7 +1,6 @@
 /* =========================================================
-   bioma_mata_limpafolha.js
+   bioma_mata_limpafolha.js — v2 (com GLBs)
    Mata Atlântica de Altitude — Limpa-folha-do-nordeste
-   (Philydor novaesi) — possivelmente extinto
    Depende de: bioma_componentes.js
    ========================================================= */
 (function () {
@@ -16,51 +15,69 @@
     return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
-  function gerarArvoreAlta(x, z, h) {
-    const altura = h || rand(5.5, 9.0);
-    const troncoC = pick(['#2E1A0E', '#3A2418', '#241408']);
-    const folha1  = pick(['#1A3A1A', '#164018', '#0E3010']);
-    const folha2  = pick(['#2A5A28', '#1E4A1E']);
-    const rf = rand(1.8, 2.8);
-    const rot = rand(0, 360);
-    let raizes = '';
-    for (let i = 0; i < 7; i++) {
-      const a = (i / 7) * Math.PI * 2;
-      const dx = Math.cos(a) * 0.55;
-      const dz = Math.sin(a) * 0.55;
-      raizes += '<a-cylinder position="' + dx.toFixed(2) + ' ' + (altura * 0.06).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="0.07" height="' + (altura * 0.16).toFixed(2) + '" color="' + troncoC + '" rotation="' + rand(25,45).toFixed(1) + ' 0 ' + rand(-30,30).toFixed(1) + '"></a-cylinder>';
-    }
-    let musgo = '';
-    for (let i = 0; i < randInt(5, 10); i++) {
-      const y = altura * rand(0.1, 0.7);
-      const a = rand(0, Math.PI * 2);
-      musgo += '<a-sphere position="' + (Math.cos(a) * 0.16).toFixed(2) + ' ' + y.toFixed(2) + ' ' + (Math.sin(a) * 0.16).toFixed(2) + '" radius="' + rand(0.06, 0.12).toFixed(2) + '" color="#2E5A24" scale="1.3 0.6 1.3"></a-sphere>';
-    }
-    let folhagem = '';
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2 + rand(-0.3, 0.3);
-      const r = rf * rand(0.55, 0.95);
-      const dy = rand(-0.2, 0.3) * rf;
-      const c = pick([folha1, folha2]);
-      folhagem += '<a-sphere position="' + (Math.cos(a) * r).toFixed(2) + ' ' + (altura + dy + rf * 0.35).toFixed(2) + ' ' + (Math.sin(a) * r).toFixed(2) + '" radius="' + (rf * rand(0.55, 0.8)).toFixed(2) + '" color="' + c + '" sway-leaf="ampl: ' + rand(3,6).toFixed(1) + '"></a-sphere>';
-    }
-    folhagem += '<a-sphere position="0 ' + (altura + rf * 0.6).toFixed(2) + ' 0" radius="' + (rf * 0.9).toFixed(2) + '" color="' + folha1 + '"></a-sphere>';
-    let epifitas = '';
-    for (let i = 0; i < randInt(2, 4); i++) {
-      const by = altura * rand(0.3, 0.7);
-      const ba = rand(0, Math.PI * 2);
-      epifitas += '<a-entity position="' + (Math.cos(ba) * 0.16).toFixed(2) + ' ' + by.toFixed(2) + ' ' + (Math.sin(ba) * 0.16).toFixed(2) + '">' +
-        '<a-cone position="0 0 0" radius-bottom="0.14" radius-top="0.06" height="0.16" color="#5A3828"></a-cone>' +
-        '<a-cone position="0 0.09 0" radius-bottom="0.13" radius-top="0.02" height="0.14" color="#A03828"></a-cone>' +
-        '<a-cone position="0 0.16 0" radius-bottom="0.05" radius-top="0" height="0.1" color="#C8382A"></a-cone>' +
-        '</a-entity>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      raizes + musgo +
-      '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.16" height="' + altura.toFixed(2) + '" color="' + troncoC + '" shadow="cast: true"></a-cylinder>' +
-      epifitas + folhagem +
-      '</a-entity>';
-  }
+  function glb(src, x, z, rot, alturaAlvo, yOffset) {
+  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+  const altura = alturaAlvo || 3;
+  const yBase = yOffset || 0;
+
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const ajustar = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return false;
+
+      /* Reset */
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
+
+      /* Mede tamanho original */
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
+
+      /* Escala pra bater a altura alvo */
+      const escala = altura / size.y;
+      mesh.scale.set(escala, escala, escala);
+      mesh.updateMatrixWorld(true);
+
+      /* Recalcula depois da escala */
+      /* Recalcula depois da escala */
+      const box2 = new THREE.Box3().setFromObject(mesh);
+      const center2 = box2.getCenter(new THREE.Vector3());
+
+      // Captura a posição global da entidade pai (<a-entity>)
+      const parentPos = new THREE.Vector3();
+      el.object3D.getWorldPosition(parentPos);
+
+      // Ajusta o mesh internamente compensando a posição original do pai
+      mesh.position.x = parentPos.x - center2.x;
+      mesh.position.z = parentPos.z - center2.z;
+      mesh.position.y = parentPos.y - box2.min.y;
+      mesh.updateMatrixWorld(true);
+
+      return true;
+    };
+
+    if (ajustar()) return;
+
+    let tentativas = 0;
+    const interval = setInterval(() => {
+      tentativas++;
+      if (ajustar() || tentativas > 60) clearInterval(interval);
+    }, 100);
+  }, 100);
+
+  return '<a-entity id="' + id + '" ' +
+         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
+         'gltf-model="url(assets/ambiente/' + src + ')" ' +
+         'shadow="cast: true; receive: true"></a-entity>';
+}
 
   function gerarSamambaia(x, z) {
     const h = rand(0.5, 1.0);
@@ -74,60 +91,11 @@
     return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' + folhas + '</a-entity>';
   }
 
-  function gerarBromelia(x, z, t) {
-    const t2 = t || 1;
-    const cor1 = pick(['#A03828', '#C8382A', '#8A3820']);
-    const cor2 = '#5A2818';
-    const s = t2 * rand(0.8, 1.4);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0" scale="' + s + ' ' + s + ' ' + s + '">' +
-      '<a-cone position="0 0.1 0" radius-bottom="0.28" radius-top="0.16" height="0.16" color="' + cor2 + '"></a-cone>' +
-      '<a-cone position="0 0.26 0" radius-bottom="0.24" radius-top="0.05" height="0.22" color="' + cor1 + '"></a-cone>' +
-      '<a-cone position="0 0.42 0" radius-bottom="0.1" radius-top="0" height="0.16" color="' + cor1 + '"></a-cone>' +
-      '<a-circle position="0 0.28 0" rotation="-90 0 0" radius="0.15" color="#4A8090" opacity="0.7" transparent="true"></a-circle>' +
-      '</a-entity>';
-  }
-
   function gerarFolhico(x, z) {
     const cor = pick(['#5A3A20', '#8A5A28', '#6A4A28', '#3A2818', '#A86A28']);
     const w = rand(0.12, 0.24);
     const h = rand(0.08, 0.16);
     return '<a-plane position="' + x.toFixed(2) + ' 0.014 ' + z.toFixed(2) + '" width="' + w.toFixed(2) + '" height="' + h.toFixed(2) + '" color="' + cor + '" material="shader: flat; side: double; opacity: 0.95; transparent: true" rotation="-90 ' + rand(0,360).toFixed(1) + ' 0"></a-plane>';
-  }
-
-  function gerarCogumelo(x, z) {
-    const cor = pick(['#4A7A8A', '#8A4AD8', '#3AA07A', '#F0A0C0']);
-    const h = rand(0.06, 0.14);
-    const r = rand(0.04, 0.08);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' +
-      '<a-cylinder position="0 ' + (h/2).toFixed(3) + ' 0" radius="' + (r*0.3).toFixed(3) + '" height="' + h.toFixed(3) + '" color="#D8D0B8"></a-cylinder>' +
-      '<a-sphere position="0 ' + h.toFixed(3) + ' 0" radius="' + r.toFixed(3) + '" color="' + cor + '" material="shader: standard; emissive: ' + cor + '; emissiveIntensity: 0.6" scale="1 0.55 1"></a-sphere>' +
-      '</a-entity>';
-  }
-
-  function gerarTroncoCaido(x, z) {
-    const comp = rand(2.2, 3.8);
-    const raio = rand(0.18, 0.26);
-    let musgos = '';
-    for (let i = 0; i < randInt(6, 10); i++) {
-      const dx = rand(-comp/2 + 0.3, comp/2 - 0.3);
-      const a = rand(0, Math.PI * 2);
-      const dy = Math.cos(a) * raio * 0.9;
-      const dz = Math.sin(a) * raio * 0.9;
-      musgos += '<a-sphere position="' + dx.toFixed(2) + ' ' + (raio + dy*0.6).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="' + rand(0.09,0.16).toFixed(2) + '" color="#2E5A24" scale="1.4 0.5 1.4"></a-sphere>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' ' + raio.toFixed(2) + ' ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 0 0" rotation="0 0 90" radius="' + raio.toFixed(2) + '" height="' + comp.toFixed(2) + '" color="#2E1A0E" shadow="cast: true"></a-cylinder>' +
-      musgos + '</a-entity>';
-  }
-
-  function gerarSapopema(x, z) {
-    let raizes = '';
-    for (let i = 0; i < randInt(5, 8); i++) {
-      const a = (i / 8) * Math.PI * 2 + rand(-0.3, 0.3);
-      const h = rand(0.8, 1.6);
-      raizes += '<a-cone position="' + (Math.cos(a) * 0.5).toFixed(2) + ' ' + (h*0.35).toFixed(2) + ' ' + (Math.sin(a) * 0.5).toFixed(2) + '" radius-bottom="0.22" radius-top="0.08" height="' + h.toFixed(2) + '" color="#2E1A0E" rotation="' + rand(75,95).toFixed(1) + ' ' + (a*180/Math.PI).toFixed(1) + ' 0"></a-cone>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' + raizes + '</a-entity>';
   }
 
   function gerarRaioCopa(x, z, alt, r) {
@@ -176,6 +144,7 @@
 
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="' + chaoBase + '" shadow="receive: true"></a-circle>';
 
+    /* Manchas escuras no chão */
     for (let i = 0; i < (denso ? 30 : 18); i++) {
       const p = pos(2, 35);
       const r = rand(1.5, 4);
@@ -183,53 +152,74 @@
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.006 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + cor + '" opacity="0.5" transparent="true"></a-circle>';
     }
 
+    /* Névoa baixa */
     for (let i = 0; i < (denso ? 8 : 4); i++) {
       const p = pos(8, 25);
       const r = rand(3, 6);
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.3 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="#A8B8C0" material="shader: flat; opacity: 0.15; transparent: true; side: double"></a-circle>';
     }
 
+    /* Raios de luz */
     for (let i = 0; i < (denso ? 10 : 5); i++) {
       const p = pos(2, 18);
       html += gerarRaioCopa(p.x, p.z, rand(7, 10), rand(0.8, 1.8));
     }
 
-    for (let i = 0; i < (denso ? 30 : 18); i++) {
-      const a = (i / (denso ? 30 : 18)) * Math.PI * 2 + rand(-0.2, 0.2);
+    /* ============================================================
+       GLBs — Árvores com sapopema (raízes gigantes)
+       ============================================================ */
+    const nSapo = denso ? 14 : 8;
+    for (let i = 0; i < nSapo; i++) {
+      const a = (i / nSapo) * Math.PI * 2 + rand(-0.2, 0.2);
       const r = 10 + Math.random() * 22;
-      html += gerarArvoreAlta(Math.cos(a) * r, Math.sin(a) * r, rand(5.5, 9.0));
+      html += glb('altitude_sapopema.glb', Math.cos(a) * r, Math.sin(a) * r, rand(0,360), 1.0);
     }
-    for (let i = 0; i < (denso ? 8 : 4); i++) {
+    /* Sapopemas próximas à câmera */
+    for (let i = 0; i < (denso ? 6 : 3); i++) {
       const p = pos(6, 14);
-      html += gerarArvoreAlta(p.x, p.z, rand(6.5, 9.0));
+      html += glb('altitude_sapopema.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    for (let i = 0; i < (denso ? 10 : 6); i++) {
-      const p = pos(4, 20);
-      html += gerarSapopema(p.x, p.z);
-    }
-    for (let i = 0; i < (denso ? 8 : 4); i++) {
+    /* ============================================================
+       GLBs — Troncos caídos com musgo
+       ============================================================ */
+    const nTroncos = denso ? 8 : 4;
+    for (let i = 0; i < nTroncos; i++) {
       const p = pos(4, 18);
-      html += gerarTroncoCaido(p.x, p.z);
+      html += glb('altitude_tronco.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    for (let i = 0; i < (denso ? 50 : 30); i++) {
+    /* ============================================================
+       GLBs — Bromélias gigantes
+       ============================================================ */
+    const nBrom = denso ? 24 : 14;
+    for (let i = 0; i < nBrom; i++) {
+      const p = pos(2, 20);
+      html += glb('altitude_bromelia.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       GLBs — Cogumelos bioluminescentes
+       ============================================================ */
+    const nCogu = denso ? 22 : 12;
+    for (let i = 0; i < nCogu; i++) {
+      const p = pos(1.5, 20);
+      html += glb('altitude_cogumelo.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       Procedurais de volume
+       ============================================================ */
+    for (let i = 0; i < (denso ? 40 : 24); i++) {
       const p = pos(1.5, 22);
       html += gerarSamambaia(p.x, p.z);
-    }
-    for (let i = 0; i < (denso ? 30 : 18); i++) {
-      const p = pos(2, 20);
-      html += gerarBromelia(p.x, p.z, rand(0.8, 1.5));
     }
     for (let i = 0; i < (denso ? 100 : 55); i++) {
       const p = pos(1, 25);
       html += gerarFolhico(p.x, p.z);
     }
-    for (let i = 0; i < (denso ? 30 : 15); i++) {
-      const p = pos(1.5, 20);
-      html += gerarCogumelo(p.x, p.z);
-    }
 
+    /* Limpa-folhas (silhuetas fantasma) */
     html += gerarLimpaFolha(-2.0, 1.2, -3.0);
     html += gerarLimpaFolha(2.5, 1.5, -4.0);
     html += gerarLimpaFolha(-3.2, 0.9, 2.0);
@@ -238,8 +228,10 @@
       html += gerarLimpaFolha(0.5, 1.8, -6.0);
     }
 
+    /* Memorial */
     html += gerarMemorial(-4, -5, 30);
 
+    /* Hotspots */
     html += '<a-entity position="0 2.2 2.5" info-hotspot="titulo: Limpa-folha-do-nordeste; descricao: Philydor novaesi — ave vermelho-tijolo de 18 cm. Visto por último em 2011. Provavelmente extinto na natureza.; cor: #8A2818"></a-entity>';
     html += '<a-entity position="-3.5 0.8 -3" info-hotspot="titulo: Samambaia; descricao: Indicador de mata úmida preservada. Camada baixa que mantém a umidade do solo.; cor: #2A6A28"></a-entity>';
     html += '<a-entity position="3.5 1.0 -4" info-hotspot="titulo: Bromélia gigante; descricao: Reservatório natural de água. Berçário de sapos, insetos e fonte de água para as aves.; cor: #C8382A"></a-entity>';
@@ -251,6 +243,7 @@
     html += '<a-entity position="2 3.2 -12" info-hotspot="titulo: Centro de Endemismo PE; descricao: Região entre Alagoas e Pernambuco. Restam menos de 2% da cobertura original.; cor: #2E5A24"></a-entity>';
     html += '<a-entity position="-6 0.9 5" info-hotspot="titulo: Fragmentação; descricao: Retalhos de mata isolados condenam espécies endêmicas. É a maior ameaça à biodiversidade.; cor: #E8482A"></a-entity>';
 
+    /* Iluminação */
     html += '<a-entity light="type: ambient; color: #A8C8B8; intensity: 0.5"></a-entity>' +
             '<a-entity position="3 14 4" light="type: directional; color: #E8F0D8; intensity: 0.85; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
             '<a-entity position="-4 4 -2" light="type: point; color: #A8D0B8; intensity: 0.35; distance: 14"></a-entity>' +
@@ -278,5 +271,5 @@
   };
 
   window.MewBiomas.montarBiomaMataLimpafolha = montarBiomaMataLimpafolha;
-  console.log('[bioma_mata_limpafolha] Bioma Mata Atlântica de Altitude (Limpa-folha) registrado.');
+  console.log('[bioma_mata_limpafolha] v2 — Mata de Altitude (Limpa-folha) com GLBs registrado.');
 })();

@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_caatinga_galo.js
+   bioma_caatinga_galo.js — v2 (com GLBs)
    Caatinga — Galo-de-campina (Paroaria dominicana)
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -15,47 +15,64 @@
     return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
-  function gerarMandacaru(x, z, h) {
-    const altura = h || rand(1.6, 3.2);
-    const cor = '#3E7A3E', corEsc = '#2E5A2E', flor = '#F0E0A0';
-    let bracos = '';
-    const nBracos = randInt(1, 3);
-    for (let i = 0; i < nBracos; i++) {
-      const ang = (i / nBracos) * Math.PI * 2 + rand(-0.3, 0.3);
-      const bh = altura * rand(0.4, 0.7);
-      const dx = Math.cos(ang) * 0.35;
-      const dz = Math.sin(ang) * 0.35;
-      bracos += '<a-cylinder position="' + (dx * 0.5).toFixed(2) + ' ' + (bh * 0.5).toFixed(2) + ' ' + (dz * 0.5).toFixed(2) + '" radius="0.13" height="' + bh.toFixed(2) + '" color="' + corEsc + '" rotation="' + rand(-30,30).toFixed(1) + ' 0 ' + rand(-30,30).toFixed(1) + '"></a-cylinder>' +
-                '<a-cylinder position="' + dx.toFixed(2) + ' ' + (bh * 0.95).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="0.13" height="' + (bh * 0.7).toFixed(2) + '" color="' + cor + '"></a-cylinder>' +
-                '<a-sphere position="' + dx.toFixed(2) + ' ' + (bh * 1.3).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="0.13" color="' + cor + '"></a-sphere>';
-    }
-    let flores = '';
-    for (let i = 0; i < randInt(2, 5); i++) {
-      const a = rand(0, Math.PI * 2);
-      const r = rand(0.05, 0.15);
-      flores += '<a-sphere position="' + (Math.cos(a)*r).toFixed(2) + ' ' + (altura + 0.05).toFixed(2) + ' ' + (Math.sin(a)*r).toFixed(2) + '" radius="0.06" color="' + flor + '"></a-sphere>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.16" height="' + altura.toFixed(2) + '" color="' + cor + '" shadow="cast: true"></a-cylinder>' +
-      bracos + flores +
-      '<a-sphere position="0 ' + altura.toFixed(2) + ' 0" radius="0.16" color="' + cor + '"></a-sphere>' +
-      '</a-entity>';
-  }
+  function glb(src, x, z, rot, alturaAlvo, yOffset) {
+  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+  const altura = alturaAlvo || 3;
+  const yBase = yOffset || 0;
 
-  function gerarXiqueXique(x, z) {
-    const cor = '#5A8A4A';
-    const altura = rand(0.5, 1.0);
-    let html = '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">';
-    const qtd = randInt(5, 8);
-    for (let i = 0; i < qtd; i++) {
-      const a = (i / qtd) * Math.PI * 2 + rand(-0.3, 0.3);
-      const tilt = rand(50, 75);
-      const h = altura * rand(0.6, 1.1);
-      html += '<a-cylinder position="' + (Math.cos(a) * 0.15).toFixed(2) + ' ' + (h/2).toFixed(2) + ' ' + (Math.sin(a) * 0.15).toFixed(2) + '" radius="0.08" height="' + h.toFixed(2) + '" color="' + cor + '" rotation="' + tilt.toFixed(1) + ' ' + (a*180/Math.PI).toFixed(1) + ' 0"></a-cylinder>';
-    }
-    html += '</a-entity>';
-    return html;
-  }
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const ajustar = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return false;
+
+      /* Reset */
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
+
+      /* Mede tamanho original */
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
+
+      /* Escala pra bater a altura alvo */
+      const escala = altura / size.y;
+      mesh.scale.set(escala, escala, escala);
+      mesh.updateMatrixWorld(true);
+
+      /* Recalcula depois da escala */
+      const box2 = new THREE.Box3().setFromObject(mesh);
+      const center2 = box2.getCenter(new THREE.Vector3());
+
+      /* Centraliza em X/Z e sobe o Y pra base tocar o chão */
+      mesh.position.x = -center2.x;
+      mesh.position.z = -center2.z;
+      mesh.position.y = -box2.min.y;
+      mesh.updateMatrixWorld(true);
+
+      return true;
+    };
+
+    if (ajustar()) return;
+
+    let tentativas = 0;
+    const interval = setInterval(() => {
+      tentativas++;
+      if (ajustar() || tentativas > 60) clearInterval(interval);
+    }, 100);
+  }, 100);
+
+  return '<a-entity id="' + id + '" ' +
+         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
+         'gltf-model="url(assets/ambiente/' + src + ')" ' +
+         'shadow="cast: true; receive: true"></a-entity>';
+}
 
   function gerarFacheiro(x, z, h) {
     const altura = h || rand(2.5, 4.5);
@@ -70,22 +87,6 @@
       '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.20" height="' + altura.toFixed(2) + '" color="' + cor + '" shadow="cast: true"></a-cylinder>' +
       espinhos +
       '<a-sphere position="0 ' + altura.toFixed(2) + ' 0" radius="0.18" color="' + cor + '"></a-sphere>' +
-      '</a-entity>';
-  }
-
-  function gerarJuazeiro(x, z) {
-    const altura = rand(2.5, 4.5);
-    const tronco = '#4A3A28', folha = '#5A8A3A';
-    let copa = '';
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2;
-      const r = rand(0.6, 1.1);
-      copa += '<a-sphere position="' + (Math.cos(a)*r).toFixed(2) + ' ' + (altura + rand(-0.3, 0.4)).toFixed(2) + ' ' + (Math.sin(a)*r).toFixed(2) + '" radius="' + rand(0.55,0.85).toFixed(2) + '" color="' + folha + '" sway-dry="ampl: 4"></a-sphere>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.14" height="' + altura.toFixed(2) + '" color="' + tronco + '" shadow="cast: true"></a-cylinder>' +
-      copa +
-      '<a-sphere position="0 ' + (altura + 0.4).toFixed(2) + ' 0" radius="0.7" color="' + folha + '"></a-sphere>' +
       '</a-entity>';
   }
 
@@ -123,14 +124,6 @@
   function gerarPedra(x, z, t) {
     const r = (t || 1) * rand(0.3, 0.7);
     return '<a-dodecahedron position="' + x.toFixed(2) + ' ' + (r*0.4).toFixed(2) + ' ' + z.toFixed(2) + '" radius="' + r.toFixed(2) + '" color="#8A7A5A" rotation="0 ' + rand(0,360).toFixed(1) + ' 0" scale="1.2 ' + rand(0.3,0.5).toFixed(2) + ' 1.2"></a-dodecahedron>';
-  }
-
-  function gerarCacimba(x, z) {
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' +
-      '<a-circle position="0 0.02 0" rotation="-90 0 0" radius="1.1" color="#8A7A5A"></a-circle>' +
-      '<a-circle position="0 0.03 0" rotation="-90 0 0" radius="0.85" color="#4A8090" material="shader: standard; emissive: #2A5A70; emissiveIntensity: 0.3"></a-circle>' +
-      '<a-circle position="0 0.04 0" rotation="-90 0 0" radius="0.6" color="#8AC8D8" opacity="0.5" transparent="true"></a-circle>' +
-      '</a-entity>';
   }
 
   function gerarRioSeco() {
@@ -227,29 +220,52 @@
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.005 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + chaoVar + '" opacity="0.55" transparent="true"></a-circle>';
     }
 
+    /* Rio seco (procedural) */
     html += gerarRioSeco();
-    html += gerarCacimba(-8, 4);
-    html += gerarCacimba(9, -6);
 
-    for (let i = 0; i < (denso ? 10 : 6); i++) {
+    /* ============================================================
+       GLBs — Cacimbas (poços de água)
+       ============================================================ */
+    html += glb('caatinga_cacimba.glb', -8, 4, rand(0,360), 1.0);
+    html += glb('caatinga_cacimba.glb', 9, -6, rand(0,360), 1.0);
+
+    /* ============================================================
+       GLBs — Juazeiros
+       ============================================================ */
+    const nJuaz = denso ? 10 : 6;
+    for (let i = 0; i < nJuaz; i++) {
       const p = pos(8, 25);
-      html += gerarJuazeiro(p.x, p.z);
+      html += glb('caatinga_juazeiro.glb', p.x, p.z, rand(0,360), 1.0);
     }
-    for (let i = 0; i < (denso ? 6 : 4); i++) {
-      const p = pos(10, 28);
-      html += gerarAroeira(p.x, p.z);
+
+    /* ============================================================
+       GLBs — Xique-xique (rasteiros)
+       ============================================================ */
+    const nXique = denso ? 12 : 7;
+    for (let i = 0; i < nXique; i++) {
+      const p = pos(3, 20);
+      html += glb('caatinga_xiquexique.glb', p.x, p.z, rand(0,360), 1.0);
     }
-    for (let i = 0; i < (denso ? 22 : 14); i++) {
+
+    /* ============================================================
+       GLBs — Mandacarus (cactos colunares)
+       ============================================================ */
+    const nMand = denso ? 16 : 10;
+    for (let i = 0; i < nMand; i++) {
       const p = pos(3, 24);
-      html += gerarMandacaru(p.x, p.z, rand(1.6, 3.2));
+      html += glb('caatinga_mandacaru.glb', p.x, p.z, rand(0,360), 1.0);
     }
+
+    /* ============================================================
+       Procedurais de volume
+       ============================================================ */
     for (let i = 0; i < (denso ? 8 : 5); i++) {
       const p = pos(5, 22);
       html += gerarFacheiro(p.x, p.z, rand(2.5, 4.5));
     }
-    for (let i = 0; i < (denso ? 18 : 10); i++) {
-      const p = pos(2, 20);
-      html += gerarXiqueXique(p.x, p.z);
+    for (let i = 0; i < (denso ? 6 : 4); i++) {
+      const p = pos(10, 28);
+      html += gerarAroeira(p.x, p.z);
     }
     for (let i = 0; i < (denso ? 30 : 18); i++) {
       const p = pos(1.5, 25);
@@ -272,6 +288,7 @@
       html += gerarBromelia(p.x, p.z);
     }
 
+    /* Galos pousados */
     html += gerarGaloPousado(-2.0, 1.0, -2.5);
     html += gerarGaloPousado(2.5, 1.3, -3.2);
     html += gerarGaloPousado(-3.8, 0.9, 2.2);
@@ -284,6 +301,7 @@
       html += gerarGaloVoando(p.x, rand(2.5, 4.5), p.z);
     }
 
+    /* Hotspots */
     html += '<a-entity position="0 2.2 2.5" info-hotspot="titulo: Galo-de-campina; descricao: Paroaria dominicana — endêmico da Caatinga. Cabeça vermelha e corpo cinza. Adaptou-se a áreas abertas e cidades.; cor: #C82A2A"></a-entity>';
     html += '<a-entity position="-4 1.0 -3" info-hotspot="titulo: Mandacaru; descricao: Cacto colunar símbolo da Caatinga. Armazena água e alimenta aves e insetos na seca.; cor: #3E7A3E"></a-entity>';
     html += '<a-entity position="3 1.2 -4" info-hotspot="titulo: Juazeiro; descricao: Árvore espinhosa da mata baixa. Oferece sombra e frutos para o galo-de-campina.; cor: #5A8A3A"></a-entity>';
@@ -293,6 +311,7 @@
     html += '<a-entity position="-3 0.6 4" info-hotspot="titulo: Bromélia; descricao: Reservatório natural de água. Abriga sapos, insetos e micro-organismos na seca.; cor: #A03828"></a-entity>';
     html += '<a-entity position="0 3.0 -10" info-hotspot="titulo: Caatinga; descricao: Bioma exclusivamente brasileiro. Vegetação que perde folhas na seca e renasce nas chuvas.; cor: #D8C090"></a-entity>';
 
+    /* Iluminação */
     html += '<a-entity light="type: ambient; color: #FFF0D8; intensity: 0.85"></a-entity>' +
             '<a-entity position="8 14 4" light="type: directional; color: #FFE8A8; intensity: 1.3; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
             '<a-entity position="-6 6 -3" light="type: point; color: #FFE0A0; intensity: 0.4; distance: 15"></a-entity>';
@@ -319,5 +338,5 @@
   };
 
   window.MewBiomas.montarBiomaCaatingaGalo = montarBiomaCaatingaGalo;
-  console.log('[bioma_caatinga_galo] Bioma Caatinga (Galo-de-campina) registrado.');
+  console.log('[bioma_caatinga_galo] v2 — Caatinga (Galo-de-campina) com GLBs registrado.');
 })();

@@ -1,8 +1,6 @@
 /* =========================================================
-   bioma_recife_tartaruga_pente.js
+   bioma_recife_tartaruga_pente.js — v2 (com GLBs)
    RECIFE DE CORAIS RASO — Tartaruga-de-pente (Eretmochelys imbricata)
-   Foco: esponjas gigantes (alimento), recife colorido, peixes
-          limpadores, águas turquesa rasas.
    Depende de: bioma_componentes.js
    ========================================================= */
 (function () {
@@ -17,85 +15,70 @@
     return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
-  /* ----- ESPONJA gigante do mar (alimento da tartaruga-de-pente) ----- */
-  function gerarEsponja(x, z, cor) {
-    const tipo = randInt(0, 2);
-    const h = rand(0.6, 1.1);
-    const r = rand(0.25, 0.45);
-    if (tipo === 0) {
-      /* Esponja barril */
-      return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' +
-        '<a-cylinder position="0 ' + (h/2).toFixed(2) + ' 0" radius="' + r.toFixed(2) + '" height="' + h.toFixed(2) + '" color="' + cor + '" open-ended="true" material="shader: standard; side: double"></a-cylinder>' +
-        '<a-cylinder position="0 ' + (h*0.5).toFixed(2) + ' 0" radius="' + (r*0.7).toFixed(2) + '" height="' + (h*1.02).toFixed(2) + '" color="#0A0A0A" opacity="0.8" transparent="true"></a-cylinder>' +
-        '<a-torus position="0 ' + h.toFixed(2) + ' 0" rotation="90 0 0" radius="' + r.toFixed(2) + '" radius-tubular="0.03" color="' + cor + '"></a-torus>' +
-        '<a-torus position="0 0.05 0" rotation="90 0 0" radius="' + r.toFixed(2) + '" radius-tubular="0.03" color="' + cor + '"></a-torus>' +
-        '</a-entity>';
-    }
-    if (tipo === 1) {
-      /* Esponja tubo (grupo) */
-      let tubos = '';
-      for (let i = 0; i < randInt(3, 5); i++) {
-        const hh = rand(0.5, 1.0);
-        const dx = rand(-0.3, 0.3);
-        const dz = rand(-0.3, 0.3);
-        const rr = rand(0.07, 0.12);
-        tubos += '<a-cylinder position="' + dx.toFixed(2) + ' ' + (hh/2).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="' + rr.toFixed(2) + '" height="' + hh.toFixed(2) + '" color="' + cor + '"></a-cylinder>' +
-                 '<a-cylinder position="' + dx.toFixed(2) + ' ' + hh.toFixed(2) + ' ' + dz.toFixed(2) + '" radius="' + rr.toFixed(2) + '" height="0.05" color="#0A0A0A" opacity="0.8" transparent="true"></a-cylinder>';
-      }
-      return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' + tubos + '</a-entity>';
-    }
-    /* Esponja incrustante */
-    return '<a-entity position="' + x.toFixed(2) + ' 0.05 ' + z.toFixed(2) + '">' +
-      '<a-sphere radius="' + (r*0.9).toFixed(2) + '" color="' + cor + '" scale="1.3 0.4 1.3" material="shader: standard; emissive: ' + cor + '; emissiveIntensity: 0.15"></a-sphere>' +
-      '<a-sphere position="0.15 0 0.05" radius="' + (r*0.5).toFixed(2) + '" color="' + cor + '" scale="1.4 0.35 1.4"></a-sphere>' +
-      '</a-entity>';
-  }
+  function glb(src, x, z, rot, alturaAlvo, yOffset) {
+  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+  const altura = alturaAlvo || 3;
+  const yBase = yOffset || 0;
 
-  /* ----- Coral tipo ramo ----- */
-  function gerarCoralRamo(x, z, cor) {
-    const h = rand(0.3, 0.55);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 ' + (h/2).toFixed(2) + ' 0" radius="0.05" height="' + h.toFixed(2) + '" color="' + cor + '"></a-cylinder>' +
-      '<a-cylinder position="0.08 ' + (h*0.8).toFixed(2) + ' 0" radius="0.035" height="' + (h*0.55).toFixed(2) + '" color="' + cor + '" rotation="0 0 -30"></a-cylinder>' +
-      '<a-cylinder position="-0.08 ' + (h*0.85).toFixed(2) + ' 0" radius="0.035" height="' + (h*0.5).toFixed(2) + '" color="' + cor + '" rotation="0 0 30"></a-cylinder>' +
-      '<a-sphere position="0 ' + h.toFixed(2) + ' 0" radius="0.07" color="' + cor + '"></a-sphere>' +
-      '</a-entity>';
-  }
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
 
-  /* ----- Coral cérebro ----- */
-  function gerarCoralCerebro(x, z, cor) {
-    const r = rand(0.2, 0.35);
-    return '<a-entity position="' + x.toFixed(2) + ' ' + (r*0.55).toFixed(2) + ' ' + z.toFixed(2) + '">' +
-      '<a-dodecahedron radius="' + r.toFixed(2) + '" color="' + cor + '" scale="1.15 0.65 1.15"></a-dodecahedron>' +
-      '<a-sphere position="0 ' + (r*0.35).toFixed(2) + ' 0" radius="' + (r*0.6).toFixed(2) + '" color="' + cor + '" scale="1.1 0.5 1.1"></a-sphere>' +
-      '</a-entity>';
-  }
+    const ajustar = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return false;
 
-  /* ----- Coral leque ----- */
-  function gerarCoralLeque(x, z, cor) {
-    const h = rand(0.5, 0.9);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-circle position="0 ' + (h*0.6).toFixed(2) + ' 0" radius="' + (h*0.45).toFixed(2) + '" color="' + cor + '" material="shader: flat; side: double; opacity: 0.7; transparent: true"></a-circle>' +
-      '<a-circle position="0 ' + (h*0.6).toFixed(2) + ' 0" rotation="90 0 0" radius="' + (h*0.38).toFixed(2) + '" color="' + cor + '" material="shader: flat; side: double; opacity: 0.55; transparent: true"></a-circle>' +
-      '<a-cylinder position="0 ' + (h*0.28).toFixed(2) + ' 0" radius="0.025" height="' + (h*0.55).toFixed(2) + '" color="' + cor + '"></a-cylinder>' +
-      '</a-entity>';
-  }
+      /* Reset */
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
 
-  /* ----- Coral tubo ----- */
-  function gerarCoralTubo(x, z, cor) {
-    let html = '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">';
-    for (let i = 0; i < randInt(3, 5); i++) {
-      const h = rand(0.25, 0.5);
-      const dx = rand(-0.15, 0.15);
-      const dz = rand(-0.15, 0.15);
-      html += '<a-cylinder position="' + dx.toFixed(2) + ' ' + (h/2).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="0.045" height="' + h.toFixed(2) + '" color="' + cor + '"></a-cylinder>' +
-              '<a-sphere position="' + dx.toFixed(2) + ' ' + h.toFixed(2) + ' ' + dz.toFixed(2) + '" radius="0.045" color="' + cor + '"></a-sphere>';
-    }
-    html += '</a-entity>';
-    return html;
-  }
+      /* Mede tamanho original */
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
 
-  /* ----- Anêmona ----- */
+      /* Escala pra bater a altura alvo */
+      const escala = altura / size.y;
+      mesh.scale.set(escala, escala, escala);
+      mesh.updateMatrixWorld(true);
+
+      /* Recalcula depois da escala */
+      /* Recalcula depois da escala */
+      const box2 = new THREE.Box3().setFromObject(mesh);
+      const center2 = box2.getCenter(new THREE.Vector3());
+
+      // Captura a posição global da entidade pai (<a-entity>)
+      const parentPos = new THREE.Vector3();
+      el.object3D.getWorldPosition(parentPos);
+
+      // Ajusta o mesh internamente compensando a posição original do pai
+      mesh.position.x = parentPos.x - center2.x;
+      mesh.position.z = parentPos.z - center2.z;
+      mesh.position.y = parentPos.y - box2.min.y;
+      mesh.updateMatrixWorld(true);
+
+      return true;
+    };
+
+    if (ajustar()) return;
+
+    let tentativas = 0;
+    const interval = setInterval(() => {
+      tentativas++;
+      if (ajustar() || tentativas > 60) clearInterval(interval);
+    }, 100);
+  }, 100);
+
+  return '<a-entity id="' + id + '" ' +
+         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
+         'gltf-model="url(assets/ambiente/' + src + ')" ' +
+         'shadow="cast: true; receive: true"></a-entity>';
+}
+
   function gerarAnemona(x, z, cor) {
     const base = rand(0.1, 0.16);
     let html = '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">';
@@ -111,7 +94,6 @@
     return html;
   }
 
-  /* ----- Peixe de recife (colorido) ----- */
   function gerarPeixeRecife(x, y, z, cor, tam) {
     const t = (tam || 1) * rand(0.8, 1.3);
     const dur = randInt(6000, 11000);
@@ -125,7 +107,6 @@
       '</a-entity>';
   }
 
-  /* ----- Cardume ----- */
   function gerarCardume(cx, cy, cz, corBase, qtd) {
     let html = '<a-entity position="' + cx.toFixed(2) + ' ' + cy.toFixed(2) + ' ' + cz.toFixed(2) + '">';
     const n = qtd || randInt(6, 10);
@@ -136,7 +117,6 @@
     return html;
   }
 
-  /* ----- Peixe-palhaço (nemo) no coral ----- */
   function gerarNemo(x, y, z) {
     return '<a-entity position="' + x.toFixed(2) + ' ' + y.toFixed(2) + ' ' + z.toFixed(2) + '" bobber="amp: 0.05; dur: 3000">' +
       '<a-sphere radius="0.05" color="#F07020" scale="1.5 1 0.6"></a-sphere>' +
@@ -145,7 +125,6 @@
       '</a-entity>';
   }
 
-  /* ----- Estrela-do-mar ----- */
   function gerarEstrela(x, z, cor) {
     const r = rand(0.1, 0.16);
     let bracos = '';
@@ -158,19 +137,16 @@
     return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0"><a-cylinder position="0 0.02 0" radius="' + (r*0.55).toFixed(3) + '" height="0.04" color="' + cor + '"></a-cylinder>' + bracos + '</a-entity>';
   }
 
-  /* ----- Bolha ----- */
   function gerarBolha(x, y0, z, y1) {
     const dur = randInt(4000, 8000);
     const r = rand(0.03, 0.07);
     return '<a-sphere position="' + x.toFixed(2) + ' ' + y0.toFixed(2) + ' ' + z.toFixed(2) + '" radius="' + r.toFixed(3) + '" color="#E0F8FF" material="shader: standard; opacity: 0.4; transparent: true; emissive: #B0E8F5; emissiveIntensity: 0.6" animation="property: position; from: ' + x.toFixed(2) + ' ' + y0.toFixed(2) + ' ' + z.toFixed(2) + '; to: ' + x.toFixed(2) + ' ' + y1.toFixed(2) + ' ' + z.toFixed(2) + '; dur: ' + dur + '; loop: true; easing: linear"></a-sphere>';
   }
 
-  /* ----- Raio de sol na água ----- */
   function gerarRaioSol(x, z, alt, r) {
     return '<a-cone position="' + x.toFixed(2) + ' ' + (alt/2 + 1).toFixed(2) + ' ' + z.toFixed(2) + '" radius-bottom="' + r.toFixed(2) + '" radius-top="' + (r*0.3).toFixed(2) + '" height="' + alt.toFixed(2) + '" color="#FFF8E0" material="shader: flat; opacity: 0.10; transparent: true; side: double"></a-cone>';
   }
 
-  /* ----- Pedra ----- */
   function gerarPedra(x, z, t) {
     const r = (t || 1) * rand(0.25, 0.5);
     return '<a-dodecahedron position="' + x.toFixed(2) + ' ' + (r*0.6).toFixed(2) + ' ' + z.toFixed(2) + '" radius="' + r.toFixed(2) + '" color="#6A6A5E" rotation="0 ' + rand(0,360).toFixed(1) + ' 0" scale="1 ' + rand(0.55,0.9).toFixed(2) + ' 1"></a-dodecahedron>';
@@ -179,8 +155,7 @@
   function montarBiomaRecifeTartarugaPente(animal, opts) {
     opts = opts || {};
     const denso = opts.densidade !== 'baixa';
-    const skyTopo = '#40C8E8', skyBase = '#C8F5FF';
-    const areia = '#F0E8C0';
+    const skyTopo = '#40C8E8', skyBase = '#C8F5FF', areia = '#F0E8C0';
 
     const skySrc = window.MewBiomas && window.MewBiomas.criarTexturaGradiente
       ? window.MewBiomas.criarTexturaGradiente(skyTopo, skyBase)
@@ -190,14 +165,13 @@
       ? '<a-sky src="' + skySrc + '" color="' + skyBase + '"></a-sky>'
       : '<a-sky color="' + skyBase + '"></a-sky>';
 
-    /* Fundo de areia clara */
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="' + areia + '" shadow="receive: true"></a-circle>';
     for (let i = 0; i < (denso ? 15 : 8); i++) {
       const p = pos(2, 40);
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.005 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + rand(2,4.5).toFixed(2) + '" color="#D8C898" opacity="0.6" transparent="true"></a-circle>';
     }
 
-    /* Lâmina d'água turquesa (muito translúcida, para ver tudo) */
+    /* Superfície da água */
     html += '<a-circle position="0 2.5 0" rotation="-90 0 0" radius="90" color="#40C8E8" opacity="0.22" transparent="true"></a-circle>';
     html += '<a-circle position="0 2.52 0" rotation="-90 0 0" radius="90" color="#A8E8F5" opacity="0.08" transparent="true"></a-circle>';
 
@@ -207,87 +181,93 @@
       html += gerarRaioSol(p.x, p.z, rand(5, 7), rand(1.0, 2.0));
     }
 
-    /* ESPONJAS (alimento da tartaruga-de-pente) — o elemento único */
-    const coresEsponja = ['#FF6B9D', '#E86A9C', '#F0A040', '#D070B0', '#F08060', '#A860D0'];
-    for (let i = 0; i < (denso ? 24 : 14); i++) {
+    /* ============================================================
+       GLBs — ESPONJAS (alimento principal)
+       ============================================================ */
+    const nEspBarril = denso ? 14 : 8;
+    for (let i = 0; i < nEspBarril; i++) {
       const p = pos(3, 20);
-      html += gerarEsponja(p.x, p.z, pick(coresEsponja));
+      html += glb('recife_esponja_barril.glb', p.x, p.z, rand(0,360), 1.2);
     }
-    /* Núcleo de esponjas no centro-esquerda */
-    for (let i = 0; i < (denso ? 12 : 6); i++) {
-      const a = Math.random() * Math.PI * 2;
-      const r = rand(0, 2.0);
-      html += gerarEsponja(-4 + Math.cos(a)*r, -4 + Math.sin(a)*r, pick(coresEsponja));
+    const nEspTubo = denso ? 14 : 8;
+    for (let i = 0; i < nEspTubo; i++) {
+      const p = pos(3, 20);
+      html += glb('recife_esponja_tubo.glb', p.x, p.z, rand(0,360), 1.2);
     }
-
-    /* Corais variados */
-    const coresCorais = ['#FFD700', '#40E0D0', '#EE82EE', '#FF8C69', '#FFA07A', '#7EE0C8', '#F0A8D8'];
-    for (let i = 0; i < (denso ? 40 : 24); i++) {
-      const p = pos(4, 24);
-      const c = pick(coresCorais);
-      const t = randInt(0, 3);
-      if (t === 0) html += gerarCoralRamo(p.x, p.z, c);
-      else if (t === 1) html += gerarCoralCerebro(p.x, p.z, c);
-      else if (t === 2) html += gerarCoralLeque(p.x, p.z, c);
-      else html += gerarCoralTubo(p.x, p.z, c);
-    }
-    /* Núcleo de corais à direita */
-    for (let i = 0; i < (denso ? 20 : 10); i++) {
+    /* Núcleo de esponjas à esquerda */
+    for (let i = 0; i < (denso ? 10 : 5); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = rand(0, 2.5);
-      const c = pick(coresCorais);
-      const t = randInt(0, 3);
-      const xx = 5 + Math.cos(a)*r;
-      const zz = -5 + Math.sin(a)*r;
-      if (t === 0) html += gerarCoralRamo(xx, zz, c);
-      else if (t === 1) html += gerarCoralCerebro(xx, zz, c);
-      else if (t === 2) html += gerarCoralLeque(xx, zz, c);
-      else html += gerarCoralTubo(xx, zz, c);
+      const src = Math.random() > 0.5 ? 'recife_esponja_barril.glb' : 'recife_esponja_tubo.glb';
+      html += glb(src, -4 + Math.cos(a)*r, -4 + Math.sin(a)*r, rand(0,360), 1.2);
     }
 
-    /* Anêmonas */
+    /* ============================================================
+       GLBs — Corais variados
+       ============================================================ */
+    const nCoralRamo = denso ? 12 : 7;
+    for (let i = 0; i < nCoralRamo; i++) {
+      const p = pos(4, 22);
+      html += glb('recife_coral_remo.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+    const nCoralLeque = denso ? 12 : 7;
+    for (let i = 0; i < nCoralLeque; i++) {
+      const p = pos(4, 22);
+      html += glb('recife_coral_leque.glb', p.x, p.z, rand(0,360), 1.5);
+    }
+    const nCoralCerebro = denso ? 12 : 7;
+    for (let i = 0; i < nCoralCerebro; i++) {
+      const p = pos(4, 22);
+      html += glb('recife_coral_cerebro.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+    /* Núcleo de corais à direita */
+    for (let i = 0; i < (denso ? 15 : 8); i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = rand(0, 3);
+      const srcs = ['recife_coral_remo.glb', 'recife_coral_leque.glb', 'recife_coral_cerebro.glb'];
+      html += glb(pick(srcs), 5 + Math.cos(a)*r, -5 + Math.sin(a)*r, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       Procedurais de volume
+       ============================================================ */
     const coresAne = ['#FFB6C1', '#FF9AA2', '#E8B4D8', '#FFC0CB', '#F0A0E0'];
     for (let i = 0; i < (denso ? 16 : 9); i++) {
       const p = pos(4, 16);
       html += gerarAnemona(p.x, p.z, pick(coresAne));
     }
 
-    /* Pedras */
     for (let i = 0; i < (denso ? 12 : 7); i++) {
       const p = pos(3, 22);
       html += gerarPedra(p.x, p.z, rand(0.8, 1.6));
     }
 
-    /* Estrelas-do-mar e detalhes */
     const coresEstrela = ['#FF8C69', '#FF6B9D', '#FFD700', '#E8A87C', '#F0A8D8'];
     for (let i = 0; i < (denso ? 18 : 10); i++) {
       const p = pos(2, 20);
       html += gerarEstrela(p.x, p.z, pick(coresEstrela));
     }
 
-    /* Peixes de recife (coloridos, muitos) */
     const coresPeixes = ['#FFD166', '#FF8C42', '#7ED9E5', '#F7A072', '#E0BBE4', '#FFB347', '#F0A8D8'];
     for (let i = 0; i < (denso ? 22 : 12); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = rand(2, 12);
       html += gerarPeixeRecife(Math.cos(a)*r, rand(0.4, 2.2), Math.sin(a)*r, pick(coresPeixes), rand(0.8, 1.3));
     }
-
-    /* Cardumes */
     for (let i = 0; i < (denso ? 5 : 3); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = rand(4, 13);
       html += gerarCardume(Math.cos(a)*r, rand(0.8, 2.2), Math.sin(a)*r, pick(coresPeixes), randInt(6, 10));
     }
 
-    /* Nemos (peixe-palhaço) entre as anêmonas */
+    /* Nemos */
     for (let i = 0; i < (denso ? 8 : 4); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = rand(2, 8);
       html += gerarNemo(Math.cos(a)*r, rand(0.4, 1.2), Math.sin(a)*r);
     }
 
-    /* Bolhas subindo */
+    /* Bolhas */
     for (let i = 0; i < (denso ? 30 : 18); i++) {
       const p = pos(0, 15);
       html += gerarBolha(p.x, rand(0.1, 0.6), p.z, rand(2.2, 2.6));
@@ -303,7 +283,7 @@
     html += '<a-entity position="0 2.4 -8" info-hotspot="titulo: Águas rasas; descricao: A tartaruga-de-pente forrageia em recifes rasos até ~20 m. Diferente da tartaruga-de-couro, que vive em alto-mar.; cor: #40C8E8"></a-entity>';
     html += '<a-entity position="-7 0.7 -6" info-hotspot="titulo: Ameaças; descricao: Pesca acidental em redes, poluição por plástico, ocupação costeira e coleta ilegal de ovos.; cor: #E8482A"></a-entity>';
 
-    /* Iluminação clara e quente (águas rasas) */
+    /* Iluminação */
     html += '<a-entity light="type: ambient; color: #E0F8FF; intensity: 0.9"></a-entity>' +
             '<a-entity position="8 14 6" light="type: directional; color: #FFF8E0; intensity: 1.15; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
             '<a-entity position="-6 6 -3" light="type: point; color: #C8F0FF; intensity: 0.5; distance: 15"></a-entity>' +
@@ -331,5 +311,5 @@
   };
 
   window.MewBiomas.montarBiomaRecifeTartarugaPente = montarBiomaRecifeTartarugaPente;
-  console.log('[bioma_recife_tartaruga_pente] Bioma Recife de Corais (Tartaruga-de-pente) registrado.');
+  console.log('[bioma_recife_tartaruga_pente] v2 — Recife (Tartaruga-de-pente) com GLBs registrado.');
 })();

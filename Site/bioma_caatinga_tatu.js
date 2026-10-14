@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_caatinga_tatu.js
+   bioma_caatinga_tatu.js — v2 (com GLBs)
    Caatinga — Tatu-bola-do-nordeste (Tolypeutes tricinctus)
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -15,31 +15,64 @@
     return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
-  function gerarLajeado(x, z, t) {
-    const r = (t || 1) * rand(0.8, 1.6);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-circle position="0 0.006 0" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="#8A7A5A"></a-circle>' +
-      '<a-circle position="0.3 0.008 0" rotation="-90 0 0" radius="' + (r*0.5).toFixed(2) + '" color="#9A8A6A"></a-circle>' +
-      '<a-circle position="-0.2 0.008 0.2" rotation="-90 0 0" radius="' + (r*0.6).toFixed(2) + '" color="#7A6A4A"></a-circle>' +
-      '</a-entity>';
-  }
+  function glb(src, x, z, rot, alturaAlvo, yOffset) {
+  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+  const altura = alturaAlvo || 3;
+  const yBase = yOffset || 0;
 
-  function gerarCupinzeiro(x, z, tam) {
-    const t = tam || 1;
-    const h = 0.9 * t + Math.random() * 0.6;
-    let detalhes = '';
-    for (let i = 0; i < randInt(6, 12); i++) {
-      const a = rand(0, Math.PI * 2);
-      const r = (0.35 * t) * rand(0.4, 1.0);
-      const y = h * rand(0.1, 0.9);
-      detalhes += '<a-sphere position="' + (Math.cos(a)*r).toFixed(2) + ' ' + y.toFixed(2) + ' ' + (Math.sin(a)*r).toFixed(2) + '" radius="' + rand(0.04,0.1).toFixed(2) + '" color="#6A4A2A"></a-sphere>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' +
-      '<a-cone position="0 ' + (h/2).toFixed(2) + ' 0" radius-bottom="' + (0.5*t).toFixed(2) + '" radius-top="0.12" height="' + h.toFixed(2) + '" color="#7A5A3A"></a-cone>' +
-      '<a-sphere position="0 ' + (h*0.35).toFixed(2) + ' 0" radius="' + (0.3*t).toFixed(2) + '" color="#8A6A48"></a-sphere>' +
-      detalhes +
-      '</a-entity>';
-  }
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const ajustar = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return false;
+
+      /* Reset */
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
+
+      /* Mede tamanho original */
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
+
+      /* Escala pra bater a altura alvo */
+      const escala = altura / size.y;
+      mesh.scale.set(escala, escala, escala);
+      mesh.updateMatrixWorld(true);
+
+      /* Recalcula depois da escala */
+      const box2 = new THREE.Box3().setFromObject(mesh);
+      const center2 = box2.getCenter(new THREE.Vector3());
+
+      /* Centraliza em X/Z e sobe o Y pra base tocar o chão */
+      mesh.position.x = -center2.x;
+      mesh.position.z = -center2.z;
+      mesh.position.y = -box2.min.y;
+      mesh.updateMatrixWorld(true);
+
+      return true;
+    };
+
+    if (ajustar()) return;
+
+    let tentativas = 0;
+    const interval = setInterval(() => {
+      tentativas++;
+      if (ajustar() || tentativas > 60) clearInterval(interval);
+    }, 100);
+  }, 100);
+
+  return '<a-entity id="' + id + '" ' +
+         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
+         'gltf-model="url(assets/ambiente/' + src + ')" ' +
+         'shadow="cast: true; receive: true"></a-entity>';
+}
 
   function gerarFormigueiro(x, z) {
     const r = rand(0.3, 0.55);
@@ -52,15 +85,6 @@
     return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' +
       '<a-cone position="0 ' + (r*0.5).toFixed(2) + ' 0" radius-bottom="' + r.toFixed(2) + '" radius-top="0.05" height="' + (r).toFixed(2) + '" color="#B89A78"></a-cone>' +
       formigas + '</a-entity>';
-  }
-
-  function gerarMandacaru(x, z, h) {
-    const altura = h || rand(1.0, 2.0);
-    const cor = '#3E7A3E';
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.12" height="' + altura.toFixed(2) + '" color="' + cor + '" shadow="cast: true"></a-cylinder>' +
-      '<a-sphere position="0 ' + altura.toFixed(2) + ' 0" radius="0.12" color="' + cor + '"></a-sphere>' +
-      '</a-entity>';
   }
 
   function gerarXiqueXique(x, z) {
@@ -115,14 +139,6 @@
     return html;
   }
 
-  function gerarTocaTatu(x, z) {
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' +
-      '<a-circle position="0 0.012 0" rotation="-90 0 0" radius="0.35" color="#3A2818" opacity="0.85" transparent="true"></a-circle>' +
-      '<a-circle position="0 0.014 0" rotation="-90 0 0" radius="0.22" color="#1A0E08" opacity="0.95" transparent="true"></a-circle>' +
-      '<a-sphere position="0 0.06 -0.25" radius="0.18" color="#5A4028" scale="1.4 0.7 1"></a-sphere>' +
-      '</a-entity>';
-  }
-
   function gerarTatuBola(x, z, esc) {
     const s = esc || 1;
     const marrom = '#6A4A2A', escuro = '#3A2818', amarelo = '#C8A860';
@@ -157,25 +173,48 @@
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.005 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + cor + '" opacity="0.55" transparent="true"></a-circle>';
     }
 
-    for (let i = 0; i < (denso ? 14 : 8); i++) {
+    /* ============================================================
+       GLBs — Lajeados (chão de pedra rachada)
+       ============================================================ */
+    const nLaje = denso ? 14 : 8;
+    for (let i = 0; i < nLaje; i++) {
       const p = pos(2, 25);
-      html += gerarLajeado(p.x, p.z, rand(0.9, 1.7));
+      html += glb('tatu_lajeado.glb', p.x, p.z, rand(0,360), 1.0);
     }
-    for (let i = 0; i < (denso ? 12 : 6); i++) {
+
+    /* ============================================================
+       GLBs — Cupinzeiros
+       ============================================================ */
+    const nCupin = denso ? 12 : 6;
+    for (let i = 0; i < nCupin; i++) {
       const p = pos(4, 22);
-      html += gerarCupinzeiro(p.x, p.z, rand(0.8, 1.5));
+      html += glb('tatu_cupinzeiro.glb', p.x, p.z, rand(0,360), 1.0);
     }
+
+    /* ============================================================
+       GLBs — Mandacarus
+       ============================================================ */
+    const nMand = denso ? 16 : 9;
+    for (let i = 0; i < nMand; i++) {
+      const p = pos(3, 22);
+      html += glb('tatu_mandacaru.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       GLBs — Tocas de tatu
+       ============================================================ */
+    const nTocas = denso ? 6 : 3;
+    for (let i = 0; i < nTocas; i++) {
+      const p = pos(4, 16);
+      html += glb('tatu_toca.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       Procedurais de volume
+       ============================================================ */
     for (let i = 0; i < (denso ? 16 : 9); i++) {
       const p = pos(2, 20);
       html += gerarFormigueiro(p.x, p.z);
-    }
-    for (let i = 0; i < (denso ? 6 : 3); i++) {
-      const p = pos(4, 16);
-      html += gerarTocaTatu(p.x, p.z);
-    }
-    for (let i = 0; i < (denso ? 16 : 9); i++) {
-      const p = pos(3, 22);
-      html += gerarMandacaru(p.x, p.z, rand(1.0, 2.0));
     }
     for (let i = 0; i < (denso ? 20 : 12); i++) {
       const p = pos(2, 20);
@@ -198,14 +237,12 @@
       html += gerarCapimSeco(p.x, p.z);
     }
 
-    html += gerarTatuBola(-1.5, -2.5, 1.0);
-    html += gerarTatuBola(2.2, -3.0, 0.9);
-    html += gerarTatuBola(-3.0, 1.8, 1.1);
-    if (denso) {
-      html += gerarTatuBola(3.5, 1.5, 0.95);
-      html += gerarTatuBola(0.3, -4.8, 1.0);
-    }
+    /* Tatus-bola distantes */
+    html += gerarTatuBola(-7, -5, 0.7);
+    html += gerarTatuBola(8, 3, 0.65);
+    if (denso) html += gerarTatuBola(-9, 6, 0.6);
 
+    /* Hotspots */
     html += '<a-entity position="0 2.0 2.5" info-hotspot="titulo: Tatu-bola-do-nordeste; descricao: Tolypeutes tricinctus — o menor tatu do Brasil (até 1,8 kg). Enrola-se em bola quando ameaçado. Endêmico do Brasil.; cor: #C8A860"></a-entity>';
     html += '<a-entity position="4 1.2 -4" info-hotspot="titulo: Cupinzeiro; descricao: Fonte de alimento principal. O tatu usa as garras para abrir o cupinzeiro e lamber os cupins.; cor: #7A5A3A"></a-entity>';
     html += '<a-entity position="-4 0.9 -3" info-hotspot="titulo: Formigueiro; descricao: Também parte da dieta. O tatu-bola controla naturalmente populações de formigas e cupins.; cor: #B89A78"></a-entity>';
@@ -217,6 +254,7 @@
     html += '<a-entity position="-5 1.0 -6" info-hotspot="titulo: Ameaças; descricao: Caça ilegal, atropelamentos, desmatamento, agropecuária e usinas eólicas/solares ameaçam o tatu-bola.; cor: #E8482A"></a-entity>';
     html += '<a-entity position="5 0.9 5" info-hotspot="titulo: Fuleco; descricao: O tatu-bola foi o mascote da Copa do Mundo de 2014 no Brasil, mundialmente conhecido como Fuleco.; cor: #F0A028"></a-entity>';
 
+    /* Iluminação */
     html += '<a-entity light="type: ambient; color: #FFF0D8; intensity: 0.85"></a-entity>' +
             '<a-entity position="8 14 4" light="type: directional; color: #FFE8A8; intensity: 1.35; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
             '<a-entity position="-6 6 -3" light="type: point; color: #FFE0A0; intensity: 0.4; distance: 15"></a-entity>';
@@ -243,5 +281,5 @@
   };
 
   window.MewBiomas.montarBiomaCaatingaTatu = montarBiomaCaatingaTatu;
-  console.log('[bioma_caatinga_tatu] Bioma Caatinga (Tatu-bola) registrado.');
+  console.log('[bioma_caatinga_tatu] v2 — Caatinga (Tatu-bola) com GLBs registrado.');
 })();

@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_mataatlantica.js — v2
+   bioma_mataatlantica.js — v3 (com GLBs)
    Bioma Mata Atlântica — Saíra-pintor (Tangara fastuosa).
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -15,73 +15,71 @@
     return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
-  function gerarArvoreAlta(x, z, h) {
-    const altura = h || rand(4.5, 7.5);
-    const troncoC = pick(['#3A2418', '#4A2E1C', '#2E1A0E']);
-    const folha1  = pick(['#1E4A1E', '#2A5A28', '#164018']);
-    const folha2  = pick(['#2E6A30', '#386A34', '#1A5020']);
-    const folha3  = pick(['#3E7A3A', '#4A8A40']);
-    const rf = rand(1.4, 2.1);
-    const rot = rand(0, 360);
-    let raizes = '';
-    for (let i = 0; i < 5; i++) {
-      const a = (i / 5) * Math.PI * 2;
-      const dx = Math.cos(a) * 0.45;
-      const dz = Math.sin(a) * 0.45;
-      raizes += '<a-cylinder position="' + dx.toFixed(2) + ' ' + (altura * 0.06).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="0.06" height="' + (altura * 0.14).toFixed(2) + '" color="' + troncoC + '" rotation="' + rand(20,40).toFixed(1) + ' 0 ' + rand(-30,30).toFixed(1) + '"></a-cylinder>';
-    }
-    let folhagem = '';
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2 + rand(-0.3, 0.3);
-      const r = rf * rand(0.55, 0.95);
-      const dy = rand(-0.15, 0.25) * rf;
-      const c = pick([folha1, folha2, folha3]);
-      folhagem += '<a-sphere position="' + (Math.cos(a) * r).toFixed(2) + ' ' + (altura + dy + rf * 0.35).toFixed(2) + ' ' + (Math.sin(a) * r).toFixed(2) + '" radius="' + (rf * rand(0.55, 0.75)).toFixed(2) + '" color="' + c + '" sway-leaf="ampl: ' + rand(3,7).toFixed(1) + '; dur: ' + randInt(2600,4200) + '"></a-sphere>';
-    }
-    folhagem += '<a-sphere position="0 ' + (altura + rf * 0.55).toFixed(2) + ' 0" radius="' + (rf * 0.85).toFixed(2) + '" color="' + folha1 + '" sway-leaf="ampl: 4; dur: 3400"></a-sphere>';
-    const temBrom = Math.random() > 0.5;
-    let brom = '';
-    if (temBrom) {
-      const by = altura * rand(0.3, 0.6);
-      const ba = rand(0, Math.PI * 2);
-      brom = '<a-entity position="' + (Math.cos(ba) * 0.15).toFixed(2) + ' ' + by.toFixed(2) + ' ' + (Math.sin(ba) * 0.15).toFixed(2) + '">' +
-        '<a-cone position="0 0 0" radius-bottom="0.15" radius-top="0.08" height="0.18" color="#8A5A2A"></a-cone>' +
-        '<a-cone position="0 0.1 0" radius-bottom="0.14" radius-top="0.02" height="0.14" color="#C8382A"></a-cone>' +
-        '<a-cone position="0 0.18 0" radius-bottom="0.06" radius-top="0" height="0.1" color="#E8482A"></a-cone>' +
-        '</a-entity>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      raizes +
-      '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.14" height="' + altura.toFixed(2) + '" color="' + troncoC + '" shadow="cast: true"></a-cylinder>' +
-      brom + folhagem + '</a-entity>';
-  }
+  function glb(src, x, z, rot, alturaAlvo, yOffset) {
+  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+  const altura = alturaAlvo || 3;
+  const yBase = yOffset || 0;
 
-  function gerarPalmeira(x, z, h) {
-    const altura = h || rand(2.5, 4.5);
-    const troncoC = pick(['#8A6A48', '#7A5A3A', '#5A4028']);
-    const folhaC  = pick(['#2E7A30', '#3A8A3A', '#1E5A22']);
-    const rot = rand(0, 360);
-    let aneis = '';
-    const nAneis = Math.floor(altura * 3);
-    for (let i = 0; i < nAneis; i++) {
-      const y = (i / nAneis) * altura;
-      aneis += '<a-torus position="0 ' + y.toFixed(2) + ' 0" rotation="90 0 0" radius="0.13" radius-tubular="0.015" color="' + troncoC + '"></a-torus>';
-    }
-    let folhas = '';
-    const nFolhas = randInt(6, 9);
-    for (let i = 0; i < nFolhas; i++) {
-      const a = (i / nFolhas) * Math.PI * 2;
-      const tilt = rand(35, 65);
-      const incl = rand(-20, 20);
-      folhas += '<a-cone position="' + (Math.cos(a) * 0.9).toFixed(2) + ' ' + (altura + 0.15).toFixed(2) + ' ' + (Math.sin(a) * 0.9).toFixed(2) + '" radius-bottom="0.28" radius-top="0.02" height="1.9" color="' + folhaC + '" rotation="' + tilt.toFixed(1) + ' ' + (a*180/Math.PI).toFixed(1) + ' ' + incl.toFixed(1) + '" sway-leaf="ampl: 6; dur: ' + randInt(2400,3600) + '"></a-cone>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.11" height="' + altura.toFixed(2) + '" color="' + troncoC + '" shadow="cast: true"></a-cylinder>' +
-      aneis + folhas +
-      '<a-sphere position="0 ' + altura.toFixed(2) + ' 0" radius="0.12" color="' + troncoC + '"></a-sphere>' +
-      '</a-entity>';
-  }
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
 
+    const ajustar = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return false;
+
+      /* Reset */
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
+
+      /* Mede tamanho original */
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
+
+      /* Escala pra bater a altura alvo */
+      const escala = altura / size.y;
+      mesh.scale.set(escala, escala, escala);
+      mesh.updateMatrixWorld(true);
+
+      /* Recalcula depois da escala */
+      /* Recalcula depois da escala */
+      const box2 = new THREE.Box3().setFromObject(mesh);
+      const center2 = box2.getCenter(new THREE.Vector3());
+
+      // Captura a posição global da entidade pai (<a-entity>)
+      const parentPos = new THREE.Vector3();
+      el.object3D.getWorldPosition(parentPos);
+
+      // Ajusta o mesh internamente compensando a posição original do pai
+      mesh.position.x = parentPos.x - center2.x;
+      mesh.position.z = parentPos.z - center2.z;
+      mesh.position.y = parentPos.y - box2.min.y;
+      mesh.updateMatrixWorld(true);
+
+      return true;
+    };
+
+    if (ajustar()) return;
+
+    let tentativas = 0;
+    const interval = setInterval(() => {
+      tentativas++;
+      if (ajustar() || tentativas > 60) clearInterval(interval);
+    }, 100);
+  }, 100);
+
+  return '<a-entity id="' + id + '" ' +
+         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
+         'gltf-model="url(assets/ambiente/' + src + ')" ' +
+         'shadow="cast: true; receive: true"></a-entity>';
+}
+
+  /* Procedurais leves */
   function gerarSamambaia(x, z) {
     const h = rand(0.4, 0.9);
     const cor = pick(['#2E7A30', '#3A8A3A', '#1E5A22', '#4A9A40']);
@@ -93,18 +91,6 @@
       folhas += '<a-plane position="' + (Math.cos(a) * comp * 0.3).toFixed(2) + ' ' + (comp*0.35).toFixed(2) + ' ' + (Math.sin(a) * comp * 0.3).toFixed(2) + '" width="' + (comp*0.9).toFixed(2) + '" height="0.08" color="' + cor + '" material="shader: flat; side: double" rotation="' + rand(40,70).toFixed(1) + ' ' + (a*180/Math.PI).toFixed(1) + ' 0" sway-leaf="ampl: 4; dur: ' + randInt(2800,4000) + '"></a-plane>';
     }
     return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' + folhas + '</a-entity>';
-  }
-
-  function gerarBromeliaChao(x, z) {
-    const cor1 = pick(['#C8382A', '#E8482A', '#D02E5A']);
-    const cor2 = pick(['#8A2820', '#A03820']);
-    const rot = rand(0, 360);
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      '<a-cone position="0 0.08 0" radius-bottom="0.28" radius-top="0.18" height="0.16" color="' + cor2 + '"></a-cone>' +
-      '<a-cone position="0 0.22 0" radius-bottom="0.22" radius-top="0.05" height="0.2" color="' + cor1 + '"></a-cone>' +
-      '<a-cone position="0 0.36 0" radius-bottom="0.10" radius-top="0" height="0.16" color="' + cor1 + '"></a-cone>' +
-      '<a-sphere position="0 0.42 0" radius="0.04" color="#F0E0A0"></a-sphere>' +
-      '</a-entity>';
   }
 
   function gerarBambu(x, z) {
@@ -148,24 +134,6 @@
     return html;
   }
 
-  function gerarTroncoCaido(x, z) {
-    const rot = rand(0, 360);
-    const comp = rand(1.8, 3.2);
-    const raio = rand(0.15, 0.22);
-    const musgo = pick(['#3A6A2A', '#4A7A32', '#2A5A20']);
-    let musgos = '';
-    for (let i = 0; i < randInt(4, 7); i++) {
-      const dx = rand(-comp/2 + 0.3, comp/2 - 0.3);
-      const a = rand(0, Math.PI * 2);
-      const dy = Math.cos(a) * raio * 0.9;
-      const dz = Math.sin(a) * raio * 0.9;
-      musgos += '<a-sphere position="' + dx.toFixed(2) + ' ' + (raio + dy*0.6).toFixed(2) + ' ' + dz.toFixed(2) + '" radius="' + rand(0.08,0.14).toFixed(2) + '" color="' + musgo + '" scale="1.3 0.5 1.3"></a-sphere>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' ' + raio.toFixed(2) + ' ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 0 0" rotation="0 0 90" radius="' + raio.toFixed(2) + '" height="' + comp.toFixed(2) + '" color="#3A2418" shadow="cast: true"></a-cylinder>' +
-      musgos + '</a-entity>';
-  }
-
   function gerarCogumelo(x, z) {
     const tipo = Math.random();
     const cor = pick(['#E8482A', '#F0A028', '#D02E5A', '#8A4AD8', '#F0E0A0']);
@@ -197,25 +165,6 @@
       '<a-dodecahedron radius="' + r.toFixed(2) + '" color="#5A5A50" scale="1.1 ' + rand(0.65,0.9).toFixed(2) + ' 1.1"></a-dodecahedron>' +
       '<a-sphere position="0 ' + (r*0.6).toFixed(2) + ' 0" radius="' + (r*0.55).toFixed(2) + '" color="' + musgo + '" scale="1.2 0.4 1.2"></a-sphere>' +
       '</a-entity>';
-  }
-
-  function gerarArvoreFrutifera(x, z) {
-    const altura = rand(2.5, 3.5);
-    const frutaCor = pick(['#E8482A', '#F0A028', '#8A4AD8', '#D02E5A']);
-    const folhaC = pick(['#2E6A30', '#3A8A3A', '#1E5A22']);
-    let frutas = '';
-    for (let i = 0; i < randInt(10, 18); i++) {
-      const a = rand(0, Math.PI * 2);
-      const r = rand(0.3, 1.0);
-      const y = altura + rand(-0.3, 0.5);
-      frutas += '<a-sphere position="' + (Math.cos(a)*r).toFixed(2) + ' ' + y.toFixed(2) + ' ' + (Math.sin(a)*r).toFixed(2) + '" radius="0.055" color="' + frutaCor + '" material="shader: standard; emissive: ' + frutaCor + '; emissiveIntensity: 0.3"></a-sphere>';
-    }
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rand(0,360).toFixed(1) + ' 0">' +
-      '<a-cylinder position="0 ' + (altura/2).toFixed(2) + ' 0" radius="0.11" height="' + altura.toFixed(2) + '" color="#3A2418" shadow="cast: true"></a-cylinder>' +
-      '<a-sphere position="0 ' + (altura + 0.6).toFixed(2) + ' 0" radius="1.1" color="' + folhaC + '" sway-leaf="ampl: 4; dur: 3200"></a-sphere>' +
-      '<a-sphere position="0.6 ' + (altura + 0.3).toFixed(2) + ' 0.3" radius="0.7" color="' + folhaC + '"></a-sphere>' +
-      '<a-sphere position="-0.55 ' + (altura + 0.4).toFixed(2) + ' -0.35" radius="0.75" color="' + folhaC + '"></a-sphere>' +
-      frutas + '</a-entity>';
   }
 
   function gerarSairaPousada(x, y, z) {
@@ -293,6 +242,7 @@
 
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="' + chaoBase + '" shadow="receive: true"></a-circle>';
 
+    /* Manchas de folhiço */
     for (let i = 0; i < (denso ? 20 : 12); i++) {
       const p = pos(2, 35);
       const r = rand(1.5, 4);
@@ -300,57 +250,78 @@
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.006 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + cor + '" opacity="0.55" transparent="true"></a-circle>';
     }
 
+    /* Folhas soltas */
     for (let i = 0; i < (denso ? 60 : 30); i++) {
       const p = pos(1, 25);
       const cor = pick(['#5A3A20', '#8A5A28', '#4A7A32', '#A86A28']);
       html += '<a-plane position="' + p.x.toFixed(2) + ' 0.012 ' + p.z.toFixed(2) + '" width="' + rand(0.12,0.22).toFixed(2) + '" height="' + rand(0.08,0.15).toFixed(2) + '" color="' + cor + '" material="shader: flat; side: double; opacity: 0.9; transparent: true" rotation="-90 ' + rand(0,360).toFixed(1) + ' 0"></a-plane>';
     }
 
+    /* Raios de luz */
     for (let i = 0; i < (denso ? 8 : 4); i++) {
       const p = pos(2, 20);
       html += gerarRaioCopa(p.x, p.z, rand(6, 9), rand(0.8, 1.8));
     }
 
+    /* ============================================================
+       GLBs — Palmeiras juçara
+       ============================================================ */
+    const nPalm = denso ? 14 : 8;
+    for (let i = 0; i < nPalm; i++) {
+      const p = pos(4, 22);
+      html += glb('mata_palmeira.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       GLBs — Árvores frutíferas (fonte de alimento da saíra)
+       ============================================================ */
+    const nFrut = denso ? 8 : 5;
+    for (let i = 0; i < nFrut; i++) {
+      const p = pos(4, 16);
+      html += glb('mata_frutifera.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       GLBs — Bromélias gigantes
+       ============================================================ */
+    const nBrom = denso ? 18 : 10;
+    for (let i = 0; i < nBrom; i++) {
+      const p = pos(2, 18);
+      html += glb('mata_bromelia.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* ============================================================
+       GLBs — Troncos caídos com musgo
+       ============================================================ */
+    const nTroncos = denso ? 6 : 3;
+    for (let i = 0; i < nTroncos; i++) {
+      const p = pos(4, 18);
+      html += glb('mata_tronco.glb', p.x, p.z, rand(0,360), 1.0);
+    }
+
+    /* Bambu */
     for (let i = 0; i < (denso ? 4 : 2); i++) {
       const a = rand(0, Math.PI * 2);
       const r = rand(12, 20);
       html += gerarBambu(Math.cos(a) * r, Math.sin(a) * r);
     }
 
+    /* Riacho */
     html += gerarRiacho();
 
-    for (let i = 0; i < (denso ? 6 : 3); i++) {
-      const p = pos(4, 18);
-      html += gerarTroncoCaido(p.x, p.z);
-    }
-
-    for (let i = 0; i < (denso ? 24 : 14); i++) {
-      const a = (i / (denso ? 24 : 14)) * Math.PI * 2 + rand(-0.2, 0.2);
-      const r = 12 + Math.random() * 18;
-      html += gerarArvoreAlta(Math.cos(a) * r, Math.sin(a) * r, rand(4.5, 7.5));
-    }
-    for (let i = 0; i < (denso ? 6 : 3); i++) {
-      const p = pos(6, 12);
-      html += gerarArvoreAlta(p.x, p.z, rand(5, 7.5));
-    }
-
-    for (let i = 0; i < (denso ? 14 : 8); i++) {
-      const p = pos(4, 22);
-      html += gerarPalmeira(p.x, p.z, rand(2.5, 4.5));
-    }
-    for (let i = 0; i < (denso ? 8 : 5); i++) {
-      const p = pos(4, 16);
-      html += gerarArvoreFrutifera(p.x, p.z);
-    }
-
+    /* Samambaias (procedural em massa) */
     for (let i = 0; i < (denso ? 40 : 24); i++) {
       const p = pos(1.5, 20);
       html += gerarSamambaia(p.x, p.z);
     }
+
+    /* Cogumelos */
     for (let i = 0; i < (denso ? 22 : 12); i++) {
-      const p = pos(2, 18);
-      html += gerarBromeliaChao(p.x, p.z);
+      const p = pos(1.5, 18);
+      html += gerarCogumelo(p.x, p.z);
     }
+
+    /* Pedras com musgo */
     for (let i = 0; i < (denso ? 18 : 10); i++) {
       const p = pos(2, 22);
       html += gerarPedraMusgo(p.x, p.z, rand(0.8, 1.7));
@@ -359,16 +330,15 @@
       const p = pos(10, 25);
       html += gerarPedraMusgo(p.x, p.z, 2.4);
     }
-    for (let i = 0; i < (denso ? 22 : 12); i++) {
-      const p = pos(1.5, 18);
-      html += gerarCogumelo(p.x, p.z);
-    }
+
+    /* Lianas */
     for (let i = 0; i < (denso ? 14 : 8); i++) {
       const a = rand(0, Math.PI * 2);
       const r = rand(3, 14);
       html += gerarLiana(Math.cos(a) * r, rand(3.5, 5.5), Math.sin(a) * r);
     }
 
+    /* Saíras pousadas */
     html += gerarSairaPousada(-1.8, 1.15, -2.5);
     html += gerarSairaPousada(2.2, 1.55, -3.5);
     html += gerarSairaPousada(-3.5, 0.85, 1.8);
@@ -377,6 +347,7 @@
       html += gerarSairaPousada(0.5, 1.75, -5.2);
     }
 
+    /* Pássaros voando + borboletas */
     for (let i = 0; i < (denso ? 6 : 3); i++) {
       const a = rand(0, Math.PI * 2);
       const r = rand(3, 10);
@@ -388,6 +359,7 @@
       html += gerarBorboleta(Math.cos(a) * r, rand(0.6, 2.6), Math.sin(a) * r);
     }
 
+    /* Hotspots */
     html += '<a-entity position="0 2.2 2.5" info-hotspot="titulo: Saíra-pintor; descricao: Tangara fastuosa — endêmica do Nordeste. Plumagem turquesa, amarela, preta e violeta. Ameaçada pelo tráfico e perda de mata.; cor: #3FD9E0"></a-entity>';
     html += '<a-entity position="-3.5 0.8 -3" info-hotspot="titulo: Samambaia; descricao: Indicador de mata úmida preservada. Só cresce em sub-bosque com sombra e alta umidade.; cor: #4A9A40"></a-entity>';
     html += '<a-entity position="3.5 1.0 -4" info-hotspot="titulo: Árvore frutífera; descricao: Frutos silvestres são o principal alimento da saíra. Sem floresta nativa, a espécie some.; cor: #F0A028"></a-entity>';
@@ -399,6 +371,7 @@
     html += '<a-entity position="2 3.2 -12" info-hotspot="titulo: Mata Atlântica; descricao: Um dos biomas mais ricos e ameaçados do planeta. Restam ~12% da cobertura original, muito fragmentada.; cor: #2E7A30"></a-entity>';
     html += '<a-entity position="-4 0.9 5" info-hotspot="titulo: Tráfico de aves; descricao: A saíra é cobiçada por sua beleza. A captura ilegal e o desmatamento a colocaram em risco de extinção.; cor: #E8482A"></a-entity>';
 
+    /* Iluminação */
     html += '<a-entity light="type: ambient; color: #C8E8D8; intensity: 0.65"></a-entity>' +
             '<a-entity position="4 12 5" light="type: directional; color: #FFF0C8; intensity: 1.0; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
             '<a-entity position="-5 5 -2" light="type: point; color: #C8F0A8; intensity: 0.4; distance: 14"></a-entity>' +
@@ -426,5 +399,5 @@
   };
 
   window.MewBiomas.montarBiomaMataAtlantica = montarBiomaMataAtlantica;
-  console.log('[bioma_mataatlantica] Bioma Mata Atlântica (Saíra-pintor) registrado.');
+  console.log('[bioma_mataatlantica] v3 — Mata Atlântica (com GLBs) registrado.');
 })();
