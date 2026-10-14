@@ -1,7 +1,6 @@
 /* =========================================================
-   bioma_componentes.js — MASTER
-   TODOS os componentes A-Frame usados pelos biomas.
-   DEVE vir ANTES de qualquer bioma_*.js no HTML.
+   bioma_componentes.js — MASTER (v4 — popup HTML overlay)
+   Popup em HTML/CSS sobreposto ao canvas → acentos perfeitos
    ========================================================= */
 (function () {
   'use strict';
@@ -10,7 +9,81 @@
     if (!AFRAME.components[nome]) AFRAME.registerComponent(nome, def);
   };
 
-  /* ---------- billboard-y ---------- */
+  /* --------------------------------------------------------
+     CSS injetado para o popup HTML
+     -------------------------------------------------------- */
+  function injetarEstilosPopup() {
+    if (document.getElementById('hotspot-popup-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'hotspot-popup-styles';
+    style.textContent = `
+      .hotspot-popup {
+        position: fixed;
+        transform: translate(-50%, calc(-100% - 16px));
+        background: rgba(8, 18, 6, 0.96);
+        border: 2px solid #7ee898;
+        border-radius: 12px;
+        padding: 14px 22px;
+        max-width: 380px;
+        min-width: 220px;
+        z-index: 99999;
+        pointer-events: none;
+        box-shadow:
+          0 8px 28px rgba(0, 0, 0, 0.75),
+          0 0 30px rgba(63, 185, 80, 0.35);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        animation: hotspotFadeIn 0.2s ease-out;
+      }
+      .hotspot-popup::after {
+        content: '';
+        position: absolute;
+        bottom: -13px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 11px solid transparent;
+        border-right: 11px solid transparent;
+        border-top: 13px solid var(--hotspot-cor, #7ee898);
+        filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
+      }
+      .hotspot-popup-titulo {
+        font-size: 1rem;
+        font-weight: 800;
+        margin: 0 0 8px 0;
+        text-align: center;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        text-shadow: 0 0 12px currentColor;
+        line-height: 1.25;
+      }
+      .hotspot-popup-desc {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: #d5ffdd;
+        margin: 0;
+        text-align: center;
+      }
+      @keyframes hotspotFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @media (max-width: 600px) {
+        .hotspot-popup {
+          max-width: calc(100vw - 30px);
+          padding: 12px 16px;
+        }
+        .hotspot-popup-titulo { font-size: 0.85rem; }
+        .hotspot-popup-desc { font-size: 0.75rem; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  injetarEstilosPopup();
+
+  /* ---------- billboard-y (legado, mantido para compat.) ---------- */
   R('billboard-y', {
     tick: function () {
       const cam = this.el.sceneEl && this.el.sceneEl.camera;
@@ -21,7 +94,7 @@
     }
   });
 
-  /* ---------- info-hotspot ---------- */
+  /* ---------- info-hotspot (v4 — popup HTML) ---------- */
   R('info-hotspot', {
     schema: {
       titulo:    { type: 'string', default: 'Elemento' },
@@ -29,11 +102,13 @@
       cor:       { type: 'color',  default: '#7ee898' },
       tamanho:   { type: 'number', default: 1.0 }
     },
+
     init: function () {
       const cor = this.data.cor;
       const t = this.data.tamanho;
       this.el.classList.add('clickable');
 
+      /* Marcador esférico */
       const marc = document.createElement('a-sphere');
       marc.setAttribute('radius', (0.10 * t).toFixed(3));
       marc.setAttribute('color', cor);
@@ -43,6 +118,7 @@
         'property: scale; from: 1 1 1; to: 1.4 1.4 1.4; dur: 900; dir: alternate; loop: true; easing: easeInOutSine');
       this.el.appendChild(marc);
 
+      /* Anel pulsante */
       const anel = document.createElement('a-ring');
       anel.setAttribute('radius-inner', (0.14 * t).toFixed(3));
       anel.setAttribute('radius-outer', (0.21 * t).toFixed(3));
@@ -55,29 +131,36 @@
         'property: material.opacity; from: 0.65; to: 0.02; dur: 1400; dir: alternate; loop: true');
       this.el.appendChild(anel);
 
+      /* Luz ambiente */
       const luz = document.createElement('a-entity');
       luz.setAttribute('light', 'type: point; color: ' + cor + '; intensity: 0.4; distance: 2.8');
       this.el.appendChild(luz);
 
-      const tag = document.createElement('a-entity');
-      tag.setAttribute('visible', 'false');
-      tag.setAttribute('position', '0 ' + (0.55 * t).toFixed(2) + ' 0');
-      tag.setAttribute('billboard-y', '');
-      tag.innerHTML =
-        '<a-plane width="2.5" height="0.76" color="#0A1408" ' +
-        'material="shader: flat; opacity: 0.95; transparent: true; side: double"></a-plane>' +
-        '<a-plane width="2.52" height="0.78" color="' + cor + '" ' +
-        'material="shader: flat; opacity: 0.35; transparent: true; side: double" ' +
-        'position="0 0 -0.002"></a-plane>' +
-        '<a-text value="' + this.data.titulo.replace(/"/g, '&quot;') + '" ' +
-        'align="center" position="0 0.2 0.005" ' +
-        'color="' + cor + '" width="2.9" font="mozillavr"></a-text>' +
-        '<a-text value="' + this.data.descricao.replace(/"/g, '&quot;') + '" ' +
-        'align="center" position="0 -0.09 0.005" ' +
-        'color="#d5ffdd" width="1.95" wrap-count="42" font="mozillavr"></a-text>';
-      this.el.appendChild(tag);
-      this.tag = tag;
+      /* ============================================================
+         POPUP HTML (overlay fora do 3D)
+         ============================================================ */
+      const popup = document.createElement('div');
+      popup.className = 'hotspot-popup';
+      popup.style.display = 'none';
+      popup.style.borderColor = cor;
+      popup.style.setProperty('--hotspot-cor', cor);
+
+      const titulo = document.createElement('h4');
+      titulo.className = 'hotspot-popup-titulo';
+      titulo.style.color = cor;
+      titulo.textContent = this.data.titulo;
+
+      const desc = document.createElement('p');
+      desc.className = 'hotspot-popup-desc';
+      desc.textContent = this.data.descricao;
+
+      popup.appendChild(titulo);
+      popup.appendChild(desc);
+      document.body.appendChild(popup);
+
+      this.popup = popup;
       this.aberto = false;
+      this._v = new THREE.Vector3();
 
       this.el.addEventListener('click', (e) => { e.stopPropagation(); this.toggle(); });
       this.el.addEventListener('mouseenter', () => this.el.setAttribute('scale', '1.15 1.15 1.15'));
@@ -85,21 +168,65 @@
 
       window.ensureCursorBioma(this.el.sceneEl);
     },
+
+    /* Atualiza a posição do popup HTML a cada frame */
+    tick: function () {
+      if (!this.aberto || !this.popup) return;
+
+      const sceneEl = this.el.sceneEl;
+      const cam = sceneEl && sceneEl.camera;
+      if (!cam) return;
+
+      /* Posição world do hotspot → NDC → pixels */
+      this.el.object3D.getWorldPosition(this._v);
+      this._v.project(cam);
+
+      /* Se estiver atrás da câmera, esconde */
+      if (this._v.z > 1) {
+        this.popup.style.visibility = 'hidden';
+        return;
+      }
+
+      this.popup.style.visibility = 'visible';
+
+      const canvas = sceneEl.canvas;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+
+      const x = rect.left + (this._v.x * 0.5 + 0.5) * rect.width;
+      const y = rect.top  + (-this._v.y * 0.5 + 0.5) * rect.height;
+
+      this.popup.style.left = x + 'px';
+      this.popup.style.top  = y + 'px';
+    },
+
     toggle: function () {
       this.aberto = !this.aberto;
-      this.tag.setAttribute('visible', this.aberto);
+      if (this.popup) {
+        this.popup.style.display = this.aberto ? 'block' : 'none';
+        if (this.aberto) {
+          /* Força um tick imediato para posicionar antes de aparecer */
+          this.tick();
+        }
+      }
       clearTimeout(this._t);
       if (this.aberto) {
         this._t = setTimeout(() => {
           this.aberto = false;
-          if (this.tag) this.tag.setAttribute('visible', false);
-        }, 7000);
+          if (this.popup) this.popup.style.display = 'none';
+        }, 9000);
       }
     },
-    remove: function () { clearTimeout(this._t); }
+
+    remove: function () {
+      clearTimeout(this._t);
+      if (this.popup && this.popup.parentNode) {
+        this.popup.parentNode.removeChild(this.popup);
+      }
+    }
   });
 
-  /* ---------- sway-grass (capim marinho / caatinga) ---------- */
+  /* ---------- sway-grass ---------- */
   R('sway-grass', {
     schema: { ampl: { default: 8 } },
     init: function () {
@@ -114,7 +241,7 @@
     }
   });
 
-  /* ---------- sway-capim (Cerrado) ---------- */
+  /* ---------- sway-capim ---------- */
   R('sway-capim', {
     schema: { ampl: { default: 10 } },
     init: function () {
@@ -129,7 +256,7 @@
     }
   });
 
-  /* ---------- sway-dry (galhos secos / Caatinga) ---------- */
+  /* ---------- sway-dry ---------- */
   R('sway-dry', {
     schema: { ampl: { default: 6 } },
     init: function () {
@@ -144,7 +271,7 @@
     }
   });
 
-  /* ---------- sway-leaf (folhagem) ---------- */
+  /* ---------- sway-leaf ---------- */
   R('sway-leaf', {
     schema: { ampl: { default: 5 }, dur: { default: 3000 } },
     init: function () {
@@ -171,7 +298,7 @@
     }
   });
 
-  /* ---------- bobber (flutuação — boias, barcos) ---------- */
+  /* ---------- bobber ---------- */
   R('bobber', {
     schema: { amp: { default: 0.12 }, dur: { default: 2600 } },
     init: function () {
@@ -182,7 +309,7 @@
     }
   });
 
-  /* ---------- flutter-by (borboletas / voo suave) ---------- */
+  /* ---------- flutter-by ---------- */
   R('flutter-by', {
     schema: { raio: { default: 1.5 }, alt: { default: 1.2 }, dur: { default: 8000 } },
     init: function () {
@@ -209,7 +336,7 @@
     remove: function () { clearInterval(this._int); }
   });
 
-  /* ---------- flutter-bird (pássaros voando em círculo) ---------- */
+  /* ---------- flutter-bird ---------- */
   R('flutter-bird', {
     schema: { raio: { default: 3 }, alt: { default: 2 }, dur: { default: 9000 } },
     init: function () {
@@ -233,7 +360,7 @@
     remove: function () { clearInterval(this._int); }
   });
 
-  /* ---------- ghost-fade (memorial do limpa-folha) ---------- */
+  /* ---------- ghost-fade ---------- */
   R('ghost-fade', {
     schema: { dur: { default: 6000 } },
     init: function () {
@@ -243,7 +370,7 @@
     }
   });
 
-  /* ---------- ensureCursorBioma (helper global) ---------- */
+  /* ---------- ensureCursorBioma ---------- */
   window.ensureCursorBioma = function (sceneEl) {
     if (!sceneEl || sceneEl.dataset.cursorOk === '1') return;
     sceneEl.dataset.cursorOk = '1';
@@ -259,5 +386,5 @@
     else sceneEl.addEventListener('loaded', add, { once: true });
   };
 
-  console.log('[bioma_componentes] TODOS os componentes registrados.');
+  console.log('[bioma_componentes] v4 — popup HTML overlay registrado (acentos OK).');
 })();

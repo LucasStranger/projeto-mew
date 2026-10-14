@@ -116,18 +116,18 @@
   }
 
   function gerarMemorial(x, z, rot) {
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      '<a-cylinder position="-0.7 0.7 0" radius="0.05" height="1.4" color="#3A2818"></a-cylinder>' +
-      '<a-cylinder position="0.7 0.7 0" radius="0.05" height="1.4" color="#3A2818"></a-cylinder>' +
-      '<a-box position="0 1.6 0" width="1.8" height="1.0" depth="0.06" color="#1A1A1A"></a-box>' +
-      '<a-box position="0 1.6 0.035" width="1.72" height="0.92" depth="0.03" color="#2A2A2A"></a-box>' +
-      '<a-text value="EM MEMÓRIA" position="0 1.85 0.06" align="center" color="#E8D5FF" width="2.6" font="mozillavr"></a-text>' +
-      '<a-text value="Limpa-folha-do-nordeste" position="0 1.65 0.06" align="center" color="#C0A0E8" width="2.2" font="mozillavr"></a-text>' +
-      '<a-text value="Philydor novaesi" position="0 1.48 0.06" align="center" color="#A080D0" width="2.0" font="mozillavr"></a-text>' +
-      '<a-text value="Último registro: 2011 · PE" position="0 1.32 0.06" align="center" color="#8A7AB0" width="2.0" font="mozillavr"></a-text>' +
-      '<a-entity position="0 1.1 0.06" light="type: point; color: #A080D0; intensity: 0.3; distance: 1.5"></a-entity>' +
-      '</a-entity>';
-  }
+  return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
+    '<a-cylinder position="-0.7 0.7 0" radius="0.05" height="1.4" color="#3A2818"></a-cylinder>' +
+    '<a-cylinder position="0.7 0.7 0" radius="0.05" height="1.4" color="#3A2818"></a-cylinder>' +
+    '<a-box position="0 1.6 0" width="1.8" height="1.0" depth="0.06" color="#1A1A1A"></a-box>' +
+    '<a-box position="0 1.6 0.035" width="1.72" height="0.92" depth="0.03" color="#2A2A2A"></a-box>' +
+    '<a-text value="EM MEMÓRIA" position="0 1.85 0.06" align="center" color="#E8D5FF" width="2.6"></a-text>' +
+    '<a-text value="Limpa-folha-do-nordeste" position="0 1.65 0.06" align="center" color="#C0A0E8" width="2.2"></a-text>' +
+    '<a-text value="Philydor novaesi" position="0 1.48 0.06" align="center" color="#A080D0" width="2.0"></a-text>' +
+    '<a-text value="Último registro: 2011 · PE" position="0 1.32 0.06" align="center" color="#8A7AB0" width="2.0"></a-text>' +
+    '<a-entity position="0 1.1 0.06" light="type: point; color: #A080D0; intensity: 0.3; distance: 1.5"></a-entity>' +
+    '</a-entity>';
+}
 
   function montarBiomaMataLimpafolha(animal, opts) {
     opts = opts || {};

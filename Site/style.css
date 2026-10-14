@@ -2768,3 +2768,119 @@ body {
     padding: 0.6rem 1rem;
   }
 }
+/* =========================================================
+   MOBILE — Ajustes globais para telas pequenas
+   ========================================================= */
+
+/* Previne zoom acidental em botões e links interativos */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Impede que a cena A-Frame capture o scroll vertical da página */
+.ambiente-virtual a-scene,
+.ambiente-virtual a-scene canvas {
+  touch-action: pan-y !important;
+}
+
+/* Garante que a cena A-Frame se ajuste ao container */
+.ambiente-virtual a-scene {
+  display: block;
+  width: 100%;
+}
+
+/* Impede zoom por pinça em textos longos (iOS Safari) */
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 800px) {
+  body {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .pokedex-frame {
+    padding: 0.75rem;
+    border-radius: 16px;
+  }
+
+  .detalhes-layout {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .col-esquerda,
+  .col-direita {
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .screen {
+    padding: 0.75rem;
+    border-width: 3px;
+  }
+
+  .screen-identidade {
+    padding: 0.85rem 0.6rem;
+  }
+
+  .screen-identidade h2 {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+  }
+
+  .screen-identidade .numero-grande {
+    font-size: clamp(0.85rem, 3vw, 1rem);
+  }
+
+  .info-bloco h3 {
+    font-size: clamp(0.7rem, 3vw, 0.82rem);
+    letter-spacing: 1px;
+  }
+
+  /* Botão da missão em mobile: altura menor e largura total */
+  #btn-missao-novo {
+    min-height: clamp(110px, 18vh, 160px) !important;
+    font-size: clamp(13px, 3.5vw, 15px) !important;
+  }
+}
+
+/* Celulares muito pequenos (iPhone SE, etc) */
+@media (max-width: 400px) {
+  .pokedex-frame {
+    padding: 0.5rem;
+    border-radius: 12px;
+  }
+
+  .pokedex-top {
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .light-big {
+    width: 40px;
+    height: 40px;
+  }
+
+  .screen {
+    padding: 0.6rem;
+    border-width: 2px;
+  }
+
+  .screen-identidade h2 {
+    font-size: 1.05rem;
+  }
+
+  .fisico {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+/* Tablets em modo paisagem */
+@media (min-width: 801px) and (max-width: 1100px) {
+  .detalhes-layout {
+    gap: 0.85rem;
+  }
+}

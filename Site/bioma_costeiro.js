@@ -179,8 +179,14 @@
   }
 
   function gerarRaioSol(x, z, alt, r) {
-    return '<a-cone position="' + x.toFixed(2) + ' ' + (alt/2 + 1).toFixed(2) + ' ' + z.toFixed(2) + '" radius-bottom="' + r.toFixed(2) + '" radius-top="' + (r*0.3).toFixed(2) + '" height="' + alt.toFixed(2) + '" color="#FFF8E0" material="shader: flat; opacity: 0.08; transparent: true; side: double"></a-cone>';
-  }
+  return '<a-cone position="' + x.toFixed(2) + ' ' + (alt/2 + 1).toFixed(2) + ' ' + z.toFixed(2) + '" ' +
+         'radius-bottom="' + r.toFixed(2) + '" ' +
+         'radius-top="' + (r*0.3).toFixed(2) + '" ' +
+         'height="' + alt.toFixed(2) + '" ' +
+         'color="#FFF8E0" ' +
+         'material="shader: flat; opacity: 0.05; transparent: true; side: double; depthWrite: false" ' +
+         'render-order="-100"></a-cone>';
+}
 
   function gerarPoste(x, z, h) {
     const alt = h || rand(1.8, 3);
@@ -191,17 +197,65 @@
       '</a-entity>';
   }
 
-  function gerarPlacaItamaraca(x, z, rot) {
-    return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
-      '<a-cylinder position="-0.55 0.6 0" radius="0.045" height="1.2" color="#3A2818"></a-cylinder>' +
-      '<a-cylinder position="0.55 0.6 0" radius="0.045" height="1.2" color="#3A2818"></a-cylinder>' +
-      '<a-box position="0 1.35 0" width="1.5" height="0.85" depth="0.05" color="#1F5A30"></a-box>' +
-      '<a-box position="0 1.35 0.03" width="1.42" height="0.77" depth="0.03" color="#2E7A3E"></a-box>' +
-      '<a-text value="CENTRO DE PRESERVAÇÃO" position="0 1.55 0.06" align="center" color="#d5ffdd" width="2.6" font="mozillavr"></a-text>' +
-      '<a-text value="Ilha de Itamaracá — ICMBio / CMA" position="0 1.38 0.06" align="center" color="#7ee898" width="2.2" font="mozillavr"></a-text>' +
-      '<a-text value="Resgate · Reabilitação · Soltura" position="0 1.22 0.06" align="center" color="#a8d8b8" width="2.2" font="mozillavr"></a-text>' +
-      '</a-entity>';
-  }
+function gerarPlacaItamaraca(x, z, rot) {
+  const moldura = '#0F2A18';
+  const face    = '#2E7A3E';
+  const header  = '#1F5A30';
+  const branco  = '#E8FFE8';
+  const verde   = '#A8F0C0';
+  const fraco   = '#7EE898';
+
+  return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
+
+    /* Postes */
+    '<a-cylinder position="-0.7 0.8 0" radius="0.05" height="1.6" color="#3A2818"></a-cylinder>' +
+    '<a-cylinder position="0.7 0.8 0" radius="0.05" height="1.6" color="#3A2818"></a-cylinder>' +
+
+    /* Moldura escura */
+    '<a-box position="0 1.65 0" width="2.0" height="1.25" depth="0.07" ' +
+    'color="' + moldura + '" material="shader: flat; color: ' + moldura + '"></a-box>' +
+
+    /* Face verde */
+    '<a-box position="0 1.65 0.04" width="1.88" height="1.13" depth="0.03" ' +
+    'color="' + face + '" material="shader: flat; color: ' + face + '"></a-box>' +
+
+    /* Faixa do header */
+    '<a-box position="0 2.13 0.06" width="1.88" height="0.26" depth="0.01" ' +
+    'color="' + header + '" material="shader: flat; color: ' + header + '"></a-box>' +
+
+    /* Linha fina */
+    '<a-box position="0 1.99 0.065" width="1.88" height="0.015" depth="0.005" ' +
+    'color="' + branco + '" material="shader: flat; color: ' + branco + '"></a-box>' +
+
+    /* Logos circulares */
+    '<a-circle position="-0.74 2.13 0.07" radius="0.08" ' +
+    'color="' + verde + '" material="shader: flat; color: ' + verde + '"></a-circle>' +
+    '<a-circle position="-0.74 2.13 0.071" radius="0.055" ' +
+    'color="' + header + '" material="shader: flat; color: ' + header + '"></a-circle>' +
+    '<a-circle position="0.74 2.13 0.07" radius="0.08" ' +
+    'color="' + verde + '" material="shader: flat; color: ' + verde + '"></a-circle>' +
+    '<a-circle position="0.74 2.13 0.071" radius="0.055" ' +
+    'color="' + header + '" material="shader: flat; color: ' + header + '"></a-circle>' +
+
+    /* Textos — SEM material override (usa msdf padrão, que tem acentos) */
+    '<a-text value="CENTRO DE PRESERVAÇÃO" ' +
+    'position="0 2.13 0.08" align="center" ' +
+    'color="' + branco + '" width="1.5"></a-text>' +
+
+    '<a-text value="Ilha de Itamaracá - ICMBio / CMA" ' +
+    'position="0 1.82 0.08" align="center" ' +
+    'color="' + verde + '" width="1.75"></a-text>' +
+
+    '<a-text value="Resgate - Reabilitação - Soltura" ' +
+    'position="0 1.55 0.08" align="center" ' +
+    'color="' + fraco + '" width="1.7"></a-text>' +
+
+    '<a-text value="Peixe-boi-marinho" ' +
+    'position="0 1.32 0.08" align="center" ' +
+    'color="' + branco + '" width="1.4"></a-text>' +
+
+    '</a-entity>';
+}
 
   function montarBiomaCosteiro(animal, opts) {
     opts = opts || {};
