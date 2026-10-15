@@ -233,16 +233,71 @@
     }
 
     /* Hotspots */
-    html += '<a-entity position="0 2.0 3.5" info-hotspot="titulo: Tartaruga-de-couro; descricao: Dermochelys coriacea — maior tartaruga do mundo. Mergulha até 1.200 m para caçar águas-vivas. Criticamente em Perigo no Brasil.; cor: #4A7A90"></a-entity>';
-    html += '<a-entity position="-6 2.0 -5" info-hotspot="titulo: Águas-vivas; descricao: Alimento principal da tartaruga-de-couro. Sua boca sem dentes é adaptada para engolir medusas inteiras.; cor: #F0C8F0"></a-entity>';
-    html += '<a-entity position="6 1.8 4" info-hotspot="titulo: Sacola plástica; descricao: A MAIOR ameaça. Flutuando, parece uma água-viva — a tartaruga come e morre por obstrução intestinal.; cor: #F8F8F0"></a-entity>';
-    html += '<a-entity position="-7 1.5 -6" info-hotspot="titulo: Rede de pesca; descricao: Captura acidental em redes de deriva mata milhares de tartarugas por ano no Atlântico.; cor: #B0B0A0"></a-entity>';
-    html += '<a-entity position="18 3.2 15" info-hotspot="titulo: Barco pesqueiro; descricao: Frota industrial e artesanal divide o oceano com a tartaruga-de-couro. Fiscalização é essencial.; cor: #3A2818"></a-entity>';
-    html += '<a-entity position="4 2.2 -8" info-hotspot="titulo: Peixes pelágicos; descricao: Pequenos cardumes vivem na zona pelágica. Sustentam atuns, tubarões e aves marinhas.; cor: #4A7A90"></a-entity>';
-    html += '<a-entity position="-4 3.0 -10" info-hotspot="titulo: Alto-mar (pelágico); descricao: Zona oceânica aberta, longe da costa. A tartaruga-de-couro passa a maior parte da vida aqui, migrando milhares de km.; cor: #2A5A80"></a-entity>';
-    html += '<a-entity position="0 3.5 -14" info-hotspot="titulo: Desova no litoral; descricao: No Brasil, desova principalmente no Espírito Santo. Volta à praia a cada 2-3 anos para botar ~100 ovos.; cor: #C8B080"></a-entity>';
-    html += '<a-entity position="-10 1.5 8" info-hotspot="titulo: Mergulho profundo; descricao: Suporta pressão de mais de 120 atm. Adaptações únicas no tórax permitem colapso controlado.; cor: #0A2A5A"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.0 3.5" info-hotspot="' +
+      'titulo: Tartaruga-de-couro; ' +
+      'categoria: Reptil; ' +
+      'imagem: assets/hotspots/oceano_couro_animal.jpg; ' +
+      'descricao: Dermochelys coriacea. Maior tartaruga do mundo, pode medir 2 m e pesar 700 kg. Mergulha ate 1.200 m para caca aguas-vivas. Carapaca coriacea, sem placas rigidas. Criticamente em Perigo globalmente e Vulneravel no Brasil.; ' +
+      'cor: #4A7A90"></a-entity>';
 
+    html += '<a-entity position="-6 2.0 -5" info-hotspot="' +
+      'titulo: Aguas-vivas; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/oceano_couro_aguaviva.jpg; ' +
+      'descricao: Alimento principal da tartaruga-de-couro. Sua boca sem dentes e adaptada para engolir medusas inteiras. Papilas queratinizadas no esofago impedem que as presas escorregadias voltem para fora quando ela expulsa a agua ingerida.; ' +
+      'cor: #F0C8F0"></a-entity>';
+
+    html += '<a-entity position="6 1.8 4" info-hotspot="' +
+      'titulo: Sacola plastica; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/oceano_couro_sacola.jpg; ' +
+      'descricao: A maior ameaca a tartaruga-de-couro. Flutuando, sacolas plasticas parecem aguas-vivas. A tartaruga come e morre por obstrucao intestinal. Estima-se que mais de 1 milhao de animais marinhos morrem por plastico a cada ano.; ' +
+      'cor: #F8F8F0"></a-entity>';
+
+    html += '<a-entity position="-7 1.5 -6" info-hotspot="' +
+      'titulo: Rede de pesca; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/oceano_couro_rede.jpg; ' +
+      'descricao: Captura acidental em redes de deriva mata milhares de tartarugas por ano no Atlantico. O espinhel pelagico e as redes de emalhe sao as artes que mais matam tartarugas-de-couro, que engancham as nadadeiras longas ou engolem o anzol.; ' +
+      'cor: #B0B0A0"></a-entity>';
+
+    html += '<a-entity position="18 3.2 15" info-hotspot="' +
+      'titulo: Barco pesqueiro; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/oceano_couro_barco.jpg; ' +
+      'descricao: Frota industrial e artesanal divide o oceano com a tartaruga-de-couro. Fiscalizacao e uso de dispositivos como o TED sao essenciais para reduzir a mortalidade. O Brasil tem legislacao, mas a fiscalizacao ainda e um desafio.; ' +
+      'cor: #3A2818"></a-entity>';
+
+    html += '<a-entity position="4 2.2 -8" info-hotspot="' +
+      'titulo: Peixes pelagicos; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/oceano_couro_peixes.jpg; ' +
+      'descricao: Pequenos cardumes vivem na zona pelagica. Sustentam atuns, tubaroes e aves marinhas. Fazem parte da mesma teia trofica que a tartaruga-de-couro, que ocupa o topo como predador de medusas.; ' +
+      'cor: #4A7A90"></a-entity>';
+
+    html += '<a-entity position="-4 3.0 -10" info-hotspot="' +
+      'titulo: Alto-mar pelagico; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/oceano_couro_altomar.jpg; ' +
+      'descricao: Zona oceanica aberta, longe da costa. A tartaruga-de-couro passa a maior parte da vida aqui, migrando milhares de quilometros entre areas de alimentacao e reproducao. Uma das especies mais migratorias do planeta.; ' +
+      'cor: #2A5A80"></a-entity>';
+
+    html += '<a-entity position="0 3.5 -14" info-hotspot="' +
+      'titulo: Desova no litoral; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/oceano_couro_desova.jpg; ' +
+      'descricao: No Brasil, a especie desova principalmente no Espirito Santo, com registros ocasionais em Pernambuco. A femea volta a praia a cada 2 ou 3 anos para botar cerca de 100 ovos. Apenas 1 em cada 1.000 filhotes chega a fase adulta.; ' +
+      'cor: #C8B080"></a-entity>';
+
+    html += '<a-entity position="-10 1.5 8" info-hotspot="' +
+      'titulo: Mergulho profundo; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/oceano_couro_mergulho.jpg; ' +
+      'descricao: Suporta pressao de mais de 120 atmosferas. Adaptacoes unicas permitem colapso pulmonar controlado e bradicardia extrema durante mergulhos de ate 1.200 m. Pode ficar mais de 1 hora submersa sem respirar.; ' +
+      'cor: #0A2A5A"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #6A90B8; intensity: 0.6"></a-entity>' +
             '<a-entity position="6 18 6" light="type: directional; color: #C8E8F8; intensity: 0.9; castShadow: true; shadowMapWidth: 1024; shadowMapHeight: 1024"></a-entity>' +

@@ -243,16 +243,78 @@
     if (denso) html += gerarTatuBola(-9, 6, 0.6);
 
     /* Hotspots */
-    html += '<a-entity position="0 2.0 2.5" info-hotspot="titulo: Tatu-bola-do-nordeste; descricao: Tolypeutes tricinctus — o menor tatu do Brasil (até 1,8 kg). Enrola-se em bola quando ameaçado. Endêmico do Brasil.; cor: #C8A860"></a-entity>';
-    html += '<a-entity position="4 1.2 -4" info-hotspot="titulo: Cupinzeiro; descricao: Fonte de alimento principal. O tatu usa as garras para abrir o cupinzeiro e lamber os cupins.; cor: #7A5A3A"></a-entity>';
-    html += '<a-entity position="-4 0.9 -3" info-hotspot="titulo: Formigueiro; descricao: Também parte da dieta. O tatu-bola controla naturalmente populações de formigas e cupins.; cor: #B89A78"></a-entity>';
-    html += '<a-entity position="2 0.6 -5" info-hotspot="titulo: Lajeado; descricao: Chão de pedra rachada. O tatu-bola escala e se esconde nessas formações durante o dia.; cor: #8A7A5A"></a-entity>';
-    html += '<a-entity position="-4.5 0.5 3" info-hotspot="titulo: Toca; descricao: Abrigo cavado em solo fofo. O tatu-bola costuma reaproveitar tocas de outros animais.; cor: #3A2818"></a-entity>';
-    html += '<a-entity position="3 1.1 -6" info-hotspot="titulo: Mandacaru; descricao: Cacto da Caatinga. Fornece frutos e flores que o tatu come na época das chuvas.; cor: #3E7A3E"></a-entity>';
-    html += '<a-entity position="-3 0.9 4" info-hotspot="titulo: Xique-xique; descricao: Cacto rastejante. Espinhos protegem o tatu de predadores quando ele se enrola perto.; cor: #5A8A4A"></a-entity>';
-    html += '<a-entity position="0 3.2 -10" info-hotspot="titulo: Caatinga; descricao: Único bioma exclusivamente brasileiro. Chuvas escassas, vegetação caducifólia e alta biodiversidade adaptada.; cor: #D8C090"></a-entity>';
-    html += '<a-entity position="-5 1.0 -6" info-hotspot="titulo: Ameaças; descricao: Caça ilegal, atropelamentos, desmatamento, agropecuária e usinas eólicas/solares ameaçam o tatu-bola.; cor: #E8482A"></a-entity>';
-    html += '<a-entity position="5 0.9 5" info-hotspot="titulo: Fuleco; descricao: O tatu-bola foi o mascote da Copa do Mundo de 2014 no Brasil, mundialmente conhecido como Fuleco.; cor: #F0A028"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.0 2.5" info-hotspot="' +
+      'titulo: Tatu-bola-do-nordeste; ' +
+      'categoria: Mamifero; ' +
+      'imagem: assets/hotspots/caatinga_tatu_animal.jpg; ' +
+      'descricao: Tolypeutes tricinctus. Menor tatu do Brasil, mede 40 cm e pesa ate 1.8 kg. Unico tatu capaz de se enrolar completamente em bola rigida, escondendo as partes moles na carapaca. Endemico do Nordeste brasileiro, ocorre na Caatinga e transicoes para o Cerrado.; ' +
+      'cor: #C8A860"></a-entity>';
+
+    html += '<a-entity position="4 1.2 -4" info-hotspot="' +
+      'titulo: Cupinzeiro; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/caatinga_tatu_cupinzeiro.jpg; ' +
+      'descricao: Construcao de cupins que serve de alimento principal ao tatu-bola. Ele usa as garras para abrir o cupinzeiro e lamber os cupins com a lingua. Os buracos abertos viram abrigo para outros animais depois.; ' +
+      'cor: #7A5A3A"></a-entity>';
+
+    html += '<a-entity position="-4 0.9 -3" info-hotspot="' +
+      'titulo: Formigueiro; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/caatinga_tatu_formigueiro.jpg; ' +
+      'descricao: Monte de terra feito por formigas. Tambem parte da dieta do tatu-bola, que controla naturalmente populacoes de formigas e cupins. Esse controle evita que pragas destruam a vegetacao da Caatinga.; ' +
+      'cor: #B89A78"></a-entity>';
+
+    html += '<a-entity position="2 0.6 -5" info-hotspot="' +
+      'titulo: Lajeado; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/caatinga_tatu_lajeado.jpg; ' +
+      'descricao: Chao de pedra rachada tipico da Caatinga. O tatu-bola escala e se esconde nessas formacoes durante o dia, usando as frestas como abrigo natural contra o calor e predadores.; ' +
+      'cor: #8A7A5A"></a-entity>';
+
+    html += '<a-entity position="-4.5 0.5 3" info-hotspot="' +
+      'titulo: Toca; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/caatinga_tatu_toca.jpg; ' +
+      'descricao: Diferente de outros tatus, o tatu-bola nao cava suas proprias tocas. Ele reaproveita tocas abandonadas por outros animais ou descansa sob a serapilheira e arbustos densos, aproveitando o solo fofo da Caatinga.; ' +
+      'cor: #3A2818"></a-entity>';
+
+    html += '<a-entity position="3 1.1 -6" info-hotspot="' +
+      'titulo: Mandacaru; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/caatinga_tatu_mandacaru.jpg; ' +
+      'descricao: Cereus jamacaru. Cacto colunar simbolo da Caatinga. Fornece frutos e flores que o tatu-bola come na epoca das chuvas, alem de abrigo para insetos que fazem parte da dieta dele.; ' +
+      'cor: #3E7A3E"></a-entity>';
+
+    html += '<a-entity position="-3 0.9 4" info-hotspot="' +
+      'titulo: Xique-xique; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/caatinga_tatu_xiquexique.jpg; ' +
+      'descricao: Pilosocereus gounellei. Cacto rasteiro que se espalha pelo chao da Caatinga. Seus espinhos protegem o tatu-bola de predadores quando ele se enrola perto da planta. Tambem produz frutos comestiveis.; ' +
+      'cor: #5A8A4A"></a-entity>';
+
+    html += '<a-entity position="0 3.2 -10" info-hotspot="' +
+      'titulo: Caatinga; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/caatinga_tatu_bioma.jpg; ' +
+      'descricao: Unico bioma exclusivamente brasileiro. Ocupa cerca de 11 porcento do territorio nacional. Clima semiarido com chuvas escassas, vegetacao caducifolia e alta biodiversidade adaptada. Abriga o tatu-bola, especie endemica e ameacada.; ' +
+      'cor: #D8C090"></a-entity>';
+
+    html += '<a-entity position="-5 1.0 -6" info-hotspot="' +
+      'titulo: Ameacas; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/caatinga_tatu_ameacas.jpg; ' +
+      'descricao: Caca ilegal, atropelamentos, desmatamento, agropecuaria e instalacao de usinas eolicas e solares ameacam o tatu-bola. A destruicao da Caatinga reduz seu habitat e isola populacoes, dificultando a recuperacao da especie.; ' +
+      'cor: #E8482A"></a-entity>';
+
+    html += '<a-entity position="5 0.9 5" info-hotspot="' +
+      'titulo: Fuleco; ' +
+      'categoria: Cultura; ' +
+      'imagem: assets/hotspots/caatinga_tatu_fuleco.jpg; ' +
+      'descricao: O tatu-bola foi o mascote oficial da Copa do Mundo FIFA 2014 no Brasil, mundialmente conhecido como Fuleco. A escolha trouxe visibilidade internacional para a especie e para a conservacao da Caatinga.; ' +
+      'cor: #F0A028"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #FFF0D8; intensity: 0.85"></a-entity>' +

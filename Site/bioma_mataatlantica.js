@@ -360,16 +360,78 @@
     }
 
     /* Hotspots */
-    html += '<a-entity position="0 2.2 2.5" info-hotspot="titulo: Saíra-pintor; descricao: Tangara fastuosa — endêmica do Nordeste. Plumagem turquesa, amarela, preta e violeta. Ameaçada pelo tráfico e perda de mata.; cor: #3FD9E0"></a-entity>';
-    html += '<a-entity position="-3.5 0.8 -3" info-hotspot="titulo: Samambaia; descricao: Indicador de mata úmida preservada. Só cresce em sub-bosque com sombra e alta umidade.; cor: #4A9A40"></a-entity>';
-    html += '<a-entity position="3.5 1.0 -4" info-hotspot="titulo: Árvore frutífera; descricao: Frutos silvestres são o principal alimento da saíra. Sem floresta nativa, a espécie some.; cor: #F0A028"></a-entity>';
-    html += '<a-entity position="-2 0.6 3" info-hotspot="titulo: Bromélia; descricao: Planta-epífita que acumula água e vira minipiscina para sapos e insetos. Símbolo da Mata Atlântica.; cor: #C8382A"></a-entity>';
-    html += '<a-entity position="5 2.8 -6" info-hotspot="titulo: Bambu; descricao: Bambuzais nativos formam corredores de fauna. A saíra usa para se esconder de predadores.; cor: #6A9A40"></a-entity>';
-    html += '<a-entity position="-5 2.5 -8" info-hotspot="titulo: Lianas e cipós; descricao: Conectam as copas e criam passagens aéreas. A saíra forrageia pelas lianas em busca de insetos e frutas.; cor: #3A5A28"></a-entity>';
-    html += '<a-entity position="-1 0.5 -6" info-hotspot="titulo: Folhiço; descricao: Camada de folhas em decomposição. Mantém a umidade, alimenta o solo e abriga invertebrados.; cor: #5A3A20"></a-entity>';
-    html += '<a-entity position="6 1.3 -2" info-hotspot="titulo: Riacho; descricao: Cursos d.água são essenciais na Mata Atlântica. Água limpa = floresta viva.; cor: #4A90B8"></a-entity>';
-    html += '<a-entity position="2 3.2 -12" info-hotspot="titulo: Mata Atlântica; descricao: Um dos biomas mais ricos e ameaçados do planeta. Restam ~12% da cobertura original, muito fragmentada.; cor: #2E7A30"></a-entity>';
-    html += '<a-entity position="-4 0.9 5" info-hotspot="titulo: Tráfico de aves; descricao: A saíra é cobiçada por sua beleza. A captura ilegal e o desmatamento a colocaram em risco de extinção.; cor: #E8482A"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.2 2.5" info-hotspot="' +
+      'titulo: Saiara-pintor; ' +
+      'categoria: Ave; ' +
+      'imagem: assets/hotspots/mata_saira_ave.jpg; ' +
+      'descricao: Tangara fastuosa. Endemica do Nordeste brasileiro. Plumagem com turquesa, verde, amarelo, preto e violeta. Mede 13 a 14 cm e pesa 16 a 21 g. Vive em pequenos grupos familiares e e bastante territorialista. Ameacada pelo trafico.; ' +
+      'cor: #3FD9E0"></a-entity>';
+
+    html += '<a-entity position="-3.5 0.8 -3" info-hotspot="' +
+      'titulo: Samambaia; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/mata_saira_samambaia.jpg; ' +
+      'descricao: Indicador de mata umida preservada. So cresce em sub-bosque com sombra e alta umidade. Sua presenca sinaliza que a floresta mantem condicoes ideais para a saira-pintor e outras especies sensiveis.; ' +
+      'cor: #4A9A40"></a-entity>';
+
+    html += '<a-entity position="3.5 1.0 -4" info-hotspot="' +
+      'titulo: Arvore frutifera; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/mata_saira_frutifera.jpg; ' +
+      'descricao: Frutos silvestres sao o principal alimento da saira-pintor. Sem floresta nativa, a especie desaparece. Ela atua como dispersora de sementes, ajudando a regenerar a propria Mata Atlantica.; ' +
+      'cor: #F0A028"></a-entity>';
+
+    html += '<a-entity position="-2 0.6 3" info-hotspot="' +
+      'titulo: Bromelia; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/mata_saira_bromelia.jpg; ' +
+      'descricao: Planta epifita que acumula agua entre as folhas, formando uma minipiscina. Abriga sapos, insetos e micro-organismos. Simbolo da Mata Atlantica e microhabitat crucial para muitas especies.; ' +
+      'cor: #C8382A"></a-entity>';
+
+    html += '<a-entity position="5 2.8 -6" info-hotspot="' +
+      'titulo: Bambu; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/mata_saira_bambu.jpg; ' +
+      'descricao: Bambuzais nativos formam corredores de fauna na Mata Atlantica. A saira-pintor usa esses emaranhados para se esconder de predadores e como area de forrageamento. Tambem servem de abrigo para pequenos mamiferos.; ' +
+      'cor: #6A9A40"></a-entity>';
+
+    html += '<a-entity position="-5 2.5 -8" info-hotspot="' +
+      'titulo: Lianas e cipos; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/mata_saira_liana.jpg; ' +
+      'descricao: Plantas trepadeiras que conectam as copas das arvores, criando passagens aereas para a fauna. A saira-pintor forrageia pelas lianas em busca de insetos e frutas, usando-as como verdadeiras estradas na floresta.; ' +
+      'cor: #3A5A28"></a-entity>';
+
+    html += '<a-entity position="-1 0.5 -6" info-hotspot="' +
+      'titulo: Folhico; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/mata_saira_folhico.jpg; ' +
+      'descricao: Camada de folhas secas em decomposicao. Mantem a umidade do solo, alimenta decompositores e abriga invertebrados. Parte da cadeia alimentar que sustenta insetos, que alimentam aves como a saira-pintor.; ' +
+      'cor: #5A3A20"></a-entity>';
+
+    html += '<a-entity position="6 1.3 -2" info-hotspot="' +
+      'titulo: Riacho; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/mata_saira_riacho.jpg; ' +
+      'descricao: Cursos de agua sao essenciais na Mata Atlantica. Riachos limpos indicam floresta viva e sao fonte de agua para todas as especies. A saira-pintor costuma forragear nas margens, onde a umidade atrai insetos.; ' +
+      'cor: #4A90B8"></a-entity>';
+
+    html += '<a-entity position="2 3.2 -12" info-hotspot="' +
+      'titulo: Mata Atlantica; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/mata_saira_bioma.jpg; ' +
+      'descricao: Um dos biomas mais ricos e ameacados do planeta. Restam cerca de 12 porcento da cobertura original, muito fragmentada. No Nordeste, o Centro de Endemismo Pernambuco abriga especies unicas como a saira-pintor.; ' +
+      'cor: #2E7A30"></a-entity>';
+
+    html += '<a-entity position="-4 0.9 5" info-hotspot="' +
+      'titulo: Trafico de aves; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/mata_saira_trafico.jpg; ' +
+      'descricao: A saira-pintor e cobicada por sua beleza e canto. A captura ilegal e o desmatamento a colocaram em risco de extincao. Combater o trafico e restaurar a Mata Atlantica sao as principais estrategias para salva-la.; ' +
+      'cor: #E8482A"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #C8E8D8; intensity: 0.65"></a-entity>' +

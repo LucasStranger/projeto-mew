@@ -1,8 +1,6 @@
 /* =========================================================
-   bioma_componentes.js — MASTER (v5.1 — popup HTML com imagem + categoria)
-   Popup em HTML/CSS sobreposto ao canvas → acentos perfeitos
-   NOVO: campos "categoria" e "imagem" no info-hotspot
-   AJUSTE v5.1: imagem com object-fit: contain (não corta)
+   bioma_componentes.js — MASTER (v6 — VR-ready)
+   Popup HTML (desktop) + Popup 3D (VR) simultâneos
    ========================================================= */
 (function () {
   'use strict';
@@ -12,7 +10,7 @@
   };
 
   /* --------------------------------------------------------
-     CSS injetado para o popup HTML
+     CSS injetado para o popup HTML (desktop/celular)
      -------------------------------------------------------- */
   function injetarEstilosPopup() {
     if (document.getElementById('hotspot-popup-styles')) return;
@@ -50,8 +48,6 @@
         border-top: 13px solid var(--hotspot-cor, #7ee898);
         filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
       }
-
-      /* IMAGEM (opcional) — contain: mostra a imagem inteira sem cortar */
       .hotspot-popup-imagem-wrap {
         width: 100%;
         height: 180px;
@@ -75,13 +71,9 @@
         background: linear-gradient(180deg, transparent 65%, rgba(8, 18, 6, 0.6) 100%);
         pointer-events: none;
       }
-
-      /* CONTEÚDO */
       .hotspot-popup-conteudo {
         padding: 12px 18px 14px;
       }
-
-      /* CATEGORIA (opcional) */
       .hotspot-popup-categoria {
         display: inline-block;
         font-family: 'Courier New', monospace;
@@ -97,7 +89,6 @@
         color: var(--hotspot-cor, #7ee898);
         text-shadow: 0 0 6px var(--hotspot-cor, #7ee898);
       }
-
       .hotspot-popup-titulo {
         font-size: 1.02rem;
         font-weight: 800;
@@ -110,7 +101,6 @@
         line-height: 1.25;
         color: var(--hotspot-cor, #7ee898);
       }
-
       .hotspot-popup-desc {
         font-size: 0.83rem;
         line-height: 1.55;
@@ -118,12 +108,10 @@
         margin: 0;
         text-align: left;
       }
-
       @keyframes hotspotFadeIn {
         from { opacity: 0; transform: translate(-50%, calc(-100% - 8px)); }
         to   { opacity: 1; transform: translate(-50%, calc(-100% - 16px)); }
       }
-
       @media (max-width: 600px) {
         .hotspot-popup {
           max-width: calc(100vw - 30px);
@@ -141,7 +129,7 @@
 
   injetarEstilosPopup();
 
-  /* ---------- billboard-y (legado, mantido para compat.) ---------- */
+  /* ---------- billboard-y (legado) ---------- */
   R('billboard-y', {
     tick: function () {
       const cam = this.el.sceneEl && this.el.sceneEl.camera;
@@ -152,7 +140,7 @@
     }
   });
 
-  /* ---------- info-hotspot (v5.1 — popup HTML com imagem + categoria) ---------- */
+  /* ---------- info-hotspot (v6 — VR-ready) ---------- */
   R('info-hotspot', {
     schema: {
       titulo:    { type: 'string', default: 'Elemento' },
@@ -196,34 +184,105 @@
       luz.setAttribute('light', 'type: point; color: ' + cor + '; intensity: 0.4; distance: 2.8');
       this.el.appendChild(luz);
 
-      /* ============================================================
-         POPUP HTML (overlay fora do 3D)
-         ============================================================ */
+      /* Painel 3D (VR) */
+      this.painelVR = this._criarPainelVR(cor);
+      this.painelVR.setAttribute('visible', 'false');
+      this.el.appendChild(this.painelVR);
+
+      /* Popup HTML (desktop) */
+      this.popupHTML = this._criarPopupHTML(cor);
+      document.body.appendChild(this.popupHTML);
+
+      this.aberto = false;
+      this._v = new THREE.Vector3();
+
+      this.el.addEventListener('click', (e) => { e.stopPropagation(); this.toggle(); });
+      this.el.addEventListener('mouseenter', () => this.el.setAttribute('scale', '1.15 1.15 1.15'));
+      this.el.addEventListener('mouseleave', () => this.el.setAttribute('scale', '1 1 1'));
+
+      window.ensureCursorBioma(this.el.sceneEl);
+    },
+
+    _criarPainelVR: function (cor) {
+      const painel = document.createElement('a-entity');
+      painel.setAttribute('position', '0 0 1.2');
+      painel.setAttribute('look-at', '#camera');
+      painel.setAttribute('scale', '1 1 1');
+
+      const borda = document.createElement('a-plane');
+      borda.setAttribute('width', '1.1');
+      borda.setAttribute('height', '0.85');
+      borda.setAttribute('color', cor);
+      borda.setAttribute('material', 'shader: flat; opacity: 0.95; transparent: true; side: double');
+      painel.appendChild(borda);
+
+      const fundo = document.createElement('a-plane');
+      fundo.setAttribute('width', '1.06');
+      fundo.setAttribute('height', '0.81');
+      fundo.setAttribute('position', '0 0 0.005');
+      fundo.setAttribute('color', '#081206');
+      fundo.setAttribute('material', 'shader: standard; opacity: 0.97; transparent: true; side: double');
+      painel.appendChild(fundo);
+
+      if (this.data.imagem && this.data.imagem.trim() !== '') {
+        const img = document.createElement('a-image');
+        img.setAttribute('src', this.data.imagem);
+        img.setAttribute('width', '0.9');
+        img.setAttribute('height', '0.3');
+        img.setAttribute('position', '0 0.22 0.01');
+        painel.appendChild(img);
+      }
+
+      if (this.data.categoria && this.data.categoria.trim() !== '') {
+        const cat = document.createElement('a-text');
+        cat.setAttribute('value', this.data.categoria.toUpperCase());
+        cat.setAttribute('color', cor);
+        cat.setAttribute('align', 'center');
+        cat.setAttribute('width', '1.5');
+        cat.setAttribute('position', '0 0.34 0.02');
+        painel.appendChild(cat);
+      }
+
+      const titulo = document.createElement('a-text');
+      titulo.setAttribute('value', this.data.titulo);
+      titulo.setAttribute('color', cor);
+      titulo.setAttribute('align', 'center');
+      titulo.setAttribute('width', '2.0');
+      titulo.setAttribute('position', '0 0.03 0.02');
+      painel.appendChild(titulo);
+
+      const desc = document.createElement('a-text');
+      desc.setAttribute('value', this.data.descricao);
+      desc.setAttribute('color', '#d5ffdd');
+      desc.setAttribute('align', 'left');
+      desc.setAttribute('width', '2.8');
+      desc.setAttribute('wrap-count', '38');
+      desc.setAttribute('position', '-0.5 -0.06 0.02');
+      painel.appendChild(desc);
+
+      return painel;
+    },
+
+    _criarPopupHTML: function (cor) {
       const popup = document.createElement('div');
       popup.className = 'hotspot-popup';
       popup.style.display = 'none';
       popup.style.borderColor = cor;
       popup.style.setProperty('--hotspot-cor', cor);
 
-      /* Imagem (só cria se tiver) */
       if (this.data.imagem && this.data.imagem.trim() !== '') {
         const imgWrap = document.createElement('div');
         imgWrap.className = 'hotspot-popup-imagem-wrap';
-
         const img = document.createElement('img');
         img.className = 'hotspot-popup-imagem';
         img.src = this.data.imagem;
         img.alt = this.data.titulo;
         img.loading = 'lazy';
-        img.onerror = function () {
-          imgWrap.style.display = 'none';
-        };
-
+        img.onerror = function () { imgWrap.style.display = 'none'; };
         imgWrap.appendChild(img);
         popup.appendChild(imgWrap);
       }
 
-      /* Conteúdo (categoria + título + descrição) */
       const conteudo = document.createElement('div');
       conteudo.className = 'hotspot-popup-conteudo';
 
@@ -245,66 +304,68 @@
       conteudo.appendChild(desc);
 
       popup.appendChild(conteudo);
-      document.body.appendChild(popup);
-
-      this.popup = popup;
-      this.aberto = false;
-      this._v = new THREE.Vector3();
-
-      this.el.addEventListener('click', (e) => { e.stopPropagation(); this.toggle(); });
-      this.el.addEventListener('mouseenter', () => this.el.setAttribute('scale', '1.15 1.15 1.15'));
-      this.el.addEventListener('mouseleave', () => this.el.setAttribute('scale', '1 1 1'));
-
-      window.ensureCursorBioma(this.el.sceneEl);
+      return popup;
     },
 
     tick: function () {
-      if (!this.aberto || !this.popup) return;
+      if (!this.aberto) return;
 
       const sceneEl = this.el.sceneEl;
       const cam = sceneEl && sceneEl.camera;
       if (!cam) return;
 
+      const emVR = sceneEl.is('vr-mode');
+
+      if (emVR) {
+        if (this.painelVR) this.painelVR.setAttribute('visible', 'true');
+        if (this.popupHTML) this.popupHTML.style.display = 'none';
+        return;
+      }
+
+      if (this.painelVR) this.painelVR.setAttribute('visible', 'false');
+      if (!this.popupHTML) return;
+
       this.el.object3D.getWorldPosition(this._v);
       this._v.project(cam);
 
       if (this._v.z > 1) {
-        this.popup.style.visibility = 'hidden';
+        this.popupHTML.style.visibility = 'hidden';
         return;
       }
 
-      this.popup.style.visibility = 'visible';
-
+      this.popupHTML.style.visibility = 'visible';
       const canvas = sceneEl.canvas;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-
       const x = rect.left + (this._v.x * 0.5 + 0.5) * rect.width;
       const y = rect.top  + (-this._v.y * 0.5 + 0.5) * rect.height;
-
-      this.popup.style.left = x + 'px';
-      this.popup.style.top  = y + 'px';
+      this.popupHTML.style.left = x + 'px';
+      this.popupHTML.style.top  = y + 'px';
     },
 
     toggle: function () {
       this.aberto = !this.aberto;
-      if (this.popup) {
-        this.popup.style.display = this.aberto ? 'block' : 'none';
+      if (this.popupHTML) {
+        this.popupHTML.style.display = this.aberto ? 'block' : 'none';
         if (this.aberto) this.tick();
+      }
+      if (this.painelVR) {
+        this.painelVR.setAttribute('visible', this.aberto ? 'true' : 'false');
       }
       clearTimeout(this._t);
       if (this.aberto) {
         this._t = setTimeout(() => {
           this.aberto = false;
-          if (this.popup) this.popup.style.display = 'none';
+          if (this.popupHTML) this.popupHTML.style.display = 'none';
+          if (this.painelVR) this.painelVR.setAttribute('visible', 'false');
         }, 11000);
       }
     },
 
     remove: function () {
       clearTimeout(this._t);
-      if (this.popup && this.popup.parentNode) {
-        this.popup.parentNode.removeChild(this.popup);
+      if (this.popupHTML && this.popupHTML.parentNode) {
+        this.popupHTML.parentNode.removeChild(this.popupHTML);
       }
     }
   });
@@ -458,6 +519,9 @@
     if (!sceneEl || sceneEl.dataset.cursorOk === '1') return;
     sceneEl.dataset.cursorOk = '1';
     const add = () => {
+      /* Em VR não precisa de cursor de mouse */
+      if (sceneEl.is('vr-mode')) return;
+
       const cam = sceneEl.querySelector('a-camera, [camera]');
       if (!cam || cam.querySelector('[cursor]')) return;
       const c = document.createElement('a-entity');
@@ -469,5 +533,5 @@
     else sceneEl.addEventListener('loaded', add, { once: true });
   };
 
-  console.log('[bioma_componentes] v5.1 — popup HTML com imagem (contain) + categoria.');
+  console.log('[bioma_componentes] v6 — VR-ready (popup HTML + painel 3D).');
 })();

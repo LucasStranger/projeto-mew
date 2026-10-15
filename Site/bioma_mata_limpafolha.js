@@ -232,16 +232,78 @@
     html += gerarMemorial(-4, -5, 30);
 
     /* Hotspots */
-    html += '<a-entity position="0 2.2 2.5" info-hotspot="titulo: Limpa-folha-do-nordeste; descricao: Philydor novaesi — ave vermelho-tijolo de 18 cm. Visto por último em 2011. Provavelmente extinto na natureza.; cor: #8A2818"></a-entity>';
-    html += '<a-entity position="-3.5 0.8 -3" info-hotspot="titulo: Samambaia; descricao: Indicador de mata úmida preservada. Camada baixa que mantém a umidade do solo.; cor: #2A6A28"></a-entity>';
-    html += '<a-entity position="3.5 1.0 -4" info-hotspot="titulo: Bromélia gigante; descricao: Reservatório natural de água. Berçário de sapos, insetos e fonte de água para as aves.; cor: #C8382A"></a-entity>';
-    html += '<a-entity position="-2 0.6 3" info-hotspot="titulo: Folhiço; descricao: Camada de folhas secas. O limpa-folha catava insetos aqui com o bico em forma de gancho.; cor: #8A5A28"></a-entity>';
-    html += '<a-entity position="5 2.8 -6" info-hotspot="titulo: Dossel fechado; descricao: Copas que se tocam. Estrato superior onde o limpa-folha forrageava em bandos mistos.; cor: #164018"></a-entity>';
-    html += '<a-entity position="-5 2.5 -8" info-hotspot="titulo: Tronco com musgo; descricao: Troncos caídos cobertos de musgo. Abrigam invertebrados que alimentam a ave.; cor: #2E5A24"></a-entity>';
-    html += '<a-entity position="-4 1.6 -5" info-hotspot="titulo: Memorial; descricao: Último registro em 2011, em Pernambuco. A espécie é símbolo da extinção causada pelo desmatamento.; cor: #A080D0"></a-entity>';
-    html += '<a-entity position="4 1.0 -6" info-hotspot="titulo: Mata Atlântica de altitude; descricao: 400-550 m, com névoa constante. Uma das matas mais úmidas e ameaçadas do planeta.; cor: #3A5A6A"></a-entity>';
-    html += '<a-entity position="2 3.2 -12" info-hotspot="titulo: Centro de Endemismo PE; descricao: Região entre Alagoas e Pernambuco. Restam menos de 2% da cobertura original.; cor: #2E5A24"></a-entity>';
-    html += '<a-entity position="-6 0.9 5" info-hotspot="titulo: Fragmentação; descricao: Retalhos de mata isolados condenam espécies endêmicas. É a maior ameaça à biodiversidade.; cor: #E8482A"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.2 2.5" info-hotspot="' +
+      'titulo: Limpa-folha-do-nordeste; ' +
+      'categoria: Ave; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_ave.jpg; ' +
+      'descricao: Philydor novaesi. Ave vermelho-tijola de 18 cm. Vivía nas copas da Mata Atlantica de encosta. Ultimo registro em 2011, na Serra do Urubu em Pernambuco. Considerada Extinta pela IUCN e simbolo da perda de biodiversidade no Nordeste.; ' +
+      'cor: #8A2818"></a-entity>';
+
+    html += '<a-entity position="-3.5 0.8 -3" info-hotspot="' +
+      'titulo: Samambaia; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_samambaia.jpg; ' +
+      'descricao: Indicador de mata umida preservada. A camada baixa de samambaias mantem a umidade do solo e cria microhabitat para insetos. Essencial para a cadeia alimentar do limpa-folha, que cata artropodes entre as folhas.; ' +
+      'cor: #2A6A28"></a-entity>';
+
+    html += '<a-entity position="3.5 1.0 -4" info-hotspot="' +
+      'titulo: Bromelia gigante; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_bromelia.jpg; ' +
+      'descricao: Reservatorio natural de agua nas copas das arvores. Berco de sapos, insetos e fonte de agua para aves. O limpa-folha dependia dessas bromelias como microhabitat de forrageamento para caca de artropodes.; ' +
+      'cor: #C8382A"></a-entity>';
+
+    html += '<a-entity position="-2 0.6 3" info-hotspot="' +
+      'titulo: Folhico; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_folhico.jpg; ' +
+      'descricao: Camada de folhas secas acumuladas no chao e nos galhos. O limpa-folha catava insetos aqui com seu bico em forma de gancho. Esse comportamento deu origem ao nome popular da ave e de seus parentes da familia Furnariidae.; ' +
+      'cor: #8A5A28"></a-entity>';
+
+    html += '<a-entity position="5 2.8 -6" info-hotspot="' +
+      'titulo: Dossel fechado; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_dossel.jpg; ' +
+      'descricao: Copas que se tocam formando um teto verde continuo. Estrato superior onde o limpa-folha forrageava em bandos mistos com outras aves. A fragmentacao da mata quebra esse dossel, essencial para a especie.; ' +
+      'cor: #164018"></a-entity>';
+
+    html += '<a-entity position="-5 2.5 -8" info-hotspot="' +
+      'titulo: Tronco com musgo; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_tronco.jpg; ' +
+      'descricao: Troncos caidos cobertos de musgo. Abrigam invertebrados que alimentam aves insetivoras como o limpa-folha. Esses microhabitats umidos sao os primeiros a desaparecer quando a mata e fragmentada.; ' +
+      'cor: #2E5A24"></a-entity>';
+
+    html += '<a-entity position="-4 1.6 -5" info-hotspot="' +
+      'titulo: Memorial; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_memorial.jpg; ' +
+      'descricao: Ultimo registro em 2011, na Serra do Urubu em Pernambuco. A especie e simbolo da extincao causada pelo desmatamento. Sua perda representa uma historia evolutiva unica apagada para sempre.; ' +
+      'cor: #A080D0"></a-entity>';
+
+    html += '<a-entity position="4 1.0 -6" info-hotspot="' +
+      'titulo: Mata Atlantica de altitude; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_bioma.jpg; ' +
+      'descricao: Floresta umida de 400 a 550 m de altitude, com nevoa constante. Uma das matas mais umidas e ameacadas do planeta. O limpa-folha dependia desse ambiente unico, que praticamente desapareceu em Pernambuco.; ' +
+      'cor: #3A5A6A"></a-entity>';
+
+    html += '<a-entity position="2 3.2 -12" info-hotspot="' +
+      'titulo: Centro de Endemismo PE; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_endemismo.jpg; ' +
+      'descricao: Regiao entre Alagoas e Pernambuco, ao norte do Rio Sao Francisco. Abriga especies unicas que nao existem em nenhum outro lugar do mundo. Restam menos de 2 porcento da cobertura original, tornando-a uma das areas mais criticas para conservacao.; ' +
+      'cor: #2E5A24"></a-entity>';
+
+    html += '<a-entity position="-6 0.9 5" info-hotspot="' +
+      'titulo: Fragmentacao; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/altitude_limpafolha_fragmentacao.jpg; ' +
+      'descricao: Retalhos de mata isolados condenam especies endemicas. Sem corredores ecologicos, populacoes pequenas nao se reproduzem e entram em vortice de extincao. Foi o que aconteceu com o limpa-folha-do-nordeste.; ' +
+      'cor: #E8482A"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #A8C8B8; intensity: 0.5"></a-entity>' +

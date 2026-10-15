@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Visualização 3D — Projeto Mew</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls@0.4.3/dist/aframe-blink-controls.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -248,7 +249,7 @@
   <div class="aviso-file" id="aviso-file" style="display:none;">
     <div class="aviso-file-box">
       <h2>⚠ Modo file:// detectado</h2>
-      <p>Você abriu este arquivo direto pelo disco. O navegador <b>bloqueia</b> o carregamento dos modelos 3D.</p>
+      <p>Você abriu este arquivo direto pelo disco. O navegador <b>bloqueia</b> o carregamento dos modelos 3D e o VR.</p>
       <p>Para funcionar, use um servidor local:</p>
       <ol>
         <li><b>VS Code + Live Server:</b> clique com o botão direito em <code>index.html</code> → "Open with Live Server".</li>
@@ -284,16 +285,15 @@
 
   <div class="instrucoes" id="instrucoes" style="display:none;">
     <span class="instr-desktop">
-      <span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>💬 Clique nas esferas</span>
+      <span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>⌨️ WASD</span> andar · <span>💬 Clique nas esferas</span> · <span>🥽 Botão VR</span>
     </span>
     <span class="instr-mobile">
-      <span>👆 Arraste</span> girar · <span>🤏 Pinça</span> zoom · <span>💬 Toque nas esferas</span>
+      <span>👆 Arraste</span> girar · <span>🤏 Pinça</span> zoom · <span>💬 Toque nas esferas</span> · <span>🥽 VR</span>
     </span>
   </div>
 
   <div id="scene-container"></div>
 
-  <!-- ORDEM OBRIGATÓRIA DOS SCRIPTS -->
   <script src="biomas_fauna.js"></script>
   <script src="bioma_componentes.js"></script>
   <script src="bioma_costeiro.js"></script>
@@ -337,7 +337,6 @@
         this._initialized = false;
         this._tempV = new THREE.Vector3();
 
-        /* Estado de clique (document-level) */
         this._clickStart = null;
 
         this._onDown       = this.onPointerDown.bind(this);
@@ -356,16 +355,9 @@
           this.atualizarTeclasVisuais(e.code, false);
         };
 
-        /* ============================================================
-           CLIQUE — listeners no document com capture: true
-           Isso garante que rodam ANTES de qualquer outro handler,
-           sem chance de serem bloqueados por stopPropagation().
-           ============================================================ */
-
         this._docMouseDown = (e) => {
           if (!this._pontoDentroDoCanvas(e.clientX, e.clientY)) return;
           this._clickStart = { x: e.clientX, y: e.clientY, t: Date.now() };
-          console.log('[doc mousedown] iniciado em', e.clientX, e.clientY);
         };
 
         this._docMouseUp = (e) => {
@@ -374,17 +366,9 @@
           const dy = Math.abs(e.clientY - this._clickStart.y);
           const dt = Date.now() - this._clickStart.t;
           const mov = Math.hypot(dx, dy);
-          console.log('[doc mouseup] mov=', mov.toFixed(1), 'px, dt=', dt, 'ms');
-
           const foiClique = mov < 15 && dt < 900;
           this._clickStart = null;
-
-          if (foiClique) {
-            console.log('[doc] ✅ É CLIQUE! Procurando hotspot...');
-            this.tentarCliqueEmHotspot(e.clientX, e.clientY);
-          } else {
-            console.log('[doc] ❌ Foi arrasto (não é clique)');
-          }
+          if (foiClique) this.tentarCliqueEmHotspot(e.clientX, e.clientY);
         };
 
         this._docTouchStart = (e) => {
@@ -392,7 +376,6 @@
           const t = e.touches[0];
           if (!this._pontoDentroDoCanvas(t.clientX, t.clientY)) return;
           this._clickStart = { x: t.clientX, y: t.clientY, t: Date.now() };
-          console.log('[doc touchstart] iniciado em', t.clientX, t.clientY);
         };
 
         this._docTouchEnd = (e) => {
@@ -402,14 +385,9 @@
           const dy = Math.abs(t.clientY - this._clickStart.y);
           const dt = Date.now() - this._clickStart.t;
           const mov = Math.hypot(dx, dy);
-
           const foiClique = mov < 20 && dt < 900;
           this._clickStart = null;
-
-          if (foiClique) {
-            console.log('[doc] ✅ TOQUE! Procurando hotspot...');
-            this.tentarCliqueEmHotspot(t.clientX, t.clientY);
-          }
+          if (foiClique) this.tentarCliqueEmHotspot(t.clientX, t.clientY);
         };
 
         document.addEventListener('mousedown', this._docMouseDown, true);
@@ -428,11 +406,13 @@
       },
 
       tick: function (t, dt) {
+        /* Se estiver em VR, não roda o orbit-camera */
+        if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return;
+
         if (!this._initialized) {
           const canvas = this.el.sceneEl && this.el.sceneEl.canvas;
           if (canvas) {
             this.canvas = canvas;
-            /* Só rotação/zoom (clique agora é tratado em nível de document) */
             canvas.addEventListener('mousedown', this._onDown);
             window.addEventListener('mousemove', this._onMove);
             window.addEventListener('mouseup', this._onUp);
@@ -443,7 +423,6 @@
             window.addEventListener('keydown', this._onKeyDown);
             window.addEventListener('keyup', this._onKeyUp);
             this._initialized = true;
-            console.log('[orbit-camera] listeners instalados');
           } else {
             return;
           }
@@ -496,9 +475,9 @@
 
       tentarCliqueEmHotspot: function (clientX, clientY) {
         const canvas = this.canvas;
-        if (!canvas) { console.log('[hotspot] sem canvas'); return; }
+        if (!canvas) return;
         const cam = this.el.getObject3D('camera');
-        if (!cam) { console.log('[hotspot] sem câmera'); return; }
+        if (!cam) return;
 
         const rect = canvas.getBoundingClientRect();
         const mx = clientX - rect.left;
@@ -507,25 +486,17 @@
         cam.updateMatrixWorld(true);
 
         const hotspots = document.querySelectorAll('[info-hotspot]');
-        console.log('[hotspot] total no DOM:', hotspots.length);
-
         let melhor = null;
         let menorDist = 150;
 
-        hotspots.forEach((el, i) => {
+        hotspots.forEach((el) => {
           if (!el.object3D) return;
-
           el.object3D.getWorldPosition(this._tempV);
-          const wx = this._tempV.x, wy = this._tempV.y, wz = this._tempV.z;
-
           this._tempV.project(cam);
 
           const sx = (this._tempV.x * 0.5 + 0.5) * rect.width;
           const sy = (-this._tempV.y * 0.5 + 0.5) * rect.height;
           const dist = Math.hypot(sx - mx, sy - my);
-
-          const titulo = (el.getAttribute('info-hotspot') || {}).titulo || '?';
-          console.log(`[hotspot #${i}] "${titulo}" world=(${wx.toFixed(1)},${wy.toFixed(1)},${wz.toFixed(1)}) tela=(${sx.toFixed(0)},${sy.toFixed(0)}) dist=${dist.toFixed(0)}px`);
 
           if (dist < menorDist) {
             menorDist = dist;
@@ -534,16 +505,8 @@
         });
 
         if (melhor) {
-          const titulo = (melhor.getAttribute('info-hotspot') || {}).titulo || '?';
-          console.log('[hotspot] ✅ ENCONTRADO:', titulo);
           const comp = melhor.components['info-hotspot'];
-          if (comp && typeof comp.toggle === 'function') {
-            comp.toggle();
-          } else {
-            console.log('[hotspot] ❌ componente sem toggle()');
-          }
-        } else {
-          console.log('[hotspot] nenhum hotspot no raio de 150px');
+          if (comp && typeof comp.toggle === 'function') comp.toggle();
         }
       },
 
@@ -714,7 +677,7 @@
       } else {
         ambienteHtml = `
           <a-sky color="#87CEEB"></a-sky>
-          <a-circle position="0 0 0" rotation="-90 0 0" radius="80" color="#4a7a4a"></a-circle>
+          <a-circle position="0 0 0" rotation="-90 0 0" radius="80" color="#4a7a4a" class="collidable"></a-circle>
           <a-entity light="type: ambient; color: #fff; intensity: 0.9"></a-entity>
           <a-entity position="5 8 5" light="type: directional; color: #fff; intensity: 1.2"></a-entity>
         `;
@@ -728,8 +691,9 @@
         <a-scene
           embedded
           ${fogAttr}
-          renderer="antialias: true; colorManagement: true;"
+          renderer="antialias: true; colorManagement: true; foveationLevel: 2;"
           shadow="type: pcfsoft"
+          vr-mode-ui="enabled: true"
           style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
         >
           <a-assets>
@@ -740,13 +704,49 @@
 
           <a-entity id="modelo-wrapper"></a-entity>
 
-          <a-camera
-            id="camera"
-            look-controls="enabled: false"
-            wasd-controls="enabled: false"
-            fov="60"
-            orbit-camera="distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;"
-          ></a-camera>
+          <a-entity id="cameraRig" position="0 0 0">
+            <a-camera
+              id="camera"
+              look-controls="enabled: false"
+              wasd-controls="enabled: false"
+              fov="60"
+              position="0 1.6 0"
+              orbit-camera="distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;"
+            >
+              <!-- GAZE CURSOR: olhar fixo por 1.5s clica automaticamente -->
+              <a-entity cursor="fuse: true; fuseTimeout: 1500; rayOrigin: mouse"
+                        raycaster="objects: .clickable; far: 30"
+                        position="0 0 -1"
+                        geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+                        material="color: #7ee898; shader: flat; opacity: 0.85; transparent: true"
+                        animation__fusing="property: scale; startEvents: fusing; from: 1 1 1; to: 0.3 0.3 0.3; dur: 1500"
+                        animation__reset="property: scale; startEvents: mouseleave; from: 0.3 0.3 0.3; to: 1 1 1; dur: 200">
+              </a-entity>
+            </a-camera>
+          </a-entity>
+
+          <!-- Laser controls (mantidos pra VR real) -->
+          <a-entity laser-controls="hand: right"
+                    raycaster="objects: .clickable; far: 30; showLine: true; lineColor: #7ee898; lineOpacity: 0.5">
+          </a-entity>
+          <a-entity laser-controls="hand: left"
+                    raycaster="objects: .clickable; far: 30; showLine: true; lineColor: #7ee898; lineOpacity: 0.5">
+          </a-entity>
+
+          <a-entity hand-tracking-controls="hand: right"></a-entity>
+          <a-entity hand-tracking-controls="hand: left"></a-entity>
+
+          <a-entity id="teleport-right"
+                    laser-controls="hand: right"
+                    raycaster="objects: .clickable; far: 30"
+                    blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; collisionEntities: .collidable; button: thumbstick; snapTurn: true">
+          </a-entity>
+
+          <a-entity id="teleport-left"
+                    laser-controls="hand: left"
+                    raycaster="objects: .clickable; far: 30"
+                    blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; collisionEntities: .collidable; button: thumbstick; snapTurn: true">
+          </a-entity>
         </a-scene>
       `;
 
@@ -759,6 +759,28 @@
         console.log('🎬 A-Frame (fauna) pronto — bioma:', bioma?.nome);
         carregarModeloFauna();
         configurarBotoesFauna();
+      });
+
+      /* ============================================================
+         TOGGLE AUTOMÁTICO DE CONTROLES
+         Desktop: orbit-camera ligado, look-controls desligado
+         VR:      look-controls ligado, orbit-camera desligado
+         ============================================================ */
+      cena.addEventListener('enter-vr', () => {
+        const cam = document.getElementById('camera');
+        if (!cam) return;
+        cam.setAttribute('look-controls', 'enabled', true);
+        cam.removeAttribute('orbit-camera');
+        console.log('[VR] Modo VR ativado — orbit-camera desligado');
+      });
+
+      cena.addEventListener('exit-vr', () => {
+        const cam = document.getElementById('camera');
+        if (!cam) return;
+        cam.setAttribute('look-controls', 'enabled', false);
+        cam.setAttribute('orbit-camera',
+          'distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0');
+        console.log('[VR] Modo desktop ativado — orbit-camera religado');
       });
     }
 

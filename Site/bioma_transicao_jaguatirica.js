@@ -330,16 +330,71 @@
     /* ============================================================
        HOTSPOTS — todos afastados do centro
        ============================================================ */
-    html += '<a-entity position="0 2.2 6" info-hotspot="titulo: Jaguatirica; descricao: Leopardus pardalis — adapta-se a Mata Atlântica e Caatinga. Ocorre em PE em Moreno, Gravatá, Santa Cruz do Capibaribe e Brejo da Madre de Deus.; cor: #E8C860"></a-entity>';
-    html += '<a-entity position="-8 2.0 -12" info-hotspot="titulo: Rodovia BR-232; descricao: Atravessa o estado e corta fragmentos de mata. Atropelamentos são uma das principais causas de morte da jaguatirica.; cor: #2A2A2A"></a-entity>';
-    html += '<a-entity position="-16 2.5 -10" info-hotspot="titulo: Placa informativa; descricao: Alerta motoristas sobre a travessia de felinos. Reduzem atropelamentos em até 40%.; cor: #F0C830"></a-entity>';
-    html += '<a-entity position="-20 2.0 -14" info-hotspot="titulo: Mata ciliar; descricao: Vegetação ao longo de rios. Serve de corredor entre fragmentos — a jaguatirica usa como estrada segura.; cor: #2E6A30"></a-entity>';
-    html += '<a-entity position="14 1.5 -10" info-hotspot="titulo: Caatinga densa; descricao: Áreas com vegetação fechada e úmida. A jaguatirica caça e se abriga aqui no Agreste e Sertão.; cor: #7A8A4A"></a-entity>';
-    html += '<a-entity position="8 1.2 -14" info-hotspot="titulo: Mandacaru; descricao: Cacto símbolo da Caatinga. Marca a transição entre os biomas no Agreste pernambucano.; cor: #3E7A3E"></a-entity>';
-    html += '<a-entity position="0 3.0 -20" info-hotspot="titulo: Zona de transição; descricao: Encontro entre Mata Atlântica e Caatinga. A jaguatirica é o felino mais adaptável do Brasil.; cor: #B89A60"></a-entity>';
-    html += '<a-entity position="-14 1.5 8" info-hotspot="titulo: Fragmentação; descricao: Estradas e cidades dividem a mata em ilhas. Populações isoladas têm menos diversidade genética.; cor: #E8482A"></a-entity>';
-    html += '<a-entity position="10 0.9 10" info-hotspot="titulo: Caminhão; descricao: Tráfego pesado nas rodovias PE é a maior ameaça direta aos felinos.; cor: #3A5A80"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.2 6" info-hotspot="' +
+      'titulo: Jaguatirica; ' +
+      'categoria: Mamifero; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_animal.jpg; ' +
+      'descricao: Leopardus pardalis. Felino solitario, territorial e de habitos noturnos. Pelagem amarelada com ocelas em fileiras. Adapta-se a Mata Atlantica e a Caatinga. Em Pernambuco ocorre em Moreno, Gravata, Santa Cruz do Capibaribe e Brejo da Madre de Deus.; ' +
+      'cor: #E8C860"></a-entity>';
 
+    html += '<a-entity position="-8 2.0 -12" info-hotspot="' +
+      'titulo: Rodovia BR-232; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_rodovia.jpg; ' +
+      'descricao: Atravessa o estado e corta fragmentos de mata. Atropelamentos sao uma das principais causas de morte da jaguatirica. A BR-232 e a BR-101 sao as rodovias mais letais para felinos em Pernambuco.; ' +
+      'cor: #2A2A2A"></a-entity>';
+
+    html += '<a-entity position="-16 2.5 -10" info-hotspot="' +
+      'titulo: Placa informativa; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_placa.jpg; ' +
+      'descricao: Alerta motoristas sobre a travessia de felinos. Estudos mostram que placas educativas combinadas com redutores de velocidade reduzem atropelamentos em ate 40 porcento. Medida simples e eficaz para a conservacao.; ' +
+      'cor: #F0C830"></a-entity>';
+
+    html += '<a-entity position="-20 2.0 -14" info-hotspot="' +
+      'titulo: Mata ciliar; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_mataciliar.jpg; ' +
+      'descricao: Vegetacao ao longo de rios. Serve de corredor entre fragmentos. A jaguatirica usa as matas ciliares como estrada segura para se deslocar sem atravessar areas abertas, onde fica exposta a atropelamentos e caca.; ' +
+      'cor: #2E6A30"></a-entity>';
+
+    html += '<a-entity position="14 1.5 -10" info-hotspot="' +
+      'titulo: Caatinga densa; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_caatinga.jpg; ' +
+      'descricao: Areas com vegetacao fechada e umida da Caatinga. A jaguatirica caca e se abriga aqui no Agreste e Sertao. A vegetacao densa oferece cobertura para emboscadas e refugio contra o calor extremo.; ' +
+      'cor: #7A8A4A"></a-entity>';
+
+    html += '<a-entity position="8 1.2 -14" info-hotspot="' +
+      'titulo: Mandacaru; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_mandacaru.jpg; ' +
+      'descricao: Cereus jamacaru. Cacto simbolo da Caatinga. Marca a transicao entre os biomas no Agreste pernambucano. Sua presenca em meio a fragmentos de mata indica o encontro dos dois biomas, onde a jaguatirica circula.; ' +
+      'cor: #3E7A3E"></a-entity>';
+
+    html += '<a-entity position="0 3.0 -20" info-hotspot="' +
+      'titulo: Zona de transicao; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_zona.jpg; ' +
+      'descricao: Encontro entre Mata Atlantica e Caatinga. A jaguatirica e o felino mais adaptavel do Brasil, ocorrendo em ambos os biomas. Essa zona e crucial para a conectividade entre populacoes e para a diversidade genetica da especie.; ' +
+      'cor: #B89A60"></a-entity>';
+
+    html += '<a-entity position="-14 1.5 8" info-hotspot="' +
+      'titulo: Fragmentacao; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_fragmentacao.jpg; ' +
+      'descricao: Estradas e cidades dividem a mata em ilhas. Populacoes isoladas tem menos diversidade genetica e maior risco de extincao local. Corredores ecologicos conectando fragmentos sao a principal solucao.; ' +
+      'cor: #E8482A"></a-entity>';
+
+    html += '<a-entity position="10 0.9 10" info-hotspot="' +
+      'titulo: Caminhao; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/transicao_jaguatirica_caminhao.jpg; ' +
+      'descricao: Trafego pesado nas rodovias pernambucanas e a maior ameaca direta aos felinos. Caminhoes e carros em alta velocidade nao tem tempo de frear quando um animal cruza a pista. Reducao de velocidade e passagens de fauna sao essenciais.; ' +
+      'cor: #3A5A80"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #E8E0D0; intensity: 0.8"></a-entity>' +
             '<a-entity position="8 14 4" light="type: directional; color: #FFF4D0; intensity: 1.1; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +

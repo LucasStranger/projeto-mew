@@ -259,17 +259,85 @@
     }
 
     /* Hotspots */
-    html += '<a-entity position="0 2.0 2.5" info-hotspot="titulo: Tamanduá-bandeira; descricao: Myrmecophaga tridactyla — até 2,10 m e 40 kg. Come 30 mil formigas e cupins por dia com sua língua de 60 cm.; cor: #4A3A2A"></a-entity>';
-    html += '<a-entity position="4 1.6 -4" info-hotspot="titulo: Cupinzeiro; descricao: Fonte de alimento principal. O tamanduá abre o cupinzeiro com as garras dianteiras e lambe os insetos.; cor: #7A5A3A"></a-entity>';
-    html += '<a-entity position="-4 0.7 -3" info-hotspot="titulo: Capim do Cerrado; descricao: Base da cadeia alimentar. Renasce após o fogo, alimenta insetos que alimentam o tamanduá.; cor: #A0A860"></a-entity>';
-    html += '<a-entity position="4 1.2 -6" info-hotspot="titulo: Pequizeiro; descricao: Árvore retorcida do Cerrado. Seus frutos (pequi) alimentam a fauna e o povo do Cerrado.; cor: #3A6A2A"></a-entity>';
-    html += '<a-entity position="10 4 -8" info-hotspot="titulo: Buriti; descricao: Palmeira das veredas — áreas úmidas do Cerrado. Corredor ecológico e fonte de alimento.; cor: #2E7A30"></a-entity>';
-    html += '<a-entity position="-4 0.6 -5" info-hotspot="titulo: Murundu; descricao: Montinho de terra feito por cupins. Muda o solo e cria microambientes únicos no Cerrado.; cor: #8A6A4A"></a-entity>';
-    html += '<a-entity position="6 0.6 -8" info-hotspot="titulo: Marcas do fogo; descricao: O fogo natural faz parte do Cerrado. Queimadas criminosas, porém, devastam fauna e flora.; cor: #2A2018"></a-entity>';
-    html += '<a-entity position="-6 1.4 -3" info-hotspot="titulo: Ipê florido; descricao: Símbolo do Cerrado. Floresce na seca e anuncia a chegada das chuvas.; cor: #F0C230"></a-entity>';
-    html += '<a-entity position="3 1.2 -3" info-hotspot="titulo: Seriema; descricao: Ave típica do Cerrado. Anda em casais e come insetos, lagartos e cobras pequenas.; cor: #8A8A80"></a-entity>';
-    html += '<a-entity position="0 3.0 -12" info-hotspot="titulo: Cerrado; descricao: Berço das águas do Brasil. Considerado a savana mais biodiversa do planeta.; cor: #E8D8B0"></a-entity>';
-    html += '<a-entity position="-6 0.6 3" info-hotspot="titulo: Ameaças; descricao: Queimadas, atropelamentos, agronegócio e fragmentação ameaçam o tamanduá-bandeira.; cor: #E8482A"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.0 2.5" info-hotspot="' +
+      'titulo: Tamandua-bandeira; ' +
+      'categoria: Mamifero; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_animal.jpg; ' +
+      'descricao: Myrmecophaga tridactyla. Pode medir ate 2.10 m e pesar 40 kg. Come cerca de 30 mil formigas e cupins por dia com sua lingua de 60 cm coberta de saliva pegajosa. Considerado Vulneravel no Brasil.; ' +
+      'cor: #4A3A2A"></a-entity>';
+
+    html += '<a-entity position="4 1.6 -4" info-hotspot="' +
+      'titulo: Cupinzeiro; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_cupinzeiro.jpg; ' +
+      'descricao: Construcao de cupins gigante do Cerrado. Fonte de alimento principal do tamandua, que abre o cupinzeiro com as garras dianteiras e lambe os insetos. As cavidades que ele cria viram abrigo para outras especies.; ' +
+      'cor: #7A5A3A"></a-entity>';
+
+    html += '<a-entity position="-4 0.7 -3" info-hotspot="' +
+      'titulo: Capim do Cerrado; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_capim.jpg; ' +
+      'descricao: Base da cadeia alimentar do Cerrado. Renasce rapidamente apos o fogo natural, alimenta insetos herbivoros que por sua vez alimentam o tamandua-bandeira. Essencial para a ciclagem de nutrientes do bioma.; ' +
+      'cor: #A0A860"></a-entity>';
+
+    html += '<a-entity position="4 1.2 -6" info-hotspot="' +
+      'titulo: Pequizeiro; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_pequizeiro.jpg; ' +
+      'descricao: Caryocar brasiliense. Arvore retorcida tipica do Cerrado. Seus frutos, os pequis, alimentam a fauna e as populacoes humanas do Cerrado. Considerada simbolo do bioma e ameacada pela expansao agricola.; ' +
+      'cor: #3A6A2A"></a-entity>';
+
+    html += '<a-entity position="10 4 -8" info-hotspot="' +
+      'titulo: Buriti; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_buriti.jpg; ' +
+      'descricao: Mauritia flexuosa. Palmeira das veredas, areas umidas do Cerrado. Funciona como corredor ecologico entre fragmentos e fonte de alimento para diversas especies. Sua presenca indica solo umido e nascente de agua.; ' +
+      'cor: #2E7A30"></a-entity>';
+
+    html += '<a-entity position="-4 0.6 -5" info-hotspot="' +
+      'titulo: Murundu; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_murundu.jpg; ' +
+      'descricao: Montinho de terra feito por cupins ao longo de milhares de anos. Muda a composicao do solo e cria microambientes unicos no Cerrado, permitindo o crescimento de especies vegetais que nao ocorrem em outros locais.; ' +
+      'cor: #8A6A4A"></a-entity>';
+
+    html += '<a-entity position="6 0.6 -8" info-hotspot="' +
+      'titulo: Marcas do fogo; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_fogo.jpg; ' +
+      'descricao: O fogo natural faz parte do ciclo do Cerrado. Queimadas criminosas, porem, devastam fauna e flora. O tamandua-bandeira e uma das principais vitimas, sofrendo queimaduras e perdendo seu alimento.; ' +
+      'cor: #2A2018"></a-entity>';
+
+    html += '<a-entity position="-6 1.4 -3" info-hotspot="' +
+      'titulo: Ipe florido; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_ipe.jpg; ' +
+      'descricao: Handroanthus spp. Simbolo do Cerrado e do Brasil. Floresce na estacao seca, anunciando a chegada das chuvas. Sua florada amarela, rosa ou branca transforma a paisagem e alimenta abelhas e beija-flores.; ' +
+      'cor: #F0C230"></a-entity>';
+
+    html += '<a-entity position="3 1.2 -3" info-hotspot="' +
+      'titulo: Seriema; ' +
+      'categoria: Ave; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_seriema.jpg; ' +
+      'descricao: Cariama cristata. Ave tipica do Cerrado. Anda em casais pelo chao e come insetos, lagartos e cobras pequenas. Considerada uma das aves mais antigas do bioma, com parentesco distante com as extintas aves do terror.; ' +
+      'cor: #8A8A80"></a-entity>';
+
+    html += '<a-entity position="0 3.0 -12" info-hotspot="' +
+      'titulo: Cerrado; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_bioma.jpg; ' +
+      'descricao: Berco das aguas do Brasil. Considerado a savana mais biodiversa do planeta, abriga mais de 10 mil especies de plantas. Ocupa cerca de 24 porcento do territorio nacional, mas ja perdeu metade da cobertura original.; ' +
+      'cor: #E8D8B0"></a-entity>';
+
+    html += '<a-entity position="-6 0.6 3" info-hotspot="' +
+      'titulo: Ameacas; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/cerrado_tamandua_ameacas.jpg; ' +
+      'descricao: Queimadas criminosas, atropelamentos, expansao do agronegocio e fragmentacao do habitat ameacam o tamandua-bandeira. A especie ja esta classificada como Vulneravel no Brasil e perde populacoes em varias regioes.; ' +
+      'cor: #E8482A"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #D8E0E0; intensity: 0.55"></a-entity>' +

@@ -232,13 +232,57 @@
     /* ============================================================
        HOTSPOTS — sempre fora do centro
        ============================================================ */
-    html += '<a-entity position="0 2.2 6" info-hotspot="titulo: Gato-maracajá; descricao: Leopardus wiedii — felino arborícola de hábitos noturnos. Desce de troncos de cabeça para baixo. Vulnerável no Brasil.; cor: #C8A860"></a-entity>';
-    html += '<a-entity position="-8 3.0 -8" info-hotspot="titulo: Copa fechada; descricao: Estrato superior onde o maracajá passa a maior parte do tempo. Suas articulações giram 180°.; cor: #153A1E"></a-entity>';
-    html += '<a-entity position="6 3.0 -10" info-hotspot="titulo: Lianas; descricao: Pontes naturais entre as copas. O maracajá usa como atalho para caçar sem descer ao chão.; cor: #0A1A0A"></a-entity>';
-    html += '<a-entity position="-6 1.5 -12" info-hotspot="titulo: Fungos bioluminescentes; descricao: Brilham no escuro da mata. Indicam madeira em decomposição e alta umidade.; cor: #40E0D0"></a-entity>';
-    html += '<a-entity position="8 2.0 -14" info-hotspot="titulo: Vagalumes; descricao: Sinalizam a mata saudável. São bioindicadores de umidade e ausência de pesticidas.; cor: #FFE860"></a-entity>';
-    html += '<a-entity position="-4 3.5 -18" info-hotspot="titulo: APA Aldeia-Beberibe; descricao: Um dos últimos refúgios do gato-maracajá na Região Metropolitana do Recife.; cor: #A080FF"></a-entity>';
-    html += '<a-entity position="-10 1.5 6" info-hotspot="titulo: Fragmentação; descricao: Estradas e urbanização isolam populações. Atropelamentos e perda de habitat são as maiores ameaças.; cor: #E8482A"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.2 6" info-hotspot="' +
+      'titulo: Gato-maracaja; ' +
+      'categoria: Mamifero; ' +
+      'imagem: assets/hotspots/noite_maracaja_animal.jpg; ' +
+      'descricao: Leopardus wiedii. Felino arboricola de habitos noturnos. Desce de troncos de cabeca para baixo usando tornozelos que giram 180 graus. Vulneravel no Brasil. Ocorre em remanescentes de Mata Atlantica e Brejos de Altitude em Pernambuco.; ' +
+      'cor: #C8A860"></a-entity>';
+
+    html += '<a-entity position="-8 3.0 -8" info-hotspot="' +
+      'titulo: Copa fechada; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/noite_maracaja_copa.jpg; ' +
+      'descricao: Estrato superior da floresta, onde o maracaja passa a maior parte do tempo. Suas articulacoes flexiveis permitem que ele cace, durma e crie filhotes a dezenas de metros do chao, longe de predadores terrestres.; ' +
+      'cor: #153A1E"></a-entity>';
+
+    html += '<a-entity position="6 3.0 -10" info-hotspot="' +
+      'titulo: Lianas; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/noite_maracaja_liana.jpg; ' +
+      'descricao: Pontes naturais entre as copas das arvores. O maracaja usa essas conexoes como atalho para cacar sem descer ao chao, o que reduz o risco de encontros com predadores maiores como a jaguatirica.; ' +
+      'cor: #0A1A0A"></a-entity>';
+
+    html += '<a-entity position="-6 1.5 -12" info-hotspot="' +
+      'titulo: Fungos bioluminescentes; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/noite_maracaja_fungos.jpg; ' +
+      'descricao: Brilham no escuro da mata. Indicam madeira em decomposicao e alta umidade. Sao bioindicadores de floresta saudavel e fazem parte do ciclo de reciclagem de nutrientes do sub-bosque, onde o maracaja tambem caca.; ' +
+      'cor: #40E0D0"></a-entity>';
+
+    html += '<a-entity position="8 2.0 -14" info-hotspot="' +
+      'titulo: Vagalumes; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/noite_maracaja_vagalumes.jpg; ' +
+      'descricao: Sinalizam mata saudavel. Sao bioindicadores de umidade e ausencia de pesticidas. A presenca de muitos vagalumes indica que o fragmento ainda sustenta a cadeia alimentar completa, incluindo predadores noturnos como o maracaja.; ' +
+      'cor: #FFE860"></a-entity>';
+
+    html += '<a-entity position="-4 3.5 -18" info-hotspot="' +
+      'titulo: APA Aldeia-Beberibe; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/noite_maracaja_apa.jpg; ' +
+      'descricao: Area de Protecao Ambiental na Regiao Metropolitana do Recife. Um dos ultimos refugios do gato-maracaja na regiao. A APA protege remanescentes de Mata Atlantica que conectam fragmentos importantes para a especie.; ' +
+      'cor: #A080FF"></a-entity>';
+
+    html += '<a-entity position="-10 1.5 6" info-hotspot="' +
+      'titulo: Fragmentacao; ' +
+      'categoria: Ameaca; ' +
+      'imagem: assets/hotspots/noite_maracaja_ameacas.jpg; ' +
+      'descricao: Estradas e urbanizacao isolam populacoes. Atropelamentos e perda de habitat sao as maiores ameacas ao gato-maracaja. Sem corredores ecologicos, os jovens nao conseguem se dispersar e a especie desaparece dos fragmentos.; ' +
+      'cor: #E8482A"></a-entity>';
 
     /* ============================================================
        ILUMINAÇÃO — MUITO mais clara pra ver a cena

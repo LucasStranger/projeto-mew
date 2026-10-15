@@ -274,15 +274,64 @@
     }
 
     /* Hotspots */
-    html += '<a-entity position="0 1.8 2.5" info-hotspot="titulo: Tartaruga-de-pente; descricao: Eretmochelys imbricata — carapaça em mosaico marrom/âmbar. Criticamente em Perigo (IUCN) e Em Perigo no Brasil.; cor: #FFA07A"></a-entity>';
-    html += '<a-entity position="-4 0.9 -4" info-hotspot="titulo: Esponjas gigantes; descricao: Principal alimento da tartaruga-de-pente. Seu bico afilado arranca pedaços de esponjas entre os corais.; cor: #FF6B9D"></a-entity>';
-    html += '<a-entity position="5 1.0 -5" info-hotspot="titulo: Recife de corais; descricao: Berçário de peixes e invertebrados. Habitat crítico para a tartaruga-de-pente, ameaçado por branqueamento e poluição.; cor: #FFD700"></a-entity>';
-    html += '<a-entity position="-6 0.8 3" info-hotspot="titulo: Anêmona; descricao: Animal urticante que vive em simbiose com peixes-palhaço. Invertebrados do recife sustentam toda a cadeia.; cor: #FFB6C1"></a-entity>';
-    html += '<a-entity position="4 1.5 -3" info-hotspot="titulo: Peixes de recife; descricao: Ricos em cores e espécies. Muitos limpam a carapaça da tartaruga-de-pente, removendo parasitas.; cor: #FFD166"></a-entity>';
-    html += '<a-entity position="-3 1.2 5" info-hotspot="titulo: Estrela-do-mar; descricao: Predadora de moluscos e detritívora. Sinaliza recifes saudáveis — desparece em áreas poluídas.; cor: #FF8C69"></a-entity>';
-    html += '<a-entity position="0 2.4 -8" info-hotspot="titulo: Águas rasas; descricao: A tartaruga-de-pente forrageia em recifes rasos até ~20 m. Diferente da tartaruga-de-couro, que vive em alto-mar.; cor: #40C8E8"></a-entity>';
-    html += '<a-entity position="-7 0.7 -6" info-hotspot="titulo: Ameaças; descricao: Pesca acidental em redes, poluição por plástico, ocupação costeira e coleta ilegal de ovos.; cor: #E8482A"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 1.8 2.5" info-hotspot="' +
+      'titulo: Tartaruga-de-pente; ' +
+      'categoria: Reptil; ' +
+      'imagem: assets/hotspots/recife_pente_animal.jpg; ' +
+      'descricao: Eretmochelys imbricata. Carapaca em mosaico marrom e ambar. Bico estreito em forma de gancho, adaptado para retirar esponjas das fendas do recife. Criticamente em Perigo segundo a IUCN, e Em Perigo no Brasil. Uma das tartarugas marinhas mais ameacadas do mundo.; ' +
+      'cor: #FFA07A"></a-entity>';
 
+    html += '<a-entity position="-4 0.9 -4" info-hotspot="' +
+      'titulo: Esponjas gigantes; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/recife_pente_esponjas.jpg; ' +
+      'descricao: Principal alimento da tartaruga-de-pente. Esponjas-do-mar competem por espaco com os corais, e ao controla-las a tartaruga ajuda a manter o recife saudavel. Seu bico afilado arranca pedacos de esponjas entre os corais.; ' +
+      'cor: #FF6B9D"></a-entity>';
+
+    html += '<a-entity position="5 1.0 -5" info-hotspot="' +
+      'titulo: Recife de corais; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/recife_pente_corais.jpg; ' +
+      'descricao: Bercario de peixes e invertebrados. Habitat critico para a tartaruga-de-pente, ameacado por branqueamento e poluicao. Os recifes de Porto de Galinhas e Fernando de Noronha sao essenciais para a especie em Pernambuco.; ' +
+      'cor: #FFD700"></a-entity>';
+
+    html += '<a-entity position="-6 0.8 3" info-hotspot="' +
+      'titulo: Anemona; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/recife_pente_anemona.jpg; ' +
+      'descricao: Animal urticante que vive em simbiose com peixes-palhaco. Invertebrados do recife sustentam toda a cadeia alimentar, incluindo a tartaruga-de-pente. A presenca de anemonas coloridas indica recife saudavel.; ' +
+      'cor: #FFB6C1"></a-entity>';
+
+    html += '<a-entity position="4 1.5 -3" info-hotspot="' +
+      'titulo: Peixes de recife; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/recife_pente_peixes.jpg; ' +
+      'descricao: Ricos em cores e especies. Muitos limpam a carapaca da tartaruga-de-pente, removendo parasitas. Essa relacao de limpeza mutua e um exemplo classico de simbiose nos recifes de coral.; ' +
+      'cor: #FFD166"></a-entity>';
+
+    html += '<a-entity position="-3 1.2 5" info-hotspot="' +
+      'titulo: Estrela-do-mar; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/recife_pente_estrela.jpg; ' +
+      'descricao: Predadora de moluscos e detritivora. Sinaliza recifes saudaveis e desaparece em areas poluidas. Bioindicador importante da qualidade ambiental dos recifes pernambucanos, essenciais para a tartaruga-de-pente.; ' +
+      'cor: #FF8C69"></a-entity>';
+
+    html += '<a-entity position="0 2.4 -8" info-hotspot="' +
+      'titulo: Aguas rasas; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/recife_pente_aguasrasas.jpg; ' +
+      'descricao: A tartaruga-de-pente forrageia em recifes rasos ate cerca de 20 m de profundidade. Diferente da tartaruga-de-couro, que vive em alto-mar, ela passa a vida adulta nos recifes costeiros, onde encontra suas esponjas.; ' +
+      'cor: #40C8E8"></a-entity>';
+
+    html += '<a-entity position="-7 0.7 -6" info-hotspot="' +
+      'titulo: Ameacas; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/recife_pente_ameacas.jpg; ' +
+      'descricao: Pesca acidental em redes, poluicao por plastico, ocupacao costeira e coleta ilegal de ovos ameacam a tartaruga-de-pente. O bycatch em redes de espera e a principal causa de morte da especie em Pernambuco.; ' +
+      'cor: #E8482A"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #E0F8FF; intensity: 0.9"></a-entity>' +
             '<a-entity position="8 14 6" light="type: directional; color: #FFF8E0; intensity: 1.15; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +

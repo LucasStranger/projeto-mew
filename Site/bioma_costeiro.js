@@ -397,15 +397,64 @@ function gerarPlacaItamaraca(x, z, rot) {
     html += gerarPlacaItamaraca(-9, -5, 30);
 
     /* Hotspots */
-    html += '<a-entity position="-3 0.75 -3.5" info-hotspot="titulo: Capim-marinho; descricao: Principal alimento do peixe-boi. Cada adulto come 30-50 kg por dia.; cor: #7ee898"></a-entity>';
-    html += '<a-entity position="4 0.95 -4" info-hotspot="titulo: Recife de corais; descricao: Berçário de peixes e invertebrados. Peixes-boi usam como abrigo e área de descanso.; cor: #FF8C69"></a-entity>';
-    html += '<a-entity position="0 3.2 -30" info-hotspot="titulo: Manguezal; descricao: Raízes aéreas seguram o lodo e protegem filhotes. Fonte de água doce para o peixe-boi.; cor: #2E8B57"></a-entity>';
-    html += '<a-entity position="-9 1.6 -5" info-hotspot="titulo: Centro de Preservação; descricao: Ilha de Itamaracá sedia o CMA/ICMBio — resgate, reabilitação e soltura de peixes-boi.; cor: #40E0D0"></a-entity>';
-    html += '<a-entity position="0 0.85 -7" info-hotspot="titulo: Estuário; descricao: Encontro da água doce do rio com o mar. Água salobra rica em nutrientes — rota do peixe-boi.; cor: #FFD166"></a-entity>';
-    html += '<a-entity position="-4 2.3 -10" info-hotspot="titulo: Bacia do Pina; descricao: Zona portuária do Recife onde peixes-boi já foram registrados. Corredor urbano da espécie.; cor: #F7A072"></a-entity>';
-    html += '<a-entity position="7 2.7 -12" info-hotspot="titulo: Boia sinalizadora; descricao: Marca zonas de proteção e rotas de navegação para evitar colisões com peixes-boi.; cor: #E85A3A"></a-entity>';
-    html += '<a-entity position="0 1.5 2.5" info-hotspot="titulo: Peixe-boi-marinho; descricao: Mamífero aquático dócil. Em Pernambuco é Em Perigo — perda de habitat, redes e poluição.; cor: #FF6B9D"></a-entity>';
+       /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 1.5 2.5" info-hotspot="' +
+      'titulo: Peixe-boi-marinho; ' +
+      'categoria: Mamifero; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_animal.jpg; ' +
+      'descricao: Trichechus manatus. Mamifero aquatico docil, pode medir ate 4 m e pesar 1 tonelada. Herbivoro, consome ate 50 kg de capim-marinho por dia. Em Pernambuco e classificado como Em Perigo por causa da perda de habitat, redes de pesca e poluicao.; ' +
+      'cor: #FF6B9D"></a-entity>';
 
+    html += '<a-entity position="-3 0.75 -3.5" info-hotspot="' +
+      'titulo: Capim-marinho; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_capim.jpg; ' +
+      'descricao: Halodule wrightii e Syringodium filiforme. Principal alimento do peixe-boi. Cada adulto come 30 a 50 kg por dia. As pradarias marinhas formam verdadeiros pastos submersos, essenciais para a sobrevivencia da especie.; ' +
+      'cor: #7ee898"></a-entity>';
+
+    html += '<a-entity position="4 0.95 -4" info-hotspot="' +
+      'titulo: Recife de corais; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_recife.jpg; ' +
+      'descricao: Bercario de peixes e invertebrados. Peixes-boi usam como abrigo e area de descanso. Os recifes costeiros de Pernambuco, como os de Porto de Galinhas e Boa Viagem, formam barreiras naturais que protegem as aguas calmas onde vivem os filhotes.; ' +
+      'cor: #FF8C69"></a-entity>';
+
+    html += '<a-entity position="0 3.2 -30" info-hotspot="' +
+      'titulo: Manguezal; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_mangue.jpg; ' +
+      'descricao: Raizes aereas seguram o lodo e protegem filhotes. Fonte de agua doce para o peixe-boi. Os canais de mangue funcionam como corredores seguros, areas de descanso e protecao contra correntes oceanicas fortes.; ' +
+      'cor: #2E8B57"></a-entity>';
+
+    html += '<a-entity position="-9 1.6 -5" info-hotspot="' +
+      'titulo: Centro de Preservacao; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_centro.jpg; ' +
+      'descricao: A Ilha de Itamaraca sedia o CMA do ICMBio, centro de resgate, reabilitacao e soltura de peixes-boi. Um dos principais centros de pesquisa da especie no Brasil. Referencia mundial em conservacao de mamiferos aquaticos.; ' +
+      'cor: #40E0D0"></a-entity>';
+
+    html += '<a-entity position="0 0.85 -7" info-hotspot="' +
+      'titulo: Estuario; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_estuario.jpg; ' +
+      'descricao: Encontro da agua doce do rio com o mar. Agua salobra rica em nutrientes. Rota obrigatoria do peixe-boi, que precisa de agua doce dos rios para regular o sal do corpo. Sem estuario, a especie nao sobrevive no mar.; ' +
+      'cor: #FFD166"></a-entity>';
+
+    html += '<a-entity position="-4 2.3 -10" info-hotspot="' +
+      'titulo: Bacia do Pina; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_bacia.jpg; ' +
+      'descricao: Zona portuaria do Recife onde peixes-boi ja foram registrados. Corredor urbano da especie. Mostra a capacidade do peixe-boi de transitar por areas modificadas, desde que haja agua doce e alimento disponiveis.; ' +
+      'cor: #F7A072"></a-entity>';
+
+    html += '<a-entity position="7 2.7 -12" info-hotspot="' +
+      'titulo: Boia sinalizadora; ' +
+      'categoria: Conservacao; ' +
+      'imagem: assets/hotspots/costeiro_peixeboi_boia.jpg; ' +
+      'descricao: Marca zonas de protecao e rotas de navegacao para evitar colisoes com peixes-boi. Medida essencial, ja que os animais nadam rente a superficie para respirar e sao vitimas frequentes de helices de barcos e jet skis.; ' +
+      'cor: #E85A3A"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #DFF8FF; intensity: 0.85"></a-entity>' +
             '<a-entity position="6 12 6" light="type: directional; color: #FFF8E0; intensity: 1.15; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
