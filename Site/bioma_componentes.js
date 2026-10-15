@@ -1,6 +1,8 @@
 /* =========================================================
-   bioma_componentes.js — MASTER (v4 — popup HTML overlay)
+   bioma_componentes.js — MASTER (v5.1 — popup HTML com imagem + categoria)
    Popup em HTML/CSS sobreposto ao canvas → acentos perfeitos
+   NOVO: campos "categoria" e "imagem" no info-hotspot
+   AJUSTE v5.1: imagem com object-fit: contain (não corta)
    ========================================================= */
 (function () {
   'use strict';
@@ -20,19 +22,20 @@
       .hotspot-popup {
         position: fixed;
         transform: translate(-50%, calc(-100% - 16px));
-        background: rgba(8, 18, 6, 0.96);
+        background: rgba(8, 18, 6, 0.97);
         border: 2px solid #7ee898;
-        border-radius: 12px;
-        padding: 14px 22px;
+        border-radius: 14px;
+        padding: 0;
         max-width: 380px;
-        min-width: 220px;
+        min-width: 240px;
         z-index: 99999;
         pointer-events: none;
         box-shadow:
-          0 8px 28px rgba(0, 0, 0, 0.75),
-          0 0 30px rgba(63, 185, 80, 0.35);
+          0 8px 28px rgba(0, 0, 0, 0.8),
+          0 0 30px rgba(63, 185, 80, 0.4);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        animation: hotspotFadeIn 0.2s ease-out;
+        animation: hotspotFadeIn 0.22s ease-out;
+        overflow: hidden;
       }
       .hotspot-popup::after {
         content: '';
@@ -47,35 +50,90 @@
         border-top: 13px solid var(--hotspot-cor, #7ee898);
         filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
       }
+
+      /* IMAGEM (opcional) — contain: mostra a imagem inteira sem cortar */
+      .hotspot-popup-imagem-wrap {
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+        background: #0a1a0c;
+        border-bottom: 2px solid var(--hotspot-cor, #7ee898);
+        position: relative;
+      }
+      .hotspot-popup-imagem {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        filter: brightness(0.95) saturate(1.05);
+        background: linear-gradient(180deg, #0a1a0c 0%, #08120c 100%);
+      }
+      .hotspot-popup-imagem-wrap::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 65%, rgba(8, 18, 6, 0.6) 100%);
+        pointer-events: none;
+      }
+
+      /* CONTEÚDO */
+      .hotspot-popup-conteudo {
+        padding: 12px 18px 14px;
+      }
+
+      /* CATEGORIA (opcional) */
+      .hotspot-popup-categoria {
+        display: inline-block;
+        font-family: 'Courier New', monospace;
+        font-size: 0.6rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        background: rgba(126, 232, 152, 0.15);
+        border: 1px solid var(--hotspot-cor, #7ee898);
+        color: var(--hotspot-cor, #7ee898);
+        text-shadow: 0 0 6px var(--hotspot-cor, #7ee898);
+      }
+
       .hotspot-popup-titulo {
-        font-size: 1rem;
+        font-size: 1.02rem;
         font-weight: 800;
         margin: 0 0 8px 0;
-        text-align: center;
+        text-align: left;
         font-family: 'Courier New', monospace;
-        letter-spacing: 1.5px;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
         text-shadow: 0 0 12px currentColor;
         line-height: 1.25;
+        color: var(--hotspot-cor, #7ee898);
       }
+
       .hotspot-popup-desc {
-        font-size: 0.85rem;
-        line-height: 1.5;
+        font-size: 0.83rem;
+        line-height: 1.55;
         color: #d5ffdd;
         margin: 0;
-        text-align: center;
+        text-align: left;
       }
+
       @keyframes hotspotFadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
+        from { opacity: 0; transform: translate(-50%, calc(-100% - 8px)); }
+        to   { opacity: 1; transform: translate(-50%, calc(-100% - 16px)); }
       }
+
       @media (max-width: 600px) {
         .hotspot-popup {
           max-width: calc(100vw - 30px);
-          padding: 12px 16px;
+          min-width: 200px;
         }
-        .hotspot-popup-titulo { font-size: 0.85rem; }
-        .hotspot-popup-desc { font-size: 0.75rem; }
+        .hotspot-popup-imagem-wrap { height: 140px; }
+        .hotspot-popup-conteudo { padding: 10px 14px 12px; }
+        .hotspot-popup-titulo { font-size: 0.9rem; }
+        .hotspot-popup-desc { font-size: 0.74rem; }
+        .hotspot-popup-categoria { font-size: 0.55rem; padding: 2px 7px; }
       }
     `;
     document.head.appendChild(style);
@@ -94,11 +152,13 @@
     }
   });
 
-  /* ---------- info-hotspot (v4 — popup HTML) ---------- */
+  /* ---------- info-hotspot (v5.1 — popup HTML com imagem + categoria) ---------- */
   R('info-hotspot', {
     schema: {
       titulo:    { type: 'string', default: 'Elemento' },
+      categoria: { type: 'string', default: '' },
       descricao: { type: 'string', default: '' },
+      imagem:    { type: 'string', default: '' },
       cor:       { type: 'color',  default: '#7ee898' },
       tamanho:   { type: 'number', default: 1.0 }
     },
@@ -145,17 +205,46 @@
       popup.style.borderColor = cor;
       popup.style.setProperty('--hotspot-cor', cor);
 
+      /* Imagem (só cria se tiver) */
+      if (this.data.imagem && this.data.imagem.trim() !== '') {
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'hotspot-popup-imagem-wrap';
+
+        const img = document.createElement('img');
+        img.className = 'hotspot-popup-imagem';
+        img.src = this.data.imagem;
+        img.alt = this.data.titulo;
+        img.loading = 'lazy';
+        img.onerror = function () {
+          imgWrap.style.display = 'none';
+        };
+
+        imgWrap.appendChild(img);
+        popup.appendChild(imgWrap);
+      }
+
+      /* Conteúdo (categoria + título + descrição) */
+      const conteudo = document.createElement('div');
+      conteudo.className = 'hotspot-popup-conteudo';
+
+      if (this.data.categoria && this.data.categoria.trim() !== '') {
+        const cat = document.createElement('span');
+        cat.className = 'hotspot-popup-categoria';
+        cat.textContent = this.data.categoria;
+        conteudo.appendChild(cat);
+      }
+
       const titulo = document.createElement('h4');
       titulo.className = 'hotspot-popup-titulo';
-      titulo.style.color = cor;
       titulo.textContent = this.data.titulo;
+      conteudo.appendChild(titulo);
 
       const desc = document.createElement('p');
       desc.className = 'hotspot-popup-desc';
       desc.textContent = this.data.descricao;
+      conteudo.appendChild(desc);
 
-      popup.appendChild(titulo);
-      popup.appendChild(desc);
+      popup.appendChild(conteudo);
       document.body.appendChild(popup);
 
       this.popup = popup;
@@ -169,7 +258,6 @@
       window.ensureCursorBioma(this.el.sceneEl);
     },
 
-    /* Atualiza a posição do popup HTML a cada frame */
     tick: function () {
       if (!this.aberto || !this.popup) return;
 
@@ -177,11 +265,9 @@
       const cam = sceneEl && sceneEl.camera;
       if (!cam) return;
 
-      /* Posição world do hotspot → NDC → pixels */
       this.el.object3D.getWorldPosition(this._v);
       this._v.project(cam);
 
-      /* Se estiver atrás da câmera, esconde */
       if (this._v.z > 1) {
         this.popup.style.visibility = 'hidden';
         return;
@@ -204,17 +290,14 @@
       this.aberto = !this.aberto;
       if (this.popup) {
         this.popup.style.display = this.aberto ? 'block' : 'none';
-        if (this.aberto) {
-          /* Força um tick imediato para posicionar antes de aparecer */
-          this.tick();
-        }
+        if (this.aberto) this.tick();
       }
       clearTimeout(this._t);
       if (this.aberto) {
         this._t = setTimeout(() => {
           this.aberto = false;
           if (this.popup) this.popup.style.display = 'none';
-        }, 9000);
+        }, 11000);
       }
     },
 
@@ -386,5 +469,5 @@
     else sceneEl.addEventListener('loaded', add, { once: true });
   };
 
-  console.log('[bioma_componentes] v4 — popup HTML overlay registrado (acentos OK).');
+  console.log('[bioma_componentes] v5.1 — popup HTML com imagem (contain) + categoria.');
 })();

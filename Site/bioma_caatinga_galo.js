@@ -302,14 +302,64 @@
     }
 
     /* Hotspots */
-    html += '<a-entity position="0 2.2 2.5" info-hotspot="titulo: Galo-de-campina; descricao: Paroaria dominicana — endêmico da Caatinga. Cabeça vermelha e corpo cinza. Adaptou-se a áreas abertas e cidades.; cor: #C82A2A"></a-entity>';
-    html += '<a-entity position="-4 1.0 -3" info-hotspot="titulo: Mandacaru; descricao: Cacto colunar símbolo da Caatinga. Armazena água e alimenta aves e insetos na seca.; cor: #3E7A3E"></a-entity>';
-    html += '<a-entity position="3 1.2 -4" info-hotspot="titulo: Juazeiro; descricao: Árvore espinhosa da mata baixa. Oferece sombra e frutos para o galo-de-campina.; cor: #5A8A3A"></a-entity>';
-    html += '<a-entity position="-8 0.8 4" info-hotspot="titulo: Cacimba; descricao: Poço natural que mantém água na seca. Ponto de encontro de aves e fonte de vida no sertão.; cor: #4A8090"></a-entity>';
-    html += '<a-entity position="-4 0.6 -5" info-hotspot="titulo: Rio seco; descricao: Leito pedregoso que só enche na estação das chuvas. Corredor ecológico da Caatinga.; cor: #B8A888"></a-entity>';
-    html += '<a-entity position="5 1.0 -6" info-hotspot="titulo: Cupinzeiro; descricao: Construção de cupins. Regula o solo e alimenta tamanduás e tatus da região.; cor: #7A5A3A"></a-entity>';
-    html += '<a-entity position="-3 0.6 4" info-hotspot="titulo: Bromélia; descricao: Reservatório natural de água. Abriga sapos, insetos e micro-organismos na seca.; cor: #A03828"></a-entity>';
-    html += '<a-entity position="0 3.0 -10" info-hotspot="titulo: Caatinga; descricao: Bioma exclusivamente brasileiro. Vegetação que perde folhas na seca e renasce nas chuvas.; cor: #D8C090"></a-entity>';
+        /* ============================================================
+       HOTSPOTS — v2 (categoria + descrição detalhada + imagem)
+       ============================================================ */
+    html += '<a-entity position="0 2.2 2.5" info-hotspot="' +
+      'titulo: Galo-de-campina; ' +
+      'categoria: Ave; ' +
+      'imagem: assets/hotspots/caatinga_galo_ave.jpg; ' +
+      'descricao: Paroaria dominicana. Endemico do Nordeste brasileiro. Cabeça e garganta vermelho-vivo, corpo cinza e branco. Mede cerca de 17 cm e pesa 20 a 30 g. Vive em pares ou pequenos grupos, alimenta-se de sementes, frutos e insetos. É uma das aves canoras mais visadas pelo trafico ilegal em Pernambuco.; ' +
+      'cor: #C82A2A"></a-entity>';
+
+    html += '<a-entity position="-4 1.0 -3" info-hotspot="' +
+      'titulo: Mandacaru; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/caatinga_galo_mandacaru.jpg; ' +
+      'descricao: Cereus jamacaru. Cacto colunar simbolo da Caatinga, pode chegar a 5 metros de altura. Armazena agua no caule e floresce a noite. Seus frutos alimentam aves, insetos e pequenos mamiferos durante a estacao seca.; ' +
+      'cor: #3E7A3E"></a-entity>';
+
+    html += '<a-entity position="3 1.2 -4" info-hotspot="' +
+      'titulo: Juazeiro; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/caatinga_galo_juazeiro.jpg; ' +
+      'descricao: Ziziphus joazeiro. Arvore espinhosa da mata baixa, sempre verde mesmo na seca. Oferece sombra, abrigo e frutos amarelos muito procurados pelo galo-de-campina. Sua casca e usada como sabao tradicional no Sertao.; ' +
+      'cor: #5A8A3A"></a-entity>';
+
+    html += '<a-entity position="-8 0.8 4" info-hotspot="' +
+      'titulo: Cacimba; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/caatinga_galo_cacimba.jpg; ' +
+      'descricao: Poco natural cavado no leito de rios secos. Mantem agua mesmo na estiagem e vira ponto de encontro de aves, mamiferos e insetos. Fonte de vida essencial para o galo-de-campina no Sertao.; ' +
+      'cor: #4A8090"></a-entity>';
+
+    html += '<a-entity position="-4 0.6 -5" info-hotspot="' +
+      'titulo: Rio seco; ' +
+      'categoria: Habitat; ' +
+      'imagem: assets/hotspots/caatinga_galo_rioseco.jpg; ' +
+      'descricao: Leito pedregoso que so enche na estacao das chuvas. Entre dezembro e abril vira corredor ecologico conectando fragmentos de Caatinga. Fora desse periodo, suas pedras e areia servem de abrigo para repteis e insetos.; ' +
+      'cor: #B8A888"></a-entity>';
+
+    html += '<a-entity position="5 1.0 -6" info-hotspot="' +
+      'titulo: Cupinzeiro; ' +
+      'categoria: Ecologia; ' +
+      'imagem: assets/hotspots/caatinga_galo_cupinzeiro.jpg; ' +
+      'descricao: Construcao de cupins que regula a umidade e os nutrientes do solo. Serve de alimento para tamanduas, tatus e lagartos. Suas cavidades viram abrigo para outras especies depois de abandonado.; ' +
+      'cor: #7A5A3A"></a-entity>';
+
+    html += '<a-entity position="-3 0.6 4" info-hotspot="' +
+      'titulo: Bromelia; ' +
+      'categoria: Planta; ' +
+      'imagem: assets/hotspots/caatinga_galo_bromelia.jpg; ' +
+      'descricao: Bromeliacea terrestre da Caatinga. Acumula agua entre as folhas formando um micro-reservatorio que abriga sapos, insetos e micro-organismos durante a seca. Verdadeiro oásis em miniatura.; ' +
+      'cor: #A03828"></a-entity>';
+
+    html += '<a-entity position="0 3.0 -10" info-hotspot="' +
+      'titulo: Caatinga; ' +
+      'categoria: Bioma; ' +
+      'imagem: assets/hotspots/caatinga_galo_bioma.jpg; ' +
+      'descricao: Unico bioma exclusivamente brasileiro. Ocupa cerca de 11 porcento do territorio nacional. Vegetacao caducifolia que perde as folhas na seca e renasce nas chuvas. Abriga mais de 2 mil especies de plantas e animais adaptados ao semi-arido.; ' +
+      'cor: #D8C090"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #FFF0D8; intensity: 0.85"></a-entity>' +
