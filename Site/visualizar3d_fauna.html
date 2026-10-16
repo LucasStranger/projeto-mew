@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Visualização 3D — Projeto Mew</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -16,13 +18,11 @@
     }
 
     .info {
-      position: absolute;
-      top: 15px; left: 15px; z-index: 100;
+      position: absolute; top: 15px; left: 15px; z-index: 100;
       background: rgba(5, 30, 15, 0.88);
       border: 2px solid rgba(63, 185, 80, 0.55);
       border-radius: 12px; padding: 10px 18px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 0 20px rgba(63, 185, 80, 0.35);
       max-width: 42vw;
     }
@@ -31,10 +31,8 @@
       font-family: 'Courier New', monospace; font-weight: bold;
       letter-spacing: 1px; text-transform: uppercase;
       font-size: 0.85rem; transition: all 0.25s;
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      display: block; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
     }
     .info a:hover { color: #fff; text-shadow: 0 0 12px #3fb950; }
 
@@ -43,34 +41,22 @@
       background: rgba(5, 30, 15, 0.88);
       border: 2px solid rgba(63, 185, 80, 0.55);
       border-radius: 12px; padding: 10px 18px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 0 20px rgba(63, 185, 80, 0.35);
       color: #7ee898;
       font-family: 'Courier New', monospace; font-weight: bold;
       letter-spacing: 1px; text-transform: uppercase;
-      font-size: 0.82rem;
-      max-width: 45vw;
-      text-align: right;
-      line-height: 1.35;
+      font-size: 0.82rem; max-width: 45vw;
+      text-align: right; line-height: 1.35;
     }
     .nome-animal .cientifico {
-      display: block;
-      font-style: italic;
-      font-weight: normal;
-      font-size: 0.72rem;
-      color: #a8d8b8;
-      text-transform: none;
-      letter-spacing: 0.5px;
-      margin-top: 3px;
+      display: block; font-style: italic; font-weight: normal;
+      font-size: 0.72rem; color: #a8d8b8;
+      text-transform: none; letter-spacing: 0.5px; margin-top: 3px;
     }
     .nome-animal .bioma {
-      display: block;
-      font-size: 0.62rem;
-      color: #6ab880;
-      letter-spacing: 1.5px;
-      margin-top: 5px;
-      padding-top: 5px;
+      display: block; font-size: 0.62rem; color: #6ab880;
+      letter-spacing: 1.5px; margin-top: 5px; padding-top: 5px;
       border-top: 1px dashed rgba(63, 185, 80, 0.35);
     }
 
@@ -79,8 +65,7 @@
       transform: translate(-50%, -50%);
       color: #7ee898;
       font-family: 'Courier New', monospace;
-      font-size: 1.2rem; letter-spacing: 2px;
-      z-index: 100;
+      font-size: 1.2rem; letter-spacing: 2px; z-index: 100;
       text-shadow: 0 0 15px rgba(63, 185, 80, 0.8);
       background: rgba(0, 0, 0, 0.6);
       padding: 20px 30px; border-radius: 12px;
@@ -114,9 +99,6 @@
     }
     @keyframes girar { to { transform: rotate(360deg); } }
 
-    /* ============================================================
-       Retículo gaze HTML (centro da tela)
-       ============================================================ */
     .gaze-reticle {
       position: fixed;
       top: 50%; left: 50%;
@@ -176,6 +158,94 @@
       filter: drop-shadow(0 0 6px rgba(255, 203, 5, 0.9));
     }
 
+    .modo-toggle {
+      position: absolute; bottom: 110px; right: 20px; z-index: 150;
+      background: linear-gradient(135deg, rgba(63, 185, 80, 0.45), rgba(30, 130, 60, 0.3));
+      border: 2px solid #7ee898;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem; font-weight: bold;
+      letter-spacing: 1.5px; padding: 10px 18px;
+      border-radius: 25px; cursor: pointer;
+      transition: all 0.25s; text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(63, 185, 80, 0.6);
+      backdrop-filter: blur(6px);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .modo-toggle:hover {
+      background: linear-gradient(135deg, rgba(63, 185, 80, 0.65), rgba(30, 130, 60, 0.5));
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 28px rgba(63, 185, 80, 0.9);
+    }
+    .modo-toggle.ar-ativo {
+      background: linear-gradient(135deg, rgba(255, 203, 5, 0.45), rgba(255, 152, 0, 0.3));
+      border-color: #ffcb05;
+      box-shadow: 0 0 20px rgba(255, 203, 5, 0.7);
+    }
+
+    /* Botão "Entrar em VR" — visível só em mobile */
+    .vr-toggle {
+      position: absolute; bottom: 165px; right: 20px; z-index: 150;
+      background: linear-gradient(135deg, rgba(160, 100, 255, 0.45), rgba(100, 40, 200, 0.3));
+      border: 2px solid #c084fc;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem; font-weight: bold;
+      letter-spacing: 1.5px; padding: 10px 18px;
+      border-radius: 25px; cursor: pointer;
+      transition: all 0.25s; text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.5);
+      backdrop-filter: blur(6px);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      display: none;
+    }
+    .vr-toggle.visivel { display: block; }
+    .vr-toggle:hover {
+      background: linear-gradient(135deg, rgba(160, 100, 255, 0.7), rgba(100, 40, 200, 0.5));
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 28px rgba(192, 132, 252, 0.9);
+    }
+
+    /* ============================================================
+       Botão Modo Mão (roxo, só aparece em AR)
+       ============================================================ */
+    .mao-toggle {
+      position: absolute; bottom: 220px; right: 20px; z-index: 150;
+      background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(80, 40, 160, 0.4));
+      border: 2px solid #c084fc;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem; font-weight: bold;
+      letter-spacing: 1.5px; padding: 10px 18px;
+      border-radius: 25px; cursor: pointer;
+      transition: all 0.25s; text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.5);
+      backdrop-filter: blur(6px);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      display: none;
+    }
+    .mao-toggle.visivel { display: block; }
+    .mao-toggle:hover {
+      background: linear-gradient(135deg, rgba(160, 100, 255, 0.8), rgba(80, 40, 160, 0.6));
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 28px rgba(192, 132, 252, 0.9);
+    }
+    .mao-toggle.ativo {
+      background: linear-gradient(135deg, rgba(255, 203, 5, 0.5), rgba(255, 152, 0, 0.35));
+      border-color: #ffcb05;
+      box-shadow: 0 0 22px rgba(255, 203, 5, 0.8);
+    }
+    @media (max-width: 700px) {
+      .mao-toggle {
+        bottom: 108px; right: 8px;
+        padding: 8px 12px; font-size: 0.62rem;
+        letter-spacing: 1px;
+      }
+    }
+
     .instrucoes {
       position: absolute; bottom: 20px; left: 50%;
       transform: translateX(-50%); z-index: 100;
@@ -185,10 +255,8 @@
       background: rgba(0, 0, 0, 0.6);
       padding: 8px 18px; border-radius: 20px;
       border: 1px solid rgba(63, 185, 80, 0.25);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      white-space: nowrap;
-      max-width: calc(100vw - 40px);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      white-space: nowrap; max-width: calc(100vw - 40px);
       text-align: center;
     }
     .instrucoes span { color: #7ee898; font-weight: bold; }
@@ -209,8 +277,7 @@
       letter-spacing: 1px; padding: 8px 14px;
       border-radius: 8px; cursor: pointer;
       transition: all 0.25s; text-transform: uppercase;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
@@ -231,20 +298,16 @@
       display: grid;
       grid-template-columns: repeat(3, 34px);
       grid-template-rows: repeat(2, 34px);
-      gap: 4px;
-      opacity: 0.85;
+      gap: 4px; opacity: 0.85;
     }
     .teclas-wasd .tecla {
       display: flex; align-items: center; justify-content: center;
       background: rgba(5, 30, 15, 0.88);
       border: 2px solid rgba(63, 185, 80, 0.45);
-      border-radius: 6px;
-      color: #7ee898;
+      border-radius: 6px; color: #7ee898;
       font-family: 'Courier New', monospace;
-      font-weight: bold;
-      font-size: 0.85rem;
-      transition: all 0.15s;
-      user-select: none;
+      font-weight: bold; font-size: 0.85rem;
+      transition: all 0.15s; user-select: none;
     }
     .teclas-wasd .tecla.w { grid-column: 2; grid-row: 1; }
     .teclas-wasd .tecla.a { grid-column: 1; grid-row: 2; }
@@ -252,9 +315,55 @@
     .teclas-wasd .tecla.d { grid-column: 3; grid-row: 2; }
     .teclas-wasd .tecla.ativa {
       background: rgba(63, 185, 80, 0.45);
-      border-color: #7ee898;
-      color: #fff;
+      border-color: #7ee898; color: #fff;
       box-shadow: 0 0 12px rgba(63, 185, 80, 0.7);
+    }
+
+    /* ============================================================
+       MODO VR — esconde UI HTML que ficaria "flutuando"
+       ============================================================ */
+    body.em-vr .info,
+    body.em-vr .nome-animal,
+    body.em-vr .controles,
+    body.em-vr .teclas-wasd,
+    body.em-vr .instrucoes,
+    body.em-vr .modo-toggle,
+    body.em-vr .vr-toggle,
+    body.em-vr .hd-badge,
+    body.em-vr .gaze-reticle,
+    body.em-vr .gaze-reticle-progresso {
+      display: none !important;
+    }
+
+    /* Crosshair 2D bem no centro para modo VR (HTML puro) */
+    .vr-crosshair {
+      position: fixed;
+      top: 50%; left: 50%;
+      width: 12px; height: 12px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 600;
+      display: none;
+    }
+    body.em-vr .vr-crosshair {
+      display: block;
+    }
+    .vr-crosshair::before,
+    .vr-crosshair::after {
+      content: '';
+      position: absolute;
+      background: #ffcb05;
+      box-shadow: 0 0 8px #ffcb05;
+    }
+    .vr-crosshair::before {
+      top: 50%; left: 0;
+      width: 100%; height: 2px;
+      transform: translateY(-50%);
+    }
+    .vr-crosshair::after {
+      top: 0; left: 50%;
+      width: 2px; height: 100%;
+      transform: translateX(-50%);
     }
 
     .aviso-file {
@@ -277,14 +386,10 @@
       color: #7ee898; font-size: 1.2rem;
       letter-spacing: 2px; text-transform: uppercase;
       margin-bottom: 1rem;
-      text-shadow: 0 0 12px rgba(63, 185, 80, 0.6);
       border-bottom: 2px dashed rgba(63, 185, 80, 0.35);
       padding-bottom: 0.6rem;
     }
-    .aviso-file-box p {
-      font-size: 0.9rem; line-height: 1.6;
-      margin-bottom: 0.8rem; color: #d5ffdd;
-    }
+    .aviso-file-box p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.8rem; }
     .aviso-file-box code {
       background: rgba(63, 185, 80, 0.12);
       border: 1px solid rgba(63, 185, 80, 0.35);
@@ -292,9 +397,7 @@
       border-radius: 4px; font-size: 0.85rem;
     }
     .aviso-file-box ol { margin-left: 1.2rem; margin-bottom: 1rem; }
-    .aviso-file-box li {
-      margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.5;
-    }
+    .aviso-file-box li { margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.5; }
     .aviso-file-box li b { color: #7ee898; }
     .aviso-file-box .btn-voltar {
       display: inline-block; margin-top: 0.5rem;
@@ -311,111 +414,60 @@
       box-shadow: 0 0 14px rgba(63, 185, 80, 0.6);
     }
 
-    /* ============================================================
-       Media queries
-       ============================================================ */
     @media (max-width: 900px) {
-      .nome-animal {
-        max-width: 48vw;
-        font-size: 0.75rem;
-      }
+      .nome-animal { max-width: 48vw; font-size: 0.75rem; }
       .nome-animal .cientifico { font-size: 0.66rem; }
       .nome-animal .bioma { font-size: 0.56rem; }
     }
-
     @media (max-width: 700px) {
-      .info {
-        top: 8px; left: 8px;
-        padding: 6px 10px;
-        border-radius: 9px;
-        max-width: 38vw;
-      }
-      .info a {
-        font-size: 0.62rem;
-        letter-spacing: 0.5px;
-      }
+      .info { top: 8px; left: 8px; padding: 6px 10px; border-radius: 9px; max-width: 38vw; }
+      .info a { font-size: 0.62rem; letter-spacing: 0.5px; }
       .info .voltar-complemento { display: none; }
-
       .nome-animal {
-        top: 8px; right: 8px;
-        max-width: 56vw;
-        padding: 6px 10px;
-        border-radius: 9px;
-        font-size: 0.6rem;
-        line-height: 1.3;
-        letter-spacing: 0.5px;
+        top: 8px; right: 8px; max-width: 56vw;
+        padding: 6px 10px; border-radius: 9px;
+        font-size: 0.6rem; line-height: 1.3; letter-spacing: 0.5px;
       }
-      .nome-animal .cientifico {
-        font-size: 0.54rem;
-        margin-top: 2px;
-      }
-      .nome-animal .bioma {
-        font-size: 0.5rem;
-        margin-top: 3px;
-        padding-top: 3px;
-        letter-spacing: 1px;
-      }
-
+      .nome-animal .cientifico { font-size: 0.54rem; margin-top: 2px; }
+      .nome-animal .bioma { font-size: 0.5rem; margin-top: 3px; padding-top: 3px; letter-spacing: 1px; }
       .teclas-wasd { display: none !important; }
-
       .instrucoes {
-        bottom: 60px;
-        left: 8px; right: 8px;
-        transform: none;
-        max-width: none;
-        font-size: 0.58rem;
-        padding: 6px 10px;
-        border-radius: 12px;
-        letter-spacing: 0.3px;
-        white-space: normal;
-        line-height: 1.35;
+        bottom: 60px; left: 8px; right: 8px; transform: none;
+        max-width: none; font-size: 0.58rem; padding: 6px 10px;
+        border-radius: 12px; letter-spacing: 0.3px;
+        white-space: normal; line-height: 1.35;
       }
       .instrucoes .instr-desktop { display: none; }
       .instrucoes .instr-mobile { display: inline; }
-
-      .controles {
-        bottom: 8px;
-        left: 8px; right: 8px;
-        transform: none;
-        gap: 5px;
-        justify-content: stretch;
-      }
+      .controles { bottom: 8px; left: 8px; right: 8px; transform: none; gap: 5px; justify-content: stretch; }
       .controles button {
-        flex: 1;
-        min-width: 0;
-        font-size: 0.58rem;
-        padding: 9px 4px;
-        letter-spacing: 0.3px;
-        border-width: 1.5px;
-        border-radius: 7px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        flex: 1; min-width: 0; font-size: 0.58rem; padding: 9px 4px;
+        letter-spacing: 0.3px; border-width: 1.5px; border-radius: 7px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-
       .hd-badge { bottom: 90px; font-size: 0.55rem; }
+      .modo-toggle {
+        bottom: 8px; right: 8px;
+        padding: 8px 12px; font-size: 0.62rem;
+        letter-spacing: 1px;
+      }
+      .vr-toggle {
+        bottom: 58px; right: 8px;
+        padding: 8px 12px; font-size: 0.62rem;
+        letter-spacing: 1px;
+      }
     }
-
     @media (max-width: 400px) {
       .info { padding: 5px 8px; max-width: 34vw; }
       .info a { font-size: 0.56rem; }
-      .nome-animal {
-        padding: 5px 8px;
-        max-width: 60vw;
-        font-size: 0.54rem;
-      }
+      .nome-animal { padding: 5px 8px; max-width: 60vw; font-size: 0.54rem; }
       .nome-animal .cientifico { font-size: 0.48rem; }
       .nome-animal .bioma { font-size: 0.44rem; }
       .controles button { font-size: 0.52rem; padding: 8px 3px; }
       .instrucoes { font-size: 0.52rem; padding: 5px 8px; }
     }
-
     @media (max-height: 500px) and (orientation: landscape) {
-      .nome-animal {
-        max-width: 32vw;
-        font-size: 0.6rem;
-        padding: 6px 10px;
-      }
+      .nome-animal { max-width: 32vw; font-size: 0.6rem; padding: 6px 10px; }
       .nome-animal .cientifico { font-size: 0.54rem; }
       .nome-animal .bioma { font-size: 0.5rem; }
       .info { padding: 6px 10px; }
@@ -430,12 +482,13 @@
   <div class="aviso-file" id="aviso-file" style="display:none;">
     <div class="aviso-file-box">
       <h2>⚠ Modo file:// detectado</h2>
-      <p>Você abriu este arquivo direto pelo disco. O navegador <b>bloqueia</b> o carregamento dos modelos 3D.</p>
-      <p>Para funcionar, use um servidor local:</p>
+      <p>Você abriu este arquivo direto pelo disco. O navegador <b>bloqueia</b> câmera, modelos 3D e VR.</p>
+      <p>Para funcionar, use HTTPS ou um servidor local:</p>
       <ol>
         <li><b>VS Code + Live Server:</b> botão direito em <code>index.html</code> → "Open with Live Server".</li>
         <li><b>Python:</b> <code>python -m http.server 8000</code></li>
         <li><b>Node:</b> <code>npx http-server -p 8000</code></li>
+        <li><b>HTTPS (VR em celular):</b> use ngrok, Vercel ou GitHub Pages.</li>
       </ol>
       <a href="index.html" class="btn-voltar">← Voltar para a Pokédex</a>
     </div>
@@ -462,6 +515,22 @@
             stroke-dashoffset="125.66"
             id="gaze-progress-circle"></circle>
   </svg>
+
+  <!-- Crosshair que aparece só em VR (HTML overlay) -->
+  <div class="vr-crosshair"></div>
+
+  <button class="modo-toggle" id="modo-toggle" title="Alternar entre 3D e AR">
+    🥽 Modo AR
+  </button>
+
+  <button class="vr-toggle" id="vr-toggle" title="Entrar em modo VR (Cardboard)">
+    📱 VR Cardboard
+  </button>
+
+  <button class="mao-toggle" id="mao-toggle" title="Modo Mão — use o QR como varinha mágica">
+    🖐️ Modo Mão
+  </button>
+  
 
   <div class="controles" id="controles" style="display:none;">
     <button id="btn-anim" title="Pausar/Retomar rotação">⏸ Pausar</button>
@@ -502,7 +571,25 @@
 
   <script>
     /* ============================================================
-       CÂMERA ORBITAL + clique direto (mouse/toque)
+       ESTADO GLOBAL
+       ============================================================ */
+    const EstadoApp = {
+      modo: '3d',           // '3d' | 'ar' | 'vr'
+      animal: null,
+      modeloPesado: '',
+      cameraAR: null,
+      cameraVR: null,
+      gazeState: {
+        alvoAtual: null,
+        tempoInicio: 0,
+        disparado: false,
+        ultimoDisparado: null,
+        dwellMs: 3000
+      }
+    };
+
+    /* ============================================================
+       COMPONENTE ORBIT-CAMERA (só modo 3D desktop)
        ============================================================ */
     AFRAME.registerComponent('orbit-camera', {
       schema: {
@@ -532,8 +619,6 @@
         this._pinchStartDistance = 0;
         this._initialized = false;
         this._tempV = new THREE.Vector3();
-
-        /* Estado de clique (document-level) */
         this._clickStart = null;
 
         this._onDown       = this.onPointerDown.bind(this);
@@ -543,20 +628,13 @@
         this._onTouchStart = this.onTouchStart.bind(this);
         this._onTouchMove  = this.onTouchMove.bind(this);
         this._onTouchEnd   = this.onTouchEnd.bind(this);
-        this._onKeyDown    = (e) => {
-          this.keys[e.code] = true;
-          this.atualizarTeclasVisuais(e.code, true);
-        };
-        this._onKeyUp      = (e) => {
-          this.keys[e.code] = false;
-          this.atualizarTeclasVisuais(e.code, false);
-        };
+        this._onKeyDown    = (e) => { this.keys[e.code] = true; this.atualizarTeclasVisuais(e.code, true); };
+        this._onKeyUp      = (e) => { this.keys[e.code] = false; this.atualizarTeclasVisuais(e.code, false); };
 
         this._docMouseDown = (e) => {
           if (!this._pontoDentroDoCanvas(e.clientX, e.clientY)) return;
           this._clickStart = { x: e.clientX, y: e.clientY, t: Date.now() };
         };
-
         this._docMouseUp = (e) => {
           if (!this._clickStart) return;
           const dx = Math.abs(e.clientX - this._clickStart.x);
@@ -567,14 +645,12 @@
           this._clickStart = null;
           if (foiClique) this.tentarCliqueEmHotspot(e.clientX, e.clientY);
         };
-
         this._docTouchStart = (e) => {
           if (e.touches.length !== 1) return;
           const t = e.touches[0];
           if (!this._pontoDentroDoCanvas(t.clientX, t.clientY)) return;
           this._clickStart = { x: t.clientX, y: t.clientY, t: Date.now() };
         };
-
         this._docTouchEnd = (e) => {
           if (!this._clickStart || e.changedTouches.length !== 1) return;
           const t = e.changedTouches[0];
@@ -603,31 +679,28 @@
       },
 
       tick: function (t, dt) {
+        /* Ignora se estiver em VR */
+        if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return;
+
         if (!this._initialized) {
           const canvas = this.el.sceneEl && this.el.sceneEl.canvas;
-          if (canvas) {
-            this.canvas = canvas;
-            canvas.addEventListener('mousedown', this._onDown);
-            window.addEventListener('mousemove', this._onMove);
-            window.addEventListener('mouseup', this._onUp);
-            canvas.addEventListener('wheel', this._onWheel, { passive: false });
-            canvas.addEventListener('touchstart', this._onTouchStart, { passive: true });
-            canvas.addEventListener('touchmove', this._onTouchMove, { passive: false });
-            canvas.addEventListener('touchend', this._onTouchEnd, { passive: true });
-            window.addEventListener('keydown', this._onKeyDown);
-            window.addEventListener('keyup', this._onKeyUp);
-            this._initialized = true;
-            console.log('[orbit-camera] listeners instalados');
-          } else {
-            return;
-          }
+          if (!canvas) return;
+          this.canvas = canvas;
+          canvas.addEventListener('mousedown', this._onDown);
+          window.addEventListener('mousemove', this._onMove);
+          window.addEventListener('mouseup', this._onUp);
+          canvas.addEventListener('wheel', this._onWheel, { passive: false });
+          canvas.addEventListener('touchstart', this._onTouchStart, { passive: true });
+          canvas.addEventListener('touchmove', this._onTouchMove, { passive: false });
+          canvas.addEventListener('touchend', this._onTouchEnd, { passive: true });
+          window.addEventListener('keydown', this._onKeyDown);
+          window.addEventListener('keyup', this._onKeyUp);
+          this._initialized = true;
         }
 
         const dtSec = Math.min(dt || 16, 100) / 1000;
-        const sinT = Math.sin(this.theta);
-        const cosT = Math.cos(this.theta);
-        const fwdX = -sinT, fwdZ = -cosT;
-        const rgtX = cosT,  rgtZ = -sinT;
+        const sinT = Math.sin(this.theta), cosT = Math.cos(this.theta);
+        const fwdX = -sinT, fwdZ = -cosT, rgtX = cosT, rgtZ = -sinT;
 
         let dx = 0, dz = 0;
         if (this.keys['KeyW'] || this.keys['ArrowUp'])    { dx += fwdX; dz += fwdZ; }
@@ -642,27 +715,23 @@
           this.target.x += dx * speed;
           this.target.z += dz * speed;
         }
-
         if (this.data.autoRotate && !this.isDragging) {
           this.theta += dtSec * this.data.autoRotateSpeed;
         }
-
         this.updateCamera();
       },
 
       updateCamera: function () {
-        const sinPhi = Math.sin(this.phi);
-        const cosPhi = Math.cos(this.phi);
-        const sinT   = Math.sin(this.theta);
-        const cosT   = Math.cos(this.theta);
+        /* Não move a câmera se estiver em VR */
+        if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return;
 
+        const sinPhi = Math.sin(this.phi), cosPhi = Math.cos(this.phi);
+        const sinT = Math.sin(this.theta), cosT = Math.cos(this.theta);
         const px = this.target.x + this.distance * sinPhi * sinT;
         const py = this.target.y + this.distance * cosPhi;
         const pz = this.target.z + this.distance * sinPhi * cosT;
-
         const cam = this.el.getObject3D('camera') || this.el.object3D;
         if (!cam) return;
-
         cam.position.set(px, py, pz);
         cam.lookAt(this.target);
         cam.updateMatrixWorld(true);
@@ -670,56 +739,28 @@
 
       tentarCliqueEmHotspot: function (clientX, clientY) {
         const canvas = this.canvas;
-        if (!canvas) { console.log('[click] sem canvas'); return; }
+        if (!canvas) return;
         const cam = this.el.getObject3D('camera');
-        if (!cam) { console.log('[click] sem câmera'); return; }
-
+        if (!cam) return;
         const rect = canvas.getBoundingClientRect();
         const mx = clientX - rect.left;
         const my = clientY - rect.top;
-
         cam.updateMatrixWorld(true);
-
         const hotspots = document.querySelectorAll('[info-hotspot]');
-        console.log('[click] hotspots no DOM:', hotspots.length);
-
         let melhor = null;
         let menorDist = 150;
-
-        hotspots.forEach((el, i) => {
+        hotspots.forEach((el) => {
           if (!el.object3D) return;
-
           el.object3D.getWorldPosition(this._tempV);
-          const wx = this._tempV.x, wy = this._tempV.y, wz = this._tempV.z;
-
           this._tempV.project(cam);
-
           const sx = (this._tempV.x * 0.5 + 0.5) * rect.width;
           const sy = (-this._tempV.y * 0.5 + 0.5) * rect.height;
           const dist = Math.hypot(sx - mx, sy - my);
-
-          const titulo = (el.getAttribute('info-hotspot') || {}).titulo || '?';
-          console.log(`[click #${i}] "${titulo}" world=(${wx.toFixed(1)},${wy.toFixed(1)},${wz.toFixed(1)}) tela=(${sx.toFixed(0)},${sy.toFixed(0)}) dist=${dist.toFixed(0)}px`);
-
-          if (dist < menorDist) {
-            menorDist = dist;
-            melhor = el;
-          }
+          if (dist < menorDist) { menorDist = dist; melhor = el; }
         });
-
         if (melhor) {
-          const titulo = (melhor.getAttribute('info-hotspot') || {}).titulo || '?';
-          console.log('[click] ✅ ENCONTRADO:', titulo);
           const comp = melhor.components['info-hotspot'];
-          if (comp && typeof comp.abrir === 'function') {
-            comp.abrir();
-          } else if (comp && typeof comp.toggle === 'function') {
-            comp.toggle();
-          } else {
-            console.log('[click] ❌ componente sem abrir()/toggle()');
-          }
-        } else {
-          console.log('[click] nenhum hotspot no raio de 150px');
+          if (comp && typeof comp.toggle === 'function') comp.toggle();
         }
       },
 
@@ -729,7 +770,6 @@
         this.prevMouse = { x: e.clientX, y: e.clientY };
         if (this.canvas) this.canvas.style.cursor = 'grabbing';
       },
-
       onPointerMove: function (e) {
         if (!this.isDragging) return;
         const dx = e.clientX - this.prevMouse.x;
@@ -739,18 +779,15 @@
         this.phi   -= dy * 0.008 * this.data.rotateSpeed;
         this.phi = Math.max(this.data.minPolar, Math.min(this.data.maxPolar, this.phi));
       },
-
       onPointerUp: function () {
         this.isDragging = false;
         if (this.canvas) this.canvas.style.cursor = 'grab';
       },
-
       onWheel: function (e) {
         e.preventDefault();
         this.distance += e.deltaY * 0.005 * this.data.zoomSpeed;
         this.distance = Math.max(this.data.minDistance, Math.min(this.data.maxDistance, this.distance));
       },
-
       onTouchStart: function (e) {
         if (e.touches.length === 1) {
           this.isDragging = true;
@@ -763,7 +800,6 @@
           this._pinchStartDistance = this.distance;
         }
       },
-
       onTouchMove: function (e) {
         if (e.touches.length === 1 && this.isDragging) {
           const dx = e.touches[0].clientX - this.prevMouse.x;
@@ -783,17 +819,14 @@
           }
         }
       },
-
       onTouchEnd: function () {
         this.isDragging = false;
         this._pinchStartDist = 0;
       },
-
       atualizarTeclasVisuais: function (code, ativa) {
         const el = document.querySelector(`.tecla[data-key="${code}"]`);
         if (el) el.classList.toggle('ativa', ativa);
       },
-
       reset: function () {
         this.theta = Math.PI / 4;
         this.phi = Math.PI / 2.4;
@@ -801,9 +834,7 @@
         this.target.set(0, this.data.targetY, 0);
         this.updateCamera();
       },
-
       setAutoRotate: function (on) { this.data.autoRotate = on; },
-
       remove: function () {
         const canvas = this.canvas;
         if (canvas) {
@@ -825,7 +856,7 @@
     });
 
     /* ============================================================
-       URL PARAMS
+       URL PARAMS + BOOT
        ============================================================ */
     const params = new URLSearchParams(window.location.search);
     const faunaId = params.get('id') || '';
@@ -842,6 +873,8 @@
       document.getElementById('teclas-wasd').style.display = 'none';
       document.getElementById('gaze-reticle').style.display = 'none';
       document.getElementById('gaze-reticle-progresso').style.display = 'none';
+      document.getElementById('modo-toggle').style.display = 'none';
+      document.getElementById('vr-toggle').style.display = 'none';
     } else if (!faunaId || isNaN(numeroIndex) || numeroIndex <= 0) {
       document.getElementById('loading').textContent = '⚠️ Animal não especificado na URL.';
     } else {
@@ -853,21 +886,20 @@
        ============================================================ */
     async function iniciarFluxoFauna() {
       const loading = document.getElementById('loading');
-      let animal = null;
-
       try {
         const res = await fetch('fauna_pe.json');
         if (!res.ok) throw new Error('fauna_pe.json não encontrado');
         const data = await res.json();
         const lista = Array.isArray(data.especies_ameacadas) ? data.especies_ameacadas : [];
-        animal = lista[numeroIndex - 1];
-        if (!animal) throw new Error('Animal não encontrado no índice ' + numeroIndex);
+        EstadoApp.animal = lista[numeroIndex - 1];
+        if (!EstadoApp.animal) throw new Error('Animal não encontrado no índice ' + numeroIndex);
       } catch (e) {
         console.error('Erro ao buscar fauna:', e);
         loading.textContent = '⚠️ Não foi possível carregar os dados do animal.';
         return;
       }
 
+      const animal = EstadoApp.animal;
       document.getElementById('nome-popular').textContent =
         `#${faunaId.toUpperCase()} — ${animal.nome_popular}`;
       document.getElementById('nome-cientifico').textContent = animal.nome_cientifico || '';
@@ -878,22 +910,138 @@
         nomeBioma = window.MewBiomas.BIOMAS[chave]?.nome || chave;
       }
       document.getElementById('nome-bioma').textContent = `🌿 Bioma: ${nomeBioma}`;
-
       document.title = `${animal.nome_popular} — Projeto Mew (3D)`;
 
-      const modeloPesado = animal.modelo_gltf || 'assets/modelo/animais.glb';
-      const modeloLeve   = animal.modelo_gltf_leve
-        || modeloPesado.replace(/\.glb$/i, '_leve.glb');
+      EstadoApp.modeloPesado = animal.modelo_gltf || 'assets/modelo/animais.glb';
 
-      montarCena3D(modeloPesado, modeloLeve, animal);
+      /* Detecta se é dispositivo móvel para mostrar botão de VR Cardboard */
+      const ehMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      if (ehMobile && 'xr' in navigator) {
+        document.getElementById('vr-toggle').classList.add('visivel');
+      }
+
+      const modoInicial = params.get('modo') === 'ar' ? 'ar' : '3d';
+      trocarModo(modoInicial, true);
     }
 
     /* ============================================================
-       MONTAGEM DA CENA
+       TROCA DE MODO (3D ↔ AR)
        ============================================================ */
-    function montarCena3D(modeloPesado, modeloLeve, animal) {
-      const container = document.getElementById('scene-container');
+    function trocarModo(novoModo, primeiraVez) {
+      if (!EstadoApp.animal) return;
+      if (novoModo === 'vr') return; /* VR é tratado à parte, sem reconstruir cena */
+      if (!primeiraVez && EstadoApp.modo === novoModo) return;
 
+      EstadoApp.modo = novoModo;
+      EstadoApp.gazeState.alvoAtual = null;
+      EstadoApp.gazeState.disparado = false;
+      EstadoApp.gazeState.ultimoDisparado = null;
+
+      const container = document.getElementById('scene-container');
+      container.innerHTML = '';
+
+      const btn = document.getElementById('modo-toggle');
+      if (novoModo === 'ar') {
+        btn.textContent = '🖥️ Modo 3D';
+        btn.classList.add('ar-ativo');
+        document.getElementById('controles').style.display = 'none';
+        document.getElementById('teclas-wasd').style.display = 'none';
+        document.getElementById('gaze-reticle').style.display = 'none';
+        document.getElementById('gaze-reticle-progresso').style.display = 'none';
+        document.getElementById('vr-toggle').style.display = 'none';
+        document.getElementById('instrucoes').innerHTML =
+          '<span class="instr-mobile"><span>📱 Mova o celular</span> · Aponte a linha do QR para as esferas · <span>👁️ 3s</span> para abrir</span>';
+      } else {
+        btn.textContent = '🥽 Modo AR';
+        btn.classList.remove('ar-ativo');
+        document.getElementById('controles').style.display = 'flex';
+        document.getElementById('teclas-wasd').style.display = 'grid';
+        document.getElementById('gaze-reticle').style.display = 'block';
+        const ehMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        if (ehMobile && 'xr' in navigator) {
+          document.getElementById('vr-toggle').classList.add('visivel');
+        }
+        document.getElementById('instrucoes').innerHTML =
+          '<span class="instr-desktop"><span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>💬 Clique</span> ou <span>👁️ Mire 3s</span> nas esferas</span>' +
+          '<span class="instr-mobile"><span>👆 Arraste</span> girar · <span>📱 Use VR Cardboard</span> ou <span>💬 Toque</span> nas esferas</span>';
+      }
+
+      setTimeout(() => {
+        if (novoModo === 'ar') construirCenaAR();
+        else construirCena3D();
+      }, 150);
+    }
+
+    document.getElementById('modo-toggle').addEventListener('click', () => {
+      trocarModo(EstadoApp.modo === 'ar' ? '3d' : 'ar');
+    });
+
+    /* ============================================================
+       BOTÃO VR — ativa modo VR Cardboard via WebXR
+       ============================================================ */
+    document.getElementById('vr-toggle').addEventListener('click', async () => {
+      const cena = document.querySelector('a-scene');
+      if (!cena) return;
+      try {
+        if (cena.enterVR) {
+          await cena.enterVR();
+        } else if (cena.xrSession) {
+          await cena.xrSession.end();
+        } else {
+          /* Fallback: aciona o botão nativo do A-Frame */
+          const btnVR = cena.querySelector('.a-enter-vr-button');
+          if (btnVR) btnVR.click();
+        }
+      } catch (e) {
+        console.warn('Não foi possível entrar em VR:', e);
+        alert('Seu dispositivo não suporta VR, ou falta HTTPS.');
+      }
+    });
+
+    /* ============================================================
+       LISTENERS DE ENTRADA/SAÍDA DE VR
+       ============================================================ */
+    function configurarListenersVR(cena) {
+      cena.addEventListener('enter-vr', () => {
+        console.log('🥽 Entrou em modo VR');
+        document.body.classList.add('em-vr');
+        EstadoApp.modo = 'vr';
+
+        /* Reconfigura a câmera para VR:
+           - Remove orbit-camera (que força posição)
+           - Ativa look-controls (giroscópio do celular) */
+        const camEl = cena.querySelector('#camera, [camera]');
+        if (camEl) {
+          camEl.removeAttribute('orbit-camera');
+          camEl.setAttribute('look-controls', 'enabled: true');
+          camEl.setAttribute('wasd-controls', 'enabled: false');
+          /* Em VR, a "posição" do usuário é relativa — coloca o observador
+             de pé no cenário, olhando pro animal (que está em 0,0,0). */
+          camEl.setAttribute('position', '0 1.6 3.5');
+          camEl.setAttribute('rotation', '0 0 0');
+        }
+      });
+
+      cena.addEventListener('exit-vr', () => {
+        console.log('🥽 Saiu do modo VR');
+        document.body.classList.remove('em-vr');
+        EstadoApp.modo = '3d';
+
+        /* Restaura a câmera orbital */
+        const camEl = cena.querySelector('#camera, [camera]');
+        if (camEl) {
+          camEl.setAttribute('look-controls', 'enabled: false');
+          camEl.setAttribute('orbit-camera',
+            'distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;');
+        }
+      });
+    }
+
+    /* ============================================================
+       CONSTRUÇÃO DO AMBIENTE (compartilhado)
+       ============================================================ */
+    function montarAmbienteHTML() {
+      const animal = EstadoApp.animal;
       let ambienteHtml = '';
       let bioma = null;
       if (window.MewBiomas && typeof window.MewBiomas.montarCena3D === 'function') {
@@ -908,27 +1056,45 @@
           <a-entity position="5 8 5" light="type: directional; color: #fff; intensity: 1.2"></a-entity>
         `;
       }
+      return { ambienteHtml, bioma };
+    }
 
+    /* ============================================================
+       MODO 3D — com suporte a VR Cardboard no celular
+       ============================================================ */
+    function construirCena3D() {
+      const container = document.getElementById('scene-container');
+      const { ambienteHtml, bioma } = montarAmbienteHTML();
       const fogAttr = bioma
         ? `fog="type: exponential; color: ${bioma.fog}; density: ${bioma.fogDensity}"`
         : '';
 
       container.innerHTML = `
         <a-scene
+          id="cena-3d"
           embedded
           ${fogAttr}
           renderer="antialias: true; colorManagement: true;"
           shadow="type: pcfsoft"
+          vr-mode-ui="enabled: false"
           style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
         >
-          <a-assets timeout="20000">
-            <a-asset-item id="modelo-leve"   src="${modeloLeve}"></a-asset-item>
-            <a-asset-item id="modelo-pesado" src="${modeloPesado}"></a-asset-item>
+          <a-assets timeout="30000">
+            <a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item>
           </a-assets>
 
           ${ambienteHtml}
 
-          <a-entity id="modelo-wrapper"></a-entity>
+          <a-entity id="modelo-wrapper">
+            <a-box id="cubo-placeholder"
+                   position="0 0.5 0"
+                   width="1" height="1" depth="1"
+                   color="#888888"
+                   material="shader: standard; color: #888888; metalness: 0.15; roughness: 0.85"
+                   shadow="cast: true; receive: true"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
+            </a-box>
+          </a-entity>
 
           <a-camera
             id="camera"
@@ -946,87 +1112,153 @@
 
       const cena = container.querySelector('a-scene');
       cena.addEventListener('loaded', () => {
-        console.log('🎬 A-Frame (fauna) pronto — bioma:', bioma?.nome);
+        console.log('🎬 Cena 3D pronta — bioma:', bioma?.nome);
+        document.getElementById('loading').style.display = 'none';
+
+        /* Configura entrada/saída de VR */
+        configurarListenersVR(cena);
         iniciarGaze(cena);
-        carregarModeloProgressivo(modeloLeve, modeloPesado);
         configurarBotoesFauna();
+        agendarCarregamentoPesado();
       });
     }
 
     /* ============================================================
-       CARREGAMENTO PROGRESSIVO (leve → pesado)
+       MODO AR — sem alterações
        ============================================================ */
-    function carregarModeloProgressivo(lightPath, heavyPath) {
-      const loading = document.getElementById('loading');
-      const hdBadge = document.getElementById('hd-badge');
-      const wrapper = document.getElementById('modelo-wrapper');
-      if (!wrapper) return;
+    function construirCenaAR() {
+      const container = document.getElementById('scene-container');
+      const { ambienteHtml } = montarAmbienteHTML();
 
-      let jaResolveu = false;
+      container.innerHTML = `
+        <a-scene
+          id="cena-ar"
+          embedded
+          arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;"
+          renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: true;"
+          vr-mode-ui="enabled: false"
+          style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
+        >
+          <a-assets timeout="30000">
+            <a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item>
+          </a-assets>
 
-      /* Timeout global: esconde o loading se nada carregar em 15s */
-      const timeoutGlobal = setTimeout(() => {
-        if (!jaResolveu && loading.style.display !== 'none') {
-          console.warn('⚠️ Timeout global — escondendo loading');
-          loading.textContent = '⚠️ Não foi possível carregar o modelo 3D.';
-          setTimeout(() => { loading.style.display = 'none'; }, 2500);
-          hdBadge.classList.remove('ativo');
-        }
-      }, 15000);
+          <a-marker type="barcode" value="5"
+                    smooth="true" smoothCount="10"
+                    smoothTolerance="0.01" smoothThreshold="5"
+                    id="marcador-qr">
+            ${ambienteHtml}
+            <a-entity id="modelo-wrapper" position="0 0 0">
+              <a-box id="cubo-placeholder"
+                     position="0 0.25 0"
+                     width="0.5" height="0.5" depth="0.5"
+                     color="#888888"
+                     material="shader: standard; color: #888888; metalness: 0.15; roughness: 0.85"
+                     animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
+              </a-box>
+            </a-entity>
+                        <a-entity id="linha-ar"
+                      geometry="primitive: cylinder; radius: 0.012; height: 1;"
+                      material="shader: standard; color: #7ee898; emissive: #7ee898; emissiveIntensity: 0.8; opacity: 0.9; transparent: true"
+                      position="0 0.05 0"
+                      visible="false"></a-entity>
 
-      /* Se os paths são iguais, carrega só uma vez */
-      if (lightPath === heavyPath) {
-        const modelo = criarEntidadeModelo('modelo-fauna-unico', '#modelo-pesado');
-        wrapper.appendChild(modelo);
-        modelo.addEventListener('model-loaded', () => {
-          jaResolveu = true;
-          clearTimeout(timeoutGlobal);
-          ajustarModelo(modelo);
-          loading.style.display = 'none';
-          console.log('✅ Modelo único carregado');
-        }, { once: true });
-        modelo.addEventListener('model-error', () => {
-          jaResolveu = true;
-          clearTimeout(timeoutGlobal);
-          loading.textContent = '⚠️ Modelo 3D não encontrado.';
-          setTimeout(() => { loading.style.display = 'none'; }, 2500);
-        }, { once: true });
-        return;
-      }
+            <!-- ============================================
+                 MODO MÃO — esfera brilhante + varinha
+                 A varinha sai perpendicular à face do QR
+                 ============================================ -->
+            <a-entity id="mao-grupo" visible="false">
 
-      /* Etapa 1: modelo LEVE */
-      const modeloLeve = criarEntidadeModelo('modelo-fauna-leve', '#modelo-leve');
-      wrapper.appendChild(modeloLeve);
+              <!-- Halo pulsante ao redor da mão -->
+              <a-ring id="mao-halo" position="0 0 0" rotation="-90 0 0"
+                      radius-inner="0.08" radius-outer="0.13"
+                      color="#c084fc"
+                      material="shader: flat; opacity: 0.55; transparent: true; side: double"
+                      animation="property: scale; from: 1 1 1; to: 2.2 2.2 2.2; dur: 1600; dir: alternate; loop: true; easing: easeOutSine"
+                      animation__op="property: material.opacity; from: 0.6; to: 0; dur: 1600; dir: alternate; loop: true"></a-ring>
 
-      modeloLeve.addEventListener('model-loaded', () => {
-        jaResolveu = true;
-        clearTimeout(timeoutGlobal);
-        ajustarModelo(modeloLeve);
-        loading.style.display = 'none';
-        console.log('✅ Modelo LEVE carregado');
+              <!-- Esfera brilhante = "mão" -->
+              <a-sphere id="mao-esfera" position="0 0 0" radius="0.05"
+                        color="#c084fc"
+                        material="shader: standard; emissive: #c084fc; emissiveIntensity: 1.8; opacity: 0.9; transparent: true"
+                        animation="property: scale; from: 1 1 1; to: 1.35 1.35 1.35; dur: 800; dir: alternate; loop: true; easing: easeInOutSine"></a-sphere>
 
-        hdBadge.classList.add('ativo');
-        carregarModeloPesado('#modelo-pesado', modeloLeve);
-      }, { once: true });
+              <!-- Varinha (cilindro ao longo de +Z, comprimento ajustado em runtime) -->
+              <a-entity id="mao-varinha"
+                        geometry="primitive: cylinder; radius: 0.008; height: 2;"
+                        material="shader: standard; color: #c084fc; emissive: #c084fc; emissiveIntensity: 0.9; opacity: 0.85; transparent: true"
+                        position="0 0 1"
+                        rotation="-90 0 0"></a-entity>
 
-      modeloLeve.addEventListener('model-error', () => {
-        console.warn('⚠️ Modelo LEVE falhou — indo direto pro PESADO');
-        jaResolveu = true;
-        clearTimeout(timeoutGlobal);
-        if (modeloLeve.parentNode) modeloLeve.parentNode.removeChild(modeloLeve);
-        hdBadge.classList.add('ativo');
-        carregarModeloPesado('#modelo-pesado', null);
-      }, { once: true });
+              <!-- Ponta brilhante da varinha -->
+              <a-sphere id="mao-ponta" position="0 0 2" radius="0.03"
+                        color="#ffcb05"
+                        material="shader: standard; emissive: #ffcb05; emissiveIntensity: 2"></a-sphere>
+
+            </a-entity>
+
+          </a-marker>
+
+          <a-entity id="ar-camera" camera></a-entity>
+        </a-scene>
+      `;
+
+      document.getElementById('controles').style.display = 'none';
+      document.getElementById('teclas-wasd').style.display = 'none';
+      document.getElementById('instrucoes').style.display = 'block';
+      document.getElementById('vr-toggle').style.display = 'none';
+
+      const cena = container.querySelector('a-scene');
+      cena.addEventListener('loaded', () => {
+        console.log('🎬 Cena AR pronta');
+        document.getElementById('loading').style.display = 'none';
+
+        setTimeout(() => {
+          const arCam = cena.querySelector('#ar-camera');
+          if (arCam && arCam.getObject3D('camera')) {
+            EstadoApp.cameraAR = arCam.getObject3D('camera');
+          } else if (cena.camera) {
+            EstadoApp.cameraAR = cena.camera;
+          }
+        }, 600);
+
+        iniciarGaze(cena);
+        iniciarLinhaAR(cena);
+        agendarCarregamentoPesado();
+      });
     }
 
-    function carregarModeloPesado(assetRef, modeloLeve) {
+    /* ============================================================
+       CARREGAMENTO — Cubo instantâneo, GLB por último
+       ============================================================ */
+    function agendarCarregamentoPesado() {
+      const start = () => {
+        console.log('⏳ Carregando modelo pesado (último a carregar)');
+        const hdBadge = document.getElementById('hd-badge');
+        hdBadge.classList.add('ativo');
+        carregarModeloPesado();
+      };
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(start, { timeout: 2000 });
+      } else {
+        setTimeout(start, 1500);
+      }
+    }
+
+    function carregarModeloPesado() {
       const wrapper = document.getElementById('modelo-wrapper');
       const hdBadge = document.getElementById('hd-badge');
       const hdBadgeTexto = document.getElementById('hd-badge-texto');
-      const loading = document.getElementById('loading');
+      const cubo = document.getElementById('cubo-placeholder');
+      if (!wrapper) return;
 
-      const modeloPesado = criarEntidadeModelo('modelo-fauna-pesado', assetRef);
+      const modeloPesado = document.createElement('a-entity');
+      modeloPesado.setAttribute('id', 'modelo-fauna-pesado');
+      modeloPesado.setAttribute('gltf-model', '#modelo-pesado-asset');
+      modeloPesado.setAttribute('rotation', '0 0 0');
       modeloPesado.setAttribute('visible', 'false');
+      modeloPesado.setAttribute('animation',
+        'property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear');
       wrapper.appendChild(modeloPesado);
 
       const timeoutMsg = setTimeout(() => {
@@ -1034,57 +1266,42 @@
       }, 8000);
 
       const timeoutFallback = setTimeout(() => {
-        if (loading.style.display !== 'none') loading.style.display = 'none';
         hdBadge.classList.remove('ativo');
-      }, 25000);
+      }, 30000);
 
       modeloPesado.addEventListener('model-loaded', () => {
         clearTimeout(timeoutMsg);
         clearTimeout(timeoutFallback);
-        ajustarModelo(modeloPesado);
-        console.log('✅ Modelo PESADO carregado — trocando');
+        ajustarModeloPesado(modeloPesado);
+        console.log('✅ Modelo PESADO carregado');
 
         modeloPesado.setAttribute('visible', 'true');
-        if (modeloLeve) {
-          modeloLeve.setAttribute('visible', 'false');
+        if (cubo) {
+          cubo.setAttribute('visible', 'false');
           setTimeout(() => {
-            if (modeloLeve.parentNode) modeloLeve.parentNode.removeChild(modeloLeve);
-          }, 500);
+            if (cubo.parentNode) cubo.parentNode.removeChild(cubo);
+          }, 400);
         }
         hdBadge.classList.remove('ativo');
-        loading.style.display = 'none';
       }, { once: true });
 
       modeloPesado.addEventListener('model-error', () => {
         clearTimeout(timeoutMsg);
         clearTimeout(timeoutFallback);
-        console.warn('❌ Modelo PESADO falhou — mantendo o LEVE');
+        console.warn('❌ Modelo PESADO falhou — mantendo cubo cinza');
         if (modeloPesado.parentNode) modeloPesado.parentNode.removeChild(modeloPesado);
         hdBadge.classList.remove('ativo');
-        loading.style.display = 'none';
       }, { once: true });
     }
 
-    function criarEntidadeModelo(id, assetRef) {
-      const modelo = document.createElement('a-entity');
-      modelo.setAttribute('id', id);
-      modelo.setAttribute('gltf-model', assetRef);
-      modelo.setAttribute('rotation', '0 0 0');
-      modelo.setAttribute('animation',
-        'property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear');
-      return modelo;
-    }
-
-    function ajustarModelo(modelo) {
+    function ajustarModeloPesado(modelo) {
       let tentativas = 0;
       const ajustar = () => {
         const mesh = modelo.getObject3D('mesh');
         if (!mesh) {
           if (tentativas++ < 40) { setTimeout(ajustar, 100); return; }
-          console.warn('⚠️ Mesh não apareceu para', modelo.id);
           return;
         }
-
         mesh.position.set(0, 0, 0);
         mesh.rotation.set(0, 0, 0);
         mesh.scale.set(1, 1, 1);
@@ -1094,12 +1311,10 @@
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
-        if (!isFinite(maxDim) || maxDim <= 0.0001) {
-          console.warn('⚠️ Tamanho inválido para', modelo.id);
-          return;
-        }
+        if (!isFinite(maxDim) || maxDim <= 0.0001) return;
 
-        const escala = 2.0 / maxDim;
+        const ALVO = EstadoApp.modo === 'ar' ? 0.8 : 2.0;
+        const escala = ALVO / maxDim;
         mesh.scale.set(escala, escala, escala);
         mesh.position.set(
           -center.x * escala,
@@ -1107,39 +1322,42 @@
           -center.z * escala
         );
         mesh.updateMatrixWorld(true);
-        console.log('✅ Modelo ajustado:', modelo.id);
       };
       ajustar();
     }
 
     /* ============================================================
-       GAZE CURSOR — retículo HTML + raycast do centro
+       GAZE — funciona nos 3 modos
        ============================================================ */
-    let _gazeState = {
-      alvoAtual: null,
-      tempoInicio: 0,
-      disparado: false,
-      ultimoDisparado: null,
-      dwellMs: 3000
-    };
-
     function iniciarGaze(sceneEl) {
       const reticle = document.getElementById('gaze-reticle');
       const progresso = document.getElementById('gaze-reticle-progresso');
       const circle = document.getElementById('gaze-progress-circle');
-      const camEl = sceneEl.querySelector('a-camera, [camera]');
-      if (!reticle || !camEl) return;
+      if (!reticle) return;
 
       const raycaster = new THREE.Raycaster();
       const centro = new THREE.Vector2(0, 0);
-      const circ = 2 * Math.PI * 20; // perímetro do círculo (r=20)
+      const circ = 2 * Math.PI * 20;
       circle.style.strokeDasharray = circ;
       circle.style.strokeDashoffset = circ;
 
+      function getCamera() {
+        if (EstadoApp.modo === 'ar') {
+          const arCam = sceneEl.querySelector('#ar-camera');
+          if (arCam && arCam.getObject3D('camera')) return arCam.getObject3D('camera');
+          if (sceneEl.camera) return sceneEl.camera;
+          return EstadoApp.cameraAR;
+        } else {
+          const camEl = sceneEl.querySelector('#camera');
+          if (camEl) return camEl.getObject3D('camera');
+        }
+        return null;
+      }
+
       function resetarGaze() {
-        _gazeState.alvoAtual = null;
-        _gazeState.disparado = false;
-        _gazeState.tempoInicio = 0;
+        EstadoApp.gazeState.alvoAtual = null;
+        EstadoApp.gazeState.disparado = false;
+        EstadoApp.gazeState.tempoInicio = 0;
         reticle.classList.remove('ativo');
         progresso.classList.remove('ativo');
         circle.style.strokeDashoffset = circ;
@@ -1148,7 +1366,16 @@
       function loop() {
         requestAnimationFrame(loop);
 
-        const cam = camEl.getObject3D('camera');
+        /* No AR e no VR, esconde o retículo HTML (o crosshair do VR já cobre) */
+        if (EstadoApp.modo === 'ar' || EstadoApp.modo === 'vr') {
+          reticle.style.display = 'none';
+          progresso.style.display = 'none';
+        } else {
+          reticle.style.display = 'block';
+          progresso.style.display = EstadoApp.gazeState.alvoAtual ? 'block' : 'none';
+        }
+
+        const cam = getCamera();
         if (!cam) return;
 
         raycaster.setFromCamera(centro, cam);
@@ -1167,47 +1394,311 @@
         });
 
         if (!alvo) {
-          if (_gazeState.alvoAtual || _gazeState.disparado) resetarGaze();
+          if (EstadoApp.gazeState.alvoAtual || EstadoApp.gazeState.disparado) resetarGaze();
           return;
         }
 
-        /* Se mudou de alvo → reinicia o timer */
-        if (_gazeState.alvoAtual !== alvo) {
-          _gazeState.alvoAtual = alvo;
-          _gazeState.tempoInicio = performance.now();
-          _gazeState.disparado = false;
-          if (_gazeState.ultimoDisparado === alvo) return;
+        if (EstadoApp.gazeState.alvoAtual !== alvo) {
+          EstadoApp.gazeState.alvoAtual = alvo;
+          EstadoApp.gazeState.tempoInicio = performance.now();
+          EstadoApp.gazeState.disparado = false;
+          if (EstadoApp.gazeState.ultimoDisparado === alvo) return;
           reticle.classList.add('ativo');
           progresso.classList.add('ativo');
           circle.style.strokeDashoffset = circ;
           return;
         }
 
-        const decorrido = performance.now() - _gazeState.tempoInicio;
-        const pct = Math.min(decorrido / _gazeState.dwellMs, 1);
+        const decorrido = performance.now() - EstadoApp.gazeState.tempoInicio;
+        const pct = Math.min(decorrido / EstadoApp.gazeState.dwellMs, 1);
         circle.style.strokeDashoffset = (circ * (1 - pct)).toFixed(2);
 
-        if (pct >= 1 && !_gazeState.disparado) {
-          _gazeState.disparado = true;
-          _gazeState.ultimoDisparado = alvo;
+        if (pct >= 1 && !EstadoApp.gazeState.disparado) {
+          EstadoApp.gazeState.disparado = true;
+          EstadoApp.gazeState.ultimoDisparado = alvo;
           const comp = alvo.components['info-hotspot'];
-          if (comp && typeof comp.abrir === 'function') {
-            comp.abrir();
-          } else if (comp && typeof comp.toggle === 'function') {
-            comp.toggle();
-          }
+          if (comp && typeof comp.toggle === 'function') comp.toggle();
           console.log('[gaze] 👁️ Ativado:', (alvo.getAttribute('info-hotspot') || {}).titulo);
           setTimeout(() => {
             resetarGaze();
             setTimeout(() => {
-              if (_gazeState.ultimoDisparado === alvo) _gazeState.ultimoDisparado = null;
+              if (EstadoApp.gazeState.ultimoDisparado === alvo) {
+                EstadoApp.gazeState.ultimoDisparado = null;
+              }
+            }, 2000);
+          }, 700);
+        }
+      }
+      loop();
+    }
+
+    /* ============================================================
+       MODO MÃO — o QR vira uma varinha mágica
+       A varinha sai perpendicular à face do QR (+Z local)
+       e aponta para as esferas.
+       ============================================================ */
+    const EstadoMao = {
+      ativo: false,
+      alvoAtual: null,
+      tempoInicio: 0,
+      disparado: false,
+      ultimoDisparado: null,
+      dwellMs: 3000,
+      raycaster: null,
+      fromV: null,
+      dirV: null,
+      localZ: null
+    };
+
+    function iniciarModoMao(sceneEl) {
+      const maoGrupo   = sceneEl.querySelector('#mao-grupo');
+      const maoVarinha = sceneEl.querySelector('#mao-varinha');
+      const maoPonta   = sceneEl.querySelector('#mao-ponta');
+      const marcador   = sceneEl.querySelector('#marcador-qr');
+      const btnMao     = document.getElementById('mao-toggle');
+
+      if (!maoGrupo || !marcador || !btnMao) return;
+
+      EstadoMao.raycaster = new THREE.Raycaster();
+      EstadoMao.fromV     = new THREE.Vector3();
+      EstadoMao.dirV      = new THREE.Vector3();
+      EstadoMao.localZ    = new THREE.Vector3(0, 0, 1);
+
+      /* Toggle do botão */
+      btnMao.addEventListener('click', () => {
+        EstadoMao.ativo = !EstadoMao.ativo;
+        maoGrupo.setAttribute('visible', EstadoMao.ativo);
+        btnMao.classList.toggle('ativo', EstadoMao.ativo);
+
+        /* Desliga o gaze normal enquanto a mão está ativa
+           (evita dois alvos simultâneos) */
+        EstadoApp.gazeState.alvoAtual = null;
+        EstadoApp.gazeState.disparado = false;
+        EstadoApp.gazeState.ultimoDisparado = null;
+
+        console.log('[Modo Mão]', EstadoMao.ativo ? 'ATIVO' : 'desligado');
+      });
+
+      /* Mostra o botão só quando o marcador aparece */
+      let marcadorVisivel = false;
+      marcador.addEventListener('markerFound', () => {
+        marcadorVisivel = true;
+        btnMao.classList.add('visivel');
+      });
+      marcador.addEventListener('markerLost', () => {
+        marcadorVisivel = false;
+        if (EstadoMao.ativo) {
+          maoGrupo.setAttribute('visible', false);
+        }
+        EstadoMao.alvoAtual = null;
+        EstadoMao.disparado = false;
+      });
+
+      function resetarMao() {
+        EstadoMao.alvoAtual = null;
+        EstadoMao.disparado = false;
+        EstadoMao.tempoInicio = 0;
+        if (maoVarinha) {
+          maoVarinha.setAttribute('material', 'color', '#c084fc');
+          maoVarinha.setAttribute('material', 'emissive', '#c084fc');
+        }
+        if (maoPonta) {
+          maoPonta.setAttribute('material', 'color', '#ffcb05');
+          maoPonta.setAttribute('material', 'emissive', '#ffcb05');
+          maoPonta.setAttribute('material', 'emissiveIntensity', 2);
+        }
+      }
+
+      function loop() {
+        requestAnimationFrame(loop);
+
+        if (!EstadoMao.ativo || !marcadorVisivel) return;
+
+        /* Origem e direção em world space */
+        marcador.object3D.getWorldPosition(EstadoMao.fromV);
+        EstadoMao.dirV
+          .copy(EstadoMao.localZ)
+          .applyQuaternion(marcador.object3D.quaternion)
+          .normalize();
+
+        /* Raycast a partir da mão */
+        EstadoMao.raycaster.set(EstadoMao.fromV, EstadoMao.dirV);
+        EstadoMao.raycaster.far = 10;
+
+        /* Procura hotspots atingidos */
+        const hotspots = document.querySelectorAll('[info-hotspot]');
+        let alvo = null;
+        let menorDist = Infinity;
+        let corAlvo = '#c084fc';
+        let hitPoint = null;
+
+        hotspots.forEach((el) => {
+          if (!el.object3D) return;
+          const hits = EstadoMao.raycaster.intersectObject(el.object3D, true);
+          if (hits.length > 0 && hits[0].distance < menorDist) {
+            menorDist = hits[0].distance;
+            alvo = el;
+            corAlvo = (el.getAttribute('info-hotspot') || {}).cor || '#c084fc';
+            hitPoint = hits[0].point;
+          }
+        });
+
+        /* Ajusta o comprimento da varinha até o alvo (ou padrão 2) */
+        let comprimentoVarinha = 2;
+        if (hitPoint) {
+          const toHit = new THREE.Vector3().subVectors(hitPoint, EstadoMao.fromV);
+          const proj = toHit.dot(EstadoMao.dirV);
+          if (proj > 0.3) comprimentoVarinha = proj;
+        }
+
+        /* Atualiza visual da varinha */
+        if (maoVarinha) {
+          maoVarinha.setAttribute('geometry',
+            'primitive: cylinder; radius: 0.008; height: ' + comprimentoVarinha.toFixed(3) + ';');
+          maoVarinha.setAttribute('position', '0 0 ' + (comprimentoVarinha / 2).toFixed(3));
+          maoVarinha.setAttribute('material', 'color', corAlvo);
+          maoVarinha.setAttribute('material', 'emissive', corAlvo);
+        }
+        if (maoPonta) {
+          maoPonta.setAttribute('position', '0 0 ' + comprimentoVarinha.toFixed(3));
+          maoPonta.setAttribute('material', 'color', corAlvo);
+          maoPonta.setAttribute('material', 'emissive', corAlvo);
+        }
+
+        /* Sem alvo: reseta */
+        if (!alvo) {
+          if (EstadoMao.alvoAtual || EstadoMao.disparado) resetarMao();
+          return;
+        }
+
+        /* Alvo novo */
+        if (EstadoMao.alvoAtual !== alvo) {
+          EstadoMao.alvoAtual = alvo;
+          EstadoMao.tempoInicio = performance.now();
+          EstadoMao.disparado = false;
+          if (EstadoMao.ultimoDisparado === alvo) return;
+          return;
+        }
+
+        /* Mesmo alvo → progride o dwell */
+        const decorrido = performance.now() - EstadoMao.tempoInicio;
+        const pct = Math.min(decorrido / EstadoMao.dwellMs, 1);
+
+        /* Feedback: ponta fica mais brilhante conforme o tempo passa */
+        if (maoPonta) {
+          maoPonta.setAttribute('material', 'emissiveIntensity', (1.5 + pct * 2.5).toFixed(2));
+        }
+
+        if (pct >= 1 && !EstadoMao.disparado) {
+          EstadoMao.disparado = true;
+          EstadoMao.ultimoDisparado = alvo;
+          const comp = alvo.components['info-hotspot'];
+          if (comp && typeof comp.toggle === 'function') comp.toggle();
+          console.log('[Modo Mão] ✅ Ativado:', (alvo.getAttribute('info-hotspot') || {}).titulo);
+          setTimeout(() => {
+            resetarMao();
+            setTimeout(() => {
+              if (EstadoMao.ultimoDisparado === alvo) EstadoMao.ultimoDisparado = null;
             }, 2000);
           }, 700);
         }
       }
 
       loop();
-      console.log('👁️ Gaze cursor iniciado (dwell 3s)');
+      console.log('🖐️ Modo Mão iniciado');
+    }
+    
+    /* ============================================================
+       LINHA AR — mantém igual
+       ============================================================ */
+    function iniciarLinhaAR(sceneEl) {
+      const linha = sceneEl.querySelector('#linha-ar');
+      const marcador = sceneEl.querySelector('#marcador-qr');
+      if (!linha || !marcador) return;
+
+      const raycaster = new THREE.Raycaster();
+      const centro = new THREE.Vector2(0, 0);
+      const fromV = new THREE.Vector3();
+      const toV = new THREE.Vector3();
+      const upV = new THREE.Vector3(0, 1, 0);
+      const quat = new THREE.Quaternion();
+      const localMid = new THREE.Vector3();
+      const localDir = new THREE.Vector3();
+      const localFrom = new THREE.Vector3();
+      const localTo = new THREE.Vector3();
+
+      let marcadorVisivel = false;
+
+      marcador.addEventListener('markerFound', () => {
+        marcadorVisivel = true;
+        linha.setAttribute('visible', 'true');
+      });
+      marcador.addEventListener('markerLost', () => {
+        marcadorVisivel = false;
+        linha.setAttribute('visible', 'false');
+      });
+
+      function loop() {
+        requestAnimationFrame(loop);
+        if (EstadoApp.modo !== 'ar' || !marcadorVisivel) return;
+
+        const cam = EstadoApp.cameraAR || sceneEl.camera;
+        if (!cam) return;
+
+        fromV.set(0, 0, 0);
+        marcador.object3D.localToWorld(fromV);
+
+        raycaster.setFromCamera(centro, cam);
+        const hotspots = document.querySelectorAll('[info-hotspot]');
+        let alvoPos = null;
+        let alvoCor = '#7ee898';
+        let menorDist = Infinity;
+
+        hotspots.forEach((el) => {
+          if (!el.object3D) return;
+          const hits = raycaster.intersectObject(el.object3D, true);
+          if (hits.length > 0 && hits[0].distance < menorDist) {
+            menorDist = hits[0].distance;
+            alvoPos = hits[0].point.clone();
+            const cor = (el.getAttribute('info-hotspot') || {}).cor;
+            if (cor) alvoCor = cor;
+          }
+        });
+
+        if (alvoPos) {
+          toV.copy(alvoPos);
+        } else {
+          const camDir = new THREE.Vector3();
+          cam.getWorldDirection(camDir);
+          cam.getWorldPosition(toV);
+          toV.add(camDir.multiplyScalar(1.5));
+        }
+
+        localFrom.copy(fromV);
+        marcador.object3D.worldToLocal(localFrom);
+        localTo.copy(toV);
+        marcador.object3D.worldToLocal(localTo);
+
+        localDir.subVectors(localTo, localFrom);
+        const len = localDir.length();
+        if (len < 0.001) return;
+        localDir.normalize();
+
+        localMid.addVectors(localFrom, localTo).multiplyScalar(0.5);
+        quat.setFromUnitVectors(upV, localDir);
+
+        linha.object3D.position.copy(localMid);
+        linha.object3D.quaternion.copy(quat);
+        linha.object3D.scale.set(1, len, 1);
+        linha.object3D.updateMatrixWorld(true);
+
+        const mat = linha.getAttribute('material');
+        if (mat && mat.color !== alvoCor) {
+          linha.setAttribute('material', 'color', alvoCor);
+          linha.setAttribute('material', 'emissive', alvoCor);
+        }
+      }
+      loop();
     }
 
     /* ============================================================
@@ -1225,7 +1716,7 @@
       let rotacaoAuto = false;
 
       btnAnim.addEventListener('click', () => {
-        const modelos = document.querySelectorAll('#modelo-wrapper > a-entity');
+        const modelos = document.querySelectorAll('#modelo-wrapper > *');
         if (!modelos.length) return;
         rotacaoPausada = !rotacaoPausada;
         modelos.forEach(m => {
