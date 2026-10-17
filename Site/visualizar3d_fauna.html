@@ -556,6 +556,7 @@
 
   <div id="scene-container"></div>
 
+  <script src="api.js"></script>
   <script src="biomas_fauna.js"></script>
   <script src="bioma_componentes.js"></script>
   <script src="bioma_costeiro.js"></script>
@@ -887,12 +888,8 @@
     async function iniciarFluxoFauna() {
       const loading = document.getElementById('loading');
       try {
-        const res = await fetch('fauna_pe.json');
-        if (!res.ok) throw new Error('fauna_pe.json não encontrado');
-        const data = await res.json();
-        const lista = Array.isArray(data.especies_ameacadas) ? data.especies_ameacadas : [];
-        EstadoApp.animal = lista[numeroIndex - 1];
-        if (!EstadoApp.animal) throw new Error('Animal não encontrado no índice ' + numeroIndex);
+        EstadoApp.animal = await MewAPI.request(`/api/especies/${encodeURIComponent(faunaId)}`);
+        MewAPI.track(faunaId, 'exploracao_3d');
       } catch (e) {
         console.error('Erro ao buscar fauna:', e);
         loading.textContent = '⚠️ Não foi possível carregar os dados do animal.';

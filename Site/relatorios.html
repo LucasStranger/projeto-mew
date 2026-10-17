@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de respostas — Projeto MEW</title>
+  <link rel="stylesheet" href="integracao.css">
+  <script src="api.js" defer></script>
+  <script src="relatorios.js" defer></script>
+</head>
+<body class="mew-pagina">
+  <main class="mew-painel">
+    <a href="index.html">← Voltar à Mewdex</a>
+    <h1>Relatório de respostas</h1>
+    <p>Baixe as respostas da oficina em uma planilha CSV. Cada linha corresponde a uma resposta, incluindo tentativas ainda em andamento.</p>
+    <form id="exportar-form">
+      <label for="chave">Chave da equipe</label>
+      <input id="chave" type="password" required autocomplete="off">
+      <label for="especie">Espécie</label>
+      <select id="especie"><option value="">Todas as espécies</option></select>
+      <label for="nivel">Dificuldade</label>
+      <select id="nivel"><option value="">Todas</option><option value="facil">Fácil</option><option value="intermediario">Intermediário</option><option value="dificil">Difícil</option></select>
+      <button type="submit">Baixar respostas em CSV</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+  </main>
+</body>
+</html>
