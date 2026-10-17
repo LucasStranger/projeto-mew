@@ -1,11 +1,6 @@
 /* =========================================================
-   bioma_transicao_jaguatirica.js — v4
+   bioma_transicao_jaguatirica.js — v5 (LOD + qualidade)
    Jaguatirica — Transição Mata Atlântica ↔ Caatinga
-   Correções:
-   - Posições geradas já fora da estrada (transformação local→mundo)
-   - Chão sem sobreposição (base neutra + 2 discos afastados)
-   - Nenhum patch de vegetação aleatório
-   - Objetos sempre a >8m do centro (onde fica o animal)
    Depende de: bioma_componentes.js
    ========================================================= */
 (function () {
@@ -15,71 +10,82 @@
   function randInt(a, b) { return Math.floor(rand(a, b + 1)); }
   function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
 
-  /* ---- GLB helper (auto-escala + auto-Y) ---- */
   function glb(src, x, z, rot, alturaAlvo, yOffset) {
-    const id = 'glb_' + Math.random().toString(36).slice(2, 9);
-    const altura = alturaAlvo || 3;
-    const yBase = yOffset || 0;
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const ajustar = () => {
-        const mesh = el.getObject3D('mesh');
-        if (!mesh) return false;
-        mesh.position.set(0, 0, 0);
-        mesh.rotation.set(0, 0, 0);
-        mesh.scale.set(1, 1, 1);
-        mesh.updateMatrixWorld(true);
-        const box = new THREE.Box3().setFromObject(mesh);
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
-        const escala = altura / size.y;
-        mesh.scale.set(escala, escala, escala);
-        mesh.updateMatrixWorld(true);
-        const box2 = new THREE.Box3().setFromObject(mesh);
-        const center2 = box2.getCenter(new THREE.Vector3());
-        
-        // Captura a posição global da entidade pai (<a-entity>)
-        const parentPos = new THREE.Vector3();
-        el.object3D.getWorldPosition(parentPos);
+  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+  const altura = alturaAlvo || 3;
+  const yBase = yOffset || 0;
 
-        // Ajusta o mesh internamente compensando a posição original do pai
-        mesh.position.x = parentPos.x - center2.x;
-        mesh.position.z = parentPos.z - center2.z;
-        mesh.position.y = parentPos.y - box2.min.y;
-        mesh.updateMatrixWorld(true);
-        return true;
-      };
-      if (ajustar()) return;
-      let t = 0;
-      const iv = setInterval(() => {
-        t++;
-        if (ajustar() || t > 60) clearInterval(iv);
-      }, 100);
+  const caminhoOriginal = 'assets/ambiente/' + src;
+  const caminhoFinal = window.MewQualidade
+    ? window.MewQualidade.resolverModelo(caminhoOriginal)
+    : caminhoOriginal;
+
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const ajustar = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return false;
+
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
+
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
+
+      const escala = altura / size.y;
+      mesh.scale.set(escala, escala, escala);
+      mesh.updateMatrixWorld(true);
+
+      const box2 = new THREE.Box3().setFromObject(mesh);
+      const center2 = box2.getCenter(new THREE.Vector3());
+
+      const parentPos = new THREE.Vector3();
+      el.object3D.getWorldPosition(parentPos);
+
+      mesh.position.x = parentPos.x - center2.x;
+      mesh.position.z = parentPos.z - center2.z;
+      mesh.position.y = parentPos.y - box2.min.y;
+      mesh.updateMatrixWorld(true);
+
+      return true;
+    };
+
+    if (ajustar()) return;
+
+    let tentativas = 0;
+    const interval = setInterval(() => {
+      tentativas++;
+      if (ajustar() || tentativas > 60) clearInterval(interval);
     }, 100);
-    return '<a-entity id="' + id + '" ' +
-           'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-           'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-           'gltf-model="url(assets/ambiente/' + src + ')" ' +
-           'shadow="cast: true; receive: true"></a-entity>';
-  }
+  }, 100);
+
+  const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+    ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+    : '';
+  const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+    ? 'shadow="cast: true; receive: true"'
+    : 'shadow="cast: false; receive: false"';
+
+  return '<a-entity id="' + id + '" ' +
+         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+         'gltf-model="url(' + caminhoFinal + ')" ' +
+         sombraAttr + '></a-entity>';
+}
 
   /* ============================================================
      ÂNGULO DA RODOVIA (35°)
-     A rodovia está rotacionada 35° em torno de Y.
-     Isso significa que:
-       - A direção da estrada em coords do mundo = (sin35°, 0, cos35°)
-       - A direção perpendicular = (cos35°, 0, -sin35°)
      ============================================================ */
   const ANG = 35 * Math.PI / 180;
   const COS = Math.cos(ANG);
   const SIN = Math.sin(ANG);
 
-  /* Gera uma posição FORA DA ESTRADA usando coordenadas locais.
-     - along:      posição ao longo da estrada (em metros)
-     - perp:       distância perpendicular à estrada (negativo = esquerda)
-     Sempre retorna uma posição que está a `|perp|` da linha central. */
   function posRodovia(along, perp) {
     return {
       x: along * SIN + perp * COS,
@@ -90,14 +96,11 @@
   /* ============================================================
      VISUAIS
      ============================================================ */
-
-  /* Conteúdo visual de uma placa (sem posição) */
   function placaConteudo() {
     return '<a-entity>' +
       '<a-cylinder position="0 0.8 0" radius="0.04" height="1.6" color="#6A6A6A"></a-cylinder>' +
       '<a-box position="0 1.75 0" width="0.9" height="0.75" depth="0.05" color="#F0C830" material="shader: flat"></a-box>' +
       '<a-box position="0 1.75 0.03" width="0.85" height="0.7" depth="0.03" color="#F0D850" material="shader: flat"></a-box>' +
-      /* Silhueta de felino */
       '<a-sphere position="0 1.75 0.06" radius="0.09" color="#1A1A1A" scale="1.8 1 0.2"></a-sphere>' +
       '<a-sphere position="0.1 1.85 0.06" radius="0.05" color="#1A1A1A" scale="1 1 0.2"></a-sphere>' +
       '<a-cone position="0.15 1.85 0.06" rotation="0 0 -90" radius-bottom="0.02" radius-top="0" height="0.05" color="#1A1A1A" scale="1 1 0.2"></a-cone>' +
@@ -119,23 +122,18 @@
     '</a-entity>';
   }
 
-  /* Rodovia completa (asfalto + placas + caminhões), tudo alinhado */
   function gerarRodovia() {
     let html = '<a-entity position="0 0.02 0" rotation="0 35 0">';
 
-    /* Asfalto */
     html += '<a-plane position="0 0 0" rotation="-90 0 0" width="5" height="90" color="#2A2A2A"></a-plane>';
 
-    /* Linhas centrais */
     for (let i = -20; i <= 20; i += 2) {
       html += '<a-plane position="0 0.005 ' + i + '" rotation="-90 0 0" width="0.15" height="1.2" color="#F0E8A0"></a-plane>';
     }
 
-    /* Bordas brancas */
     html += '<a-plane position="-2.4 0.005 0" rotation="-90 0 0" width="0.1" height="90" color="#F0E8C0"></a-plane>';
     html += '<a-plane position="2.4 0.005 0" rotation="-90 0 0" width="0.1" height="90" color="#F0E8C0"></a-plane>';
 
-    /* Placas no acostamento esquerdo (x=-3.8), viradas pra pista */
     for (let i = 0; i < 5; i++) {
       const z = -22 + i * 11;
       html += '<a-entity position="-3.8 0 ' + z + '" rotation="0 90 0">' +
@@ -143,13 +141,11 @@
               '</a-entity>';
     }
 
-    /* Caminhão 1 — faixa direita, indo no sentido +Z */
     html += '<a-entity position="1.2 0.85 -26" ' +
               'animation="property: position; from: 1.2 0.85 -26; to: 1.2 0.85 26; dur: 15000; loop: true; easing: linear">' +
               caminhaoVisual() +
             '</a-entity>';
 
-    /* Caminhão 2 — faixa esquerda, indo no sentido -Z */
     html += '<a-entity position="-1.2 0.85 26" rotation="0 180 0" ' +
               'animation="property: position; from: -1.2 0.85 26; to: -1.2 0.85 -26; dur: 17000; loop: true; easing: linear">' +
               caminhaoVisual() +
@@ -162,7 +158,6 @@
   /* ============================================================
      PROCEDURAIS
      ============================================================ */
-
   function gerarArbusto(x, z) {
     const cor = pick(['#7A8A4A', '#8A7A3A', '#6A7A42']);
     let galhos = '';
@@ -209,7 +204,6 @@
       '</a-entity>';
   }
 
-  /* Mata ciliar — fragmento denso de mata com riacho */
   function gerarMataCiliar(x, z) {
     let html = '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">';
     html += '<a-circle position="0 0.02 0" rotation="-90 0 0" radius="2.2" color="#4A90B8" material="shader: standard; opacity: 0.75; transparent: true; emissive: #2A6A90; emissiveIntensity: 0.3"></a-circle>';
@@ -238,25 +232,15 @@
       ? '<a-sky src="' + skySrc + '" color="' + skyBase + '"></a-sky>'
       : '<a-sky color="' + skyBase + '"></a-sky>';
 
-    /* ============================================================
-       CHÃO — sem sobreposição
-       Base neutra bege + 2 discos distantes que se tocam em x=0
-       ============================================================ */
+    /* CHÃO */
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="#B8A880" shadow="receive: true"></a-circle>';
     html += '<a-circle position="-38 0.004 0" rotation="-90 0 0" radius="36" color="#3A5528" shadow="receive: true"></a-circle>';
     html += '<a-circle position="38 0.004 0" rotation="-90 0 0" radius="36" color="#D8C090" shadow="receive: true"></a-circle>';
 
-    /* ============================================================
-       RODOVIA
-       ============================================================ */
+    /* RODOVIA */
     html += gerarRodovia();
 
-    /* ============================================================
-       ÁRVORES — SEMPRE fora da estrada (via posRodovia)
-       perp = 9 a 30 unidades de distância do centro da pista
-       ============================================================ */
-
-    /* Árvores da MATA (lado esquerdo = perp negativo) */
+    /* Árvores da MATA */
     const nMata = denso ? 22 : 14;
     for (let i = 0; i < nMata; i++) {
       const along = rand(-32, 32);
@@ -265,7 +249,7 @@
       html += glb('transicao_arvore_mata.glb', p.x, p.z, rand(0,360), 5.5);
     }
 
-    /* Árvores da CAATINGA (lado direito = perp positivo) */
+    /* Árvores da CAATINGA */
     const nCaatinga = denso ? 22 : 14;
     for (let i = 0; i < nCaatinga; i++) {
       const along = rand(-32, 32);
@@ -274,7 +258,7 @@
       html += glb('transicao_arvore_caatinga.glb', p.x, p.z, rand(0,360), 4.5);
     }
 
-    /* Mandacarus — só na caatinga, mais distantes ainda */
+    /* Mandacarus */
     const nMandacarus = denso ? 14 : 8;
     for (let i = 0; i < nMandacarus; i++) {
       const along = rand(-30, 30);
@@ -283,13 +267,13 @@
       html += gerarMandacaru(p.x, p.z);
     }
 
-    /* Mata ciliar — fragmentos distantes, ambos os lados */
+    /* Mata ciliar */
     html += gerarMataCiliar(-20, -14);
     html += gerarMataCiliar(-24, 12);
     html += gerarMataCiliar(22, -14);
     html += gerarMataCiliar(26, 10);
 
-    /* Arbustos — distantes da pista */
+    /* Arbustos */
     const nArbustos = denso ? 30 : 18;
     for (let i = 0; i < nArbustos; i++) {
       const along = rand(-35, 35);
@@ -316,7 +300,7 @@
       html += gerarPedra(p.x, p.z, rand(0.6, 1.2));
     }
 
-    /* Placa grande informativa — FORA da estrada */
+    /* Placa grande informativa */
     const placaPos = posRodovia(-18, -12);
     html += '<a-entity position="' + placaPos.x.toFixed(2) + ' 0 ' + placaPos.z.toFixed(2) + '" rotation="0 ' + (35 + 90).toFixed(1) + ' 0">' +
       '<a-cylinder position="-0.7 1.0 0" radius="0.05" height="2.0" color="#3A2818"></a-cylinder>' +
@@ -327,74 +311,17 @@
       '<a-text value="Atravessia de felinos" position="0 2.05 0.06" align="center" color="#A8D8B0" width="2.4" font="mozillavr"></a-text>' +
     '</a-entity>';
 
-    /* ============================================================
-       HOTSPOTS — todos afastados do centro
-       ============================================================ */
-        /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição + imagem)
-       ============================================================ */
-    html += '<a-entity position="0 2.2 6" info-hotspot="' +
-      'titulo: Jaguatirica; ' +
-      'categoria: Mamifero; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_animal.jpg; ' +
-      'descricao: Leopardus pardalis. Felino solitario, territorial e de habitos noturnos. Pelagem amarelada com ocelas em fileiras. Adapta-se a Mata Atlantica e a Caatinga. Em Pernambuco ocorre em Moreno, Gravata, Santa Cruz do Capibaribe e Brejo da Madre de Deus.; ' +
-      'cor: #E8C860"></a-entity>';
+    /* HOTSPOTS */
+    html += '<a-entity position="0 2.2 6" info-hotspot="titulo: Jaguatirica; categoria: Mamifero; imagem: assets/hotspots/transicao_jaguatirica_animal.jpg; descricao: Leopardus pardalis. Felino solitario, territorial e de habitos noturnos. Pelagem amarelada com ocelas em fileiras. Adapta-se a Mata Atlantica e a Caatinga. Em Pernambuco ocorre em Moreno, Gravata, Santa Cruz do Capibaribe e Brejo da Madre de Deus.; cor: #E8C860"></a-entity>';
+    html += '<a-entity position="-8 2.0 -12" info-hotspot="titulo: Rodovia BR-232; categoria: Ameaca; imagem: assets/hotspots/transicao_jaguatirica_rodovia.jpg; descricao: Atravessa o estado e corta fragmentos de mata. Atropelamentos sao uma das principais causas de morte da jaguatirica.; cor: #2A2A2A"></a-entity>';
+    html += '<a-entity position="-16 2.5 -10" info-hotspot="titulo: Placa informativa; categoria: Conservacao; imagem: assets/hotspots/transicao_jaguatirica_placa.jpg; descricao: Alerta motoristas sobre a travessia de felinos. Estudos mostram que placas educativas combinadas com redutores de velocidade reduzem atropelamentos em ate 40 porcento.; cor: #F0C830"></a-entity>';
+    html += '<a-entity position="-20 2.0 -14" info-hotspot="titulo: Mata ciliar; categoria: Ecologia; imagem: assets/hotspots/transicao_jaguatirica_mataciliar.jpg; descricao: Vegetacao ao longo de rios. Serve de corredor entre fragmentos.; cor: #2E6A30"></a-entity>';
+    html += '<a-entity position="14 1.5 -10" info-hotspot="titulo: Caatinga densa; categoria: Bioma; imagem: assets/hotspots/transicao_jaguatirica_caatinga.jpg; descricao: Areas com vegetacao fechada e umida da Caatinga. A jaguatirica caca e se abriga aqui no Agreste e Sertao.; cor: #7A8A4A"></a-entity>';
+    html += '<a-entity position="8 1.2 -14" info-hotspot="titulo: Mandacaru; categoria: Planta; imagem: assets/hotspots/transicao_jaguatirica_mandacaru.jpg; descricao: Cereus jamacaru. Cacto simbolo da Caatinga. Marca a transicao entre os biomas no Agreste pernambucano.; cor: #3E7A3E"></a-entity>';
+    html += '<a-entity position="0 3.0 -20" info-hotspot="titulo: Zona de transicao; categoria: Bioma; imagem: assets/hotspots/transicao_jaguatirica_zona.jpg; descricao: Encontro entre Mata Atlantica e Caatinga. A jaguatirica e o felino mais adaptavel do Brasil.; cor: #B89A60"></a-entity>';
+    html += '<a-entity position="-14 1.5 8" info-hotspot="titulo: Fragmentacao; categoria: Ameaca; imagem: assets/hotspots/transicao_jaguatirica_fragmentacao.jpg; descricao: Estradas e cidades dividem a mata em ilhas. Populacoes isoladas tem menos diversidade genetica e maior risco de extincao local.; cor: #E8482A"></a-entity>';
+    html += '<a-entity position="10 0.9 10" info-hotspot="titulo: Caminhao; categoria: Ameaca; imagem: assets/hotspots/transicao_jaguatirica_caminhao.jpg; descricao: Trafego pesado nas rodovias pernambucanas e a maior ameaca direta aos felinos. Reducao de velocidade e passagens de fauna sao essenciais.; cor: #3A5A80"></a-entity>';
 
-    html += '<a-entity position="-8 2.0 -12" info-hotspot="' +
-      'titulo: Rodovia BR-232; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_rodovia.jpg; ' +
-      'descricao: Atravessa o estado e corta fragmentos de mata. Atropelamentos sao uma das principais causas de morte da jaguatirica. A BR-232 e a BR-101 sao as rodovias mais letais para felinos em Pernambuco.; ' +
-      'cor: #2A2A2A"></a-entity>';
-
-    html += '<a-entity position="-16 2.5 -10" info-hotspot="' +
-      'titulo: Placa informativa; ' +
-      'categoria: Conservacao; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_placa.jpg; ' +
-      'descricao: Alerta motoristas sobre a travessia de felinos. Estudos mostram que placas educativas combinadas com redutores de velocidade reduzem atropelamentos em ate 40 porcento. Medida simples e eficaz para a conservacao.; ' +
-      'cor: #F0C830"></a-entity>';
-
-    html += '<a-entity position="-20 2.0 -14" info-hotspot="' +
-      'titulo: Mata ciliar; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_mataciliar.jpg; ' +
-      'descricao: Vegetacao ao longo de rios. Serve de corredor entre fragmentos. A jaguatirica usa as matas ciliares como estrada segura para se deslocar sem atravessar areas abertas, onde fica exposta a atropelamentos e caca.; ' +
-      'cor: #2E6A30"></a-entity>';
-
-    html += '<a-entity position="14 1.5 -10" info-hotspot="' +
-      'titulo: Caatinga densa; ' +
-      'categoria: Bioma; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_caatinga.jpg; ' +
-      'descricao: Areas com vegetacao fechada e umida da Caatinga. A jaguatirica caca e se abriga aqui no Agreste e Sertao. A vegetacao densa oferece cobertura para emboscadas e refugio contra o calor extremo.; ' +
-      'cor: #7A8A4A"></a-entity>';
-
-    html += '<a-entity position="8 1.2 -14" info-hotspot="' +
-      'titulo: Mandacaru; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_mandacaru.jpg; ' +
-      'descricao: Cereus jamacaru. Cacto simbolo da Caatinga. Marca a transicao entre os biomas no Agreste pernambucano. Sua presenca em meio a fragmentos de mata indica o encontro dos dois biomas, onde a jaguatirica circula.; ' +
-      'cor: #3E7A3E"></a-entity>';
-
-    html += '<a-entity position="0 3.0 -20" info-hotspot="' +
-      'titulo: Zona de transicao; ' +
-      'categoria: Bioma; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_zona.jpg; ' +
-      'descricao: Encontro entre Mata Atlantica e Caatinga. A jaguatirica e o felino mais adaptavel do Brasil, ocorrendo em ambos os biomas. Essa zona e crucial para a conectividade entre populacoes e para a diversidade genetica da especie.; ' +
-      'cor: #B89A60"></a-entity>';
-
-    html += '<a-entity position="-14 1.5 8" info-hotspot="' +
-      'titulo: Fragmentacao; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_fragmentacao.jpg; ' +
-      'descricao: Estradas e cidades dividem a mata em ilhas. Populacoes isoladas tem menos diversidade genetica e maior risco de extincao local. Corredores ecologicos conectando fragmentos sao a principal solucao.; ' +
-      'cor: #E8482A"></a-entity>';
-
-    html += '<a-entity position="10 0.9 10" info-hotspot="' +
-      'titulo: Caminhao; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/transicao_jaguatirica_caminhao.jpg; ' +
-      'descricao: Trafego pesado nas rodovias pernambucanas e a maior ameaca direta aos felinos. Caminhoes e carros em alta velocidade nao tem tempo de frear quando um animal cruza a pista. Reducao de velocidade e passagens de fauna sao essenciais.; ' +
-      'cor: #3A5A80"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #E8E0D0; intensity: 0.8"></a-entity>' +
             '<a-entity position="8 14 4" light="type: directional; color: #FFF4D0; intensity: 1.1; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
@@ -420,5 +347,5 @@
   };
 
   window.MewBiomas.montarBiomaTransicaoJaguatirica = montarBiomaTransicaoJaguatirica;
-  console.log('[bioma_transicao_jaguatirica] v4 — posições fora da pista registradas.');
+  console.log('[bioma_transicao_jaguatirica] v5 — LOD + qualidade registrado.');
 })();

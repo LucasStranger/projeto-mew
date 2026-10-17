@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_caatinga_galo.js — v2 (com GLBs)
+   bioma_caatinga_galo.js — v3 (LOD + qualidade)
    Caatinga — Galo-de-campina (Paroaria dominicana)
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -15,64 +15,65 @@
     return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
+  /* ---- GLB helper v3: LOD + shadow condicional ---- */
   function glb(src, x, z, rot, alturaAlvo, yOffset) {
-  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
-  const altura = alturaAlvo || 3;
-  const yBase = yOffset || 0;
+    const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+    const altura = alturaAlvo || 3;
+    const yBase = yOffset || 0;
 
-  setTimeout(() => {
-    const el = document.getElementById(id);
-    if (!el) return;
+    const caminhoOriginal = 'assets/ambiente/' + src;
+    const caminhoFinal = window.MewQualidade
+      ? window.MewQualidade.resolverModelo(caminhoOriginal)
+      : caminhoOriginal;
 
-    const ajustar = () => {
-      const mesh = el.getObject3D('mesh');
-      if (!mesh) return false;
-
-      /* Reset */
-      mesh.position.set(0, 0, 0);
-      mesh.rotation.set(0, 0, 0);
-      mesh.scale.set(1, 1, 1);
-      mesh.updateMatrixWorld(true);
-
-      /* Mede tamanho original */
-      const box = new THREE.Box3().setFromObject(mesh);
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
-
-      /* Escala pra bater a altura alvo */
-      const escala = altura / size.y;
-      mesh.scale.set(escala, escala, escala);
-      mesh.updateMatrixWorld(true);
-
-      /* Recalcula depois da escala */
-      const box2 = new THREE.Box3().setFromObject(mesh);
-      const center2 = box2.getCenter(new THREE.Vector3());
-
-      /* Centraliza em X/Z e sobe o Y pra base tocar o chão */
-      mesh.position.x = -center2.x;
-      mesh.position.z = -center2.z;
-      mesh.position.y = -box2.min.y;
-      mesh.updateMatrixWorld(true);
-
-      return true;
-    };
-
-    if (ajustar()) return;
-
-    let tentativas = 0;
-    const interval = setInterval(() => {
-      tentativas++;
-      if (ajustar() || tentativas > 60) clearInterval(interval);
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const ajustar = () => {
+        const mesh = el.getObject3D('mesh');
+        if (!mesh) return false;
+        mesh.position.set(0, 0, 0);
+        mesh.rotation.set(0, 0, 0);
+        mesh.scale.set(1, 1, 1);
+        mesh.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(mesh);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
+        const escala = altura / size.y;
+        mesh.scale.set(escala, escala, escala);
+        mesh.updateMatrixWorld(true);
+        const box2 = new THREE.Box3().setFromObject(mesh);
+        const center2 = box2.getCenter(new THREE.Vector3());
+        const parentPos = new THREE.Vector3();
+        el.object3D.getWorldPosition(parentPos);
+        mesh.position.x = parentPos.x - center2.x;
+        mesh.position.z = parentPos.z - center2.z;
+        mesh.position.y = parentPos.y - box2.min.y;
+        mesh.updateMatrixWorld(true);
+        return true;
+      };
+      if (ajustar()) return;
+      let tentativas = 0;
+      const interval = setInterval(() => {
+        tentativas++;
+        if (ajustar() || tentativas > 60) clearInterval(interval);
+      }, 100);
     }, 100);
-  }, 100);
 
-  return '<a-entity id="' + id + '" ' +
-         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-         'gltf-model="url(assets/ambiente/' + src + ')" ' +
-         'shadow="cast: true; receive: true"></a-entity>';
-}
+    const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+      ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+      : '';
+    const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+      ? 'shadow="cast: true; receive: true"'
+      : 'shadow="cast: false; receive: false"';
+
+    return '<a-entity id="' + id + '" ' +
+           'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+           'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+           'gltf-model="url(' + caminhoFinal + ')" ' +
+           sombraAttr + '></a-entity>';
+  }
 
   function gerarFacheiro(x, z, h) {
     const altura = h || rand(2.5, 4.5);
@@ -202,6 +203,10 @@
   function montarBiomaCaatingaGalo(animal, opts) {
     opts = opts || {};
     const denso = opts.densidade !== 'baixa';
+    // Multiplicador global de qualidade
+    const mult = (window.MewQualidade ? window.MewQualidade.perfil.densidadeMult : 1) * (denso ? 1 : 0.6);
+    const M = (base, min) => Math.max(min || 2, Math.round(base * mult));
+
     const skyTopo = '#6CB4EE', skyBase = '#F0D8A0', chaoBase = '#C8B080', chaoVar = '#D8C090';
 
     const skySrc = window.MewBiomas && window.MewBiomas.criarTexturaGradiente
@@ -214,81 +219,70 @@
 
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="' + chaoBase + '" shadow="receive: true"></a-circle>';
 
-    for (let i = 0; i < (denso ? 25 : 15); i++) {
+    for (let i = 0; i < M(denso ? 25 : 15, 5); i++) {
       const p = pos(2, 40);
       const r = rand(1.5, 4.5);
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.005 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + chaoVar + '" opacity="0.55" transparent="true"></a-circle>';
     }
 
-    /* Rio seco (procedural) */
     html += gerarRioSeco();
 
-    /* ============================================================
-       GLBs — Cacimbas (poços de água)
-       ============================================================ */
+    // GLBs — Cacimbas
     html += glb('caatinga_cacimba.glb', -8, 4, rand(0,360), 1.0);
     html += glb('caatinga_cacimba.glb', 9, -6, rand(0,360), 1.0);
 
-    /* ============================================================
-       GLBs — Juazeiros
-       ============================================================ */
-    const nJuaz = denso ? 10 : 6;
+    // GLBs — Juazeiros (o caso crítico do relatório)
+    const nJuaz = M(denso ? 10 : 6, 2);
     for (let i = 0; i < nJuaz; i++) {
       const p = pos(8, 25);
       html += glb('caatinga_juazeiro.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       GLBs — Xique-xique (rasteiros)
-       ============================================================ */
-    const nXique = denso ? 12 : 7;
+    // GLBs — Xique-xique
+    const nXique = M(denso ? 12 : 7, 2);
     for (let i = 0; i < nXique; i++) {
       const p = pos(3, 20);
       html += glb('caatinga_xiquexique.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       GLBs — Mandacarus (cactos colunares)
-       ============================================================ */
-    const nMand = denso ? 16 : 10;
+    // GLBs — Mandacarus
+    const nMand = M(denso ? 16 : 10, 3);
     for (let i = 0; i < nMand; i++) {
       const p = pos(3, 24);
       html += glb('caatinga_mandacaru.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       Procedurais de volume
-       ============================================================ */
-    for (let i = 0; i < (denso ? 8 : 5); i++) {
+    // Procedurais
+    for (let i = 0; i < M(denso ? 8 : 5, 2); i++) {
       const p = pos(5, 22);
       html += gerarFacheiro(p.x, p.z, rand(2.5, 4.5));
     }
-    for (let i = 0; i < (denso ? 6 : 4); i++) {
+    for (let i = 0; i < M(denso ? 6 : 4, 2); i++) {
       const p = pos(10, 28);
       html += gerarAroeira(p.x, p.z);
     }
-    for (let i = 0; i < (denso ? 30 : 18); i++) {
+    for (let i = 0; i < M(denso ? 30 : 18, 5); i++) {
       const p = pos(1.5, 25);
       html += gerarArbusto(p.x, p.z);
     }
-    for (let i = 0; i < (denso ? 8 : 4); i++) {
+    for (let i = 0; i < M(denso ? 8 : 4, 2); i++) {
       const p = pos(5, 20);
       html += gerarCupinzeiro(p.x, p.z, rand(0.8, 1.4));
     }
-    for (let i = 0; i < (denso ? 20 : 12); i++) {
+    for (let i = 0; i < M(denso ? 20 : 12, 4); i++) {
       const p = pos(2, 25);
       html += gerarPedra(p.x, p.z, rand(0.6, 1.3));
     }
-    for (let i = 0; i < (denso ? 80 : 45); i++) {
+    for (let i = 0; i < M(denso ? 80 : 45, 10); i++) {
       const p = pos(1, 22);
       html += gerarCapimSeco(p.x, p.z);
     }
-    for (let i = 0; i < (denso ? 12 : 7); i++) {
+    for (let i = 0; i < M(denso ? 12 : 7, 2); i++) {
       const p = pos(2, 18);
       html += gerarBromelia(p.x, p.z);
     }
 
-    /* Galos pousados */
+    // Galos
     html += gerarGaloPousado(-2.0, 1.0, -2.5);
     html += gerarGaloPousado(2.5, 1.3, -3.2);
     html += gerarGaloPousado(-3.8, 0.9, 2.2);
@@ -296,70 +290,24 @@
       html += gerarGaloPousado(4.0, 1.2, 1.8);
       html += gerarGaloPousado(0.5, 1.6, -5.0);
     }
-    for (let i = 0; i < (denso ? 5 : 3); i++) {
+    for (let i = 0; i < M(denso ? 5 : 3, 1); i++) {
       const p = pos(3, 12);
       html += gerarGaloVoando(p.x, rand(2.5, 4.5), p.z);
     }
 
-    /* Hotspots */
-        /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição detalhada + imagem)
-       ============================================================ */
+    /* HOTSPOTS */
     html += '<a-entity position="0 2.2 2.5" info-hotspot="' +
-      'titulo: Galo-de-campina; ' +
-      'categoria: Ave; ' +
+      'titulo: Galo-de-campina; categoria: Ave; ' +
       'imagem: assets/hotspots/caatinga_galo_ave.jpg; ' +
-      'descricao: Paroaria dominicana. Endemico do Nordeste brasileiro. Cabeça e garganta vermelho-vivo, corpo cinza e branco. Mede cerca de 17 cm e pesa 20 a 30 g. Vive em pares ou pequenos grupos, alimenta-se de sementes, frutos e insetos. É uma das aves canoras mais visadas pelo trafico ilegal em Pernambuco.; ' +
+      'descricao: Paroaria dominicana. Endemico do Nordeste brasileiro. Cabeca e garganta vermelho-vivo, corpo cinza e branco. Mede cerca de 17 cm e pesa 20 a 30 g. Vive em pares ou pequenos grupos, alimenta-se de sementes, frutos e insetos. E uma das aves canoras mais visadas pelo trafico ilegal em Pernambuco.; ' +
       'cor: #C82A2A"></a-entity>';
-
-    html += '<a-entity position="-4 1.0 -3" info-hotspot="' +
-      'titulo: Mandacaru; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/caatinga_galo_mandacaru.jpg; ' +
-      'descricao: Cereus jamacaru. Cacto colunar simbolo da Caatinga, pode chegar a 5 metros de altura. Armazena agua no caule e floresce a noite. Seus frutos alimentam aves, insetos e pequenos mamiferos durante a estacao seca.; ' +
-      'cor: #3E7A3E"></a-entity>';
-
-    html += '<a-entity position="3 1.2 -4" info-hotspot="' +
-      'titulo: Juazeiro; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/caatinga_galo_juazeiro.jpg; ' +
-      'descricao: Ziziphus joazeiro. Arvore espinhosa da mata baixa, sempre verde mesmo na seca. Oferece sombra, abrigo e frutos amarelos muito procurados pelo galo-de-campina. Sua casca e usada como sabao tradicional no Sertao.; ' +
-      'cor: #5A8A3A"></a-entity>';
-
-    html += '<a-entity position="-8 0.8 4" info-hotspot="' +
-      'titulo: Cacimba; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/caatinga_galo_cacimba.jpg; ' +
-      'descricao: Poco natural cavado no leito de rios secos. Mantem agua mesmo na estiagem e vira ponto de encontro de aves, mamiferos e insetos. Fonte de vida essencial para o galo-de-campina no Sertao.; ' +
-      'cor: #4A8090"></a-entity>';
-
-    html += '<a-entity position="-4 0.6 -5" info-hotspot="' +
-      'titulo: Rio seco; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/caatinga_galo_rioseco.jpg; ' +
-      'descricao: Leito pedregoso que so enche na estacao das chuvas. Entre dezembro e abril vira corredor ecologico conectando fragmentos de Caatinga. Fora desse periodo, suas pedras e areia servem de abrigo para repteis e insetos.; ' +
-      'cor: #B8A888"></a-entity>';
-
-    html += '<a-entity position="5 1.0 -6" info-hotspot="' +
-      'titulo: Cupinzeiro; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/caatinga_galo_cupinzeiro.jpg; ' +
-      'descricao: Construcao de cupins que regula a umidade e os nutrientes do solo. Serve de alimento para tamanduas, tatus e lagartos. Suas cavidades viram abrigo para outras especies depois de abandonado.; ' +
-      'cor: #7A5A3A"></a-entity>';
-
-    html += '<a-entity position="-3 0.6 4" info-hotspot="' +
-      'titulo: Bromelia; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/caatinga_galo_bromelia.jpg; ' +
-      'descricao: Bromeliacea terrestre da Caatinga. Acumula agua entre as folhas formando um micro-reservatorio que abriga sapos, insetos e micro-organismos durante a seca. Verdadeiro oásis em miniatura.; ' +
-      'cor: #A03828"></a-entity>';
-
-    html += '<a-entity position="0 3.0 -10" info-hotspot="' +
-      'titulo: Caatinga; ' +
-      'categoria: Bioma; ' +
-      'imagem: assets/hotspots/caatinga_galo_bioma.jpg; ' +
-      'descricao: Unico bioma exclusivamente brasileiro. Ocupa cerca de 11 porcento do territorio nacional. Vegetacao caducifolia que perde as folhas na seca e renasce nas chuvas. Abriga mais de 2 mil especies de plantas e animais adaptados ao semi-arido.; ' +
-      'cor: #D8C090"></a-entity>';
+    html += '<a-entity position="-4 1.0 -3" info-hotspot="titulo: Mandacaru; categoria: Planta; imagem: assets/hotspots/caatinga_galo_mandacaru.jpg; descricao: Cereus jamacaru. Cacto colunar simbolo da Caatinga, pode chegar a 5 metros de altura. Armazena agua no caule e floresce a noite.; cor: #3E7A3E"></a-entity>';
+    html += '<a-entity position="3 1.2 -4" info-hotspot="titulo: Juazeiro; categoria: Planta; imagem: assets/hotspots/caatinga_galo_juazeiro.jpg; descricao: Ziziphus joazeiro. Arvore espinhosa da mata baixa, sempre verde mesmo na seca.; cor: #5A8A3A"></a-entity>';
+    html += '<a-entity position="-8 0.8 4" info-hotspot="titulo: Cacimba; categoria: Habitat; imagem: assets/hotspots/caatinga_galo_cacimba.jpg; descricao: Poco natural cavado no leito de rios secos.; cor: #4A8090"></a-entity>';
+    html += '<a-entity position="-4 0.6 -5" info-hotspot="titulo: Rio seco; categoria: Habitat; imagem: assets/hotspots/caatinga_galo_rioseco.jpg; descricao: Leito pedregoso que so enche na estacao das chuvas.; cor: #B8A888"></a-entity>';
+    html += '<a-entity position="5 1.0 -6" info-hotspot="titulo: Cupinzeiro; categoria: Ecologia; imagem: assets/hotspots/caatinga_galo_cupinzeiro.jpg; descricao: Construcao de cupins que regula a umidade e os nutrientes do solo.; cor: #7A5A3A"></a-entity>';
+    html += '<a-entity position="-3 0.6 4" info-hotspot="titulo: Bromelia; categoria: Planta; imagem: assets/hotspots/caatinga_galo_bromelia.jpg; descricao: Bromeliacea terrestre da Caatinga.; cor: #A03828"></a-entity>';
+    html += '<a-entity position="0 3.0 -10" info-hotspot="titulo: Caatinga; categoria: Bioma; imagem: assets/hotspots/caatinga_galo_bioma.jpg; descricao: Unico bioma exclusivamente brasileiro.; cor: #D8C090"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #FFF0D8; intensity: 0.85"></a-entity>' +
@@ -388,5 +336,5 @@
   };
 
   window.MewBiomas.montarBiomaCaatingaGalo = montarBiomaCaatingaGalo;
-  console.log('[bioma_caatinga_galo] v2 — Caatinga (Galo-de-campina) com GLBs registrado.');
+  console.log('[bioma_caatinga_galo] v3 — LOD + qualidade registrado.');
 })();

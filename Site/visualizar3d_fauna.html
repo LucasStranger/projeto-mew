@@ -60,6 +60,22 @@
       border-top: 1px dashed rgba(63, 185, 80, 0.35);
     }
 
+    .qualidade-select {
+      position: absolute; top: 88px; right: 15px; z-index: 150;
+      background: rgba(5, 30, 15, 0.92);
+      border: 2px solid rgba(63, 185, 80, 0.55);
+      color: #7ee898; padding: 7px 12px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem; font-weight: bold;
+      letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .qualidade-select option { background: #05140c; color: #7ee898; }
+
     .loading {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -184,7 +200,6 @@
       box-shadow: 0 0 20px rgba(255, 203, 5, 0.7);
     }
 
-    /* Botão "Entrar em VR" — visível só em mobile */
     .vr-toggle {
       position: absolute; bottom: 165px; right: 20px; z-index: 150;
       background: linear-gradient(135deg, rgba(160, 100, 255, 0.45), rgba(100, 40, 200, 0.3));
@@ -208,9 +223,6 @@
       box-shadow: 0 0 28px rgba(192, 132, 252, 0.9);
     }
 
-    /* ============================================================
-       Botão Modo Mão (roxo, só aparece em AR)
-       ============================================================ */
     .mao-toggle {
       position: absolute; bottom: 220px; right: 20px; z-index: 150;
       background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(80, 40, 160, 0.4));
@@ -237,13 +249,6 @@
       background: linear-gradient(135deg, rgba(255, 203, 5, 0.5), rgba(255, 152, 0, 0.35));
       border-color: #ffcb05;
       box-shadow: 0 0 22px rgba(255, 203, 5, 0.8);
-    }
-    @media (max-width: 700px) {
-      .mao-toggle {
-        bottom: 108px; right: 8px;
-        padding: 8px 12px; font-size: 0.62rem;
-        letter-spacing: 1px;
-      }
     }
 
     .instrucoes {
@@ -319,23 +324,21 @@
       box-shadow: 0 0 12px rgba(63, 185, 80, 0.7);
     }
 
-    /* ============================================================
-       MODO VR — esconde UI HTML que ficaria "flutuando"
-       ============================================================ */
     body.em-vr .info,
     body.em-vr .nome-animal,
+    body.em-vr .qualidade-select,
     body.em-vr .controles,
     body.em-vr .teclas-wasd,
     body.em-vr .instrucoes,
     body.em-vr .modo-toggle,
     body.em-vr .vr-toggle,
+    body.em-vr .mao-toggle,
     body.em-vr .hd-badge,
     body.em-vr .gaze-reticle,
     body.em-vr .gaze-reticle-progresso {
       display: none !important;
     }
 
-    /* Crosshair 2D bem no centro para modo VR (HTML puro) */
     .vr-crosshair {
       position: fixed;
       top: 50%; left: 50%;
@@ -345,9 +348,7 @@
       z-index: 600;
       display: none;
     }
-    body.em-vr .vr-crosshair {
-      display: block;
-    }
+    body.em-vr .vr-crosshair { display: block; }
     .vr-crosshair::before,
     .vr-crosshair::after {
       content: '';
@@ -418,6 +419,7 @@
       .nome-animal { max-width: 48vw; font-size: 0.75rem; }
       .nome-animal .cientifico { font-size: 0.66rem; }
       .nome-animal .bioma { font-size: 0.56rem; }
+      .qualidade-select { font-size: 0.65rem; padding: 5px 9px; top: 80px; }
     }
     @media (max-width: 700px) {
       .info { top: 8px; left: 8px; padding: 6px 10px; border-radius: 9px; max-width: 38vw; }
@@ -430,29 +432,32 @@
       }
       .nome-animal .cientifico { font-size: 0.54rem; margin-top: 2px; }
       .nome-animal .bioma { font-size: 0.5rem; margin-top: 3px; padding-top: 3px; letter-spacing: 1px; }
+      .qualidade-select { top: 72px; right: 8px; font-size: 0.6rem; padding: 4px 8px; }
       .teclas-wasd { display: none !important; }
       .instrucoes {
-        bottom: 60px; left: 8px; right: 8px; transform: none;
-        max-width: none; font-size: 0.58rem; padding: 6px 10px;
+        bottom: 258px;
+        left: 8px; right: 8px; transform: none;
+        max-width: none; font-size: 0.55rem; padding: 5px 10px;
         border-radius: 12px; letter-spacing: 0.3px;
         white-space: normal; line-height: 1.35;
       }
       .instrucoes .instr-desktop { display: none; }
       .instrucoes .instr-mobile { display: inline; }
-      .controles { bottom: 8px; left: 8px; right: 8px; transform: none; gap: 5px; justify-content: stretch; }
-      .controles button {
-        flex: 1; min-width: 0; font-size: 0.58rem; padding: 9px 4px;
-        letter-spacing: 0.3px; border-width: 1.5px; border-radius: 7px;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      }
-      .hd-badge { bottom: 90px; font-size: 0.55rem; }
+      .controles { display: none !important; }
+
+      /* Reposiciona AR / VR / Mão pro canto superior esquerdo */
       .modo-toggle {
-        bottom: 8px; right: 8px;
+        top: 8px; left: 8px; right: auto; bottom: auto;
         padding: 8px 12px; font-size: 0.62rem;
         letter-spacing: 1px;
       }
-      .vr-toggle {
-        bottom: 58px; right: 8px;
+      .vr-toggle.visivel {
+        top: 48px; left: 8px; right: auto; bottom: auto;
+        padding: 8px 12px; font-size: 0.62rem;
+        letter-spacing: 1px;
+      }
+      .mao-toggle {
+        top: 88px; left: 8px; right: auto; bottom: auto;
         padding: 8px 12px; font-size: 0.62rem;
         letter-spacing: 1px;
       }
@@ -463,8 +468,8 @@
       .nome-animal { padding: 5px 8px; max-width: 60vw; font-size: 0.54rem; }
       .nome-animal .cientifico { font-size: 0.48rem; }
       .nome-animal .bioma { font-size: 0.44rem; }
-      .controles button { font-size: 0.52rem; padding: 8px 3px; }
-      .instrucoes { font-size: 0.52rem; padding: 5px 8px; }
+      .instrucoes { font-size: 0.52rem; padding: 4px 8px; }
+      .qualidade-select { font-size: 0.55rem; padding: 3px 6px; top: 66px; }
     }
     @media (max-height: 500px) and (orientation: landscape) {
       .nome-animal { max-width: 32vw; font-size: 0.6rem; padding: 6px 10px; }
@@ -474,7 +479,7 @@
       .info a { font-size: 0.6rem; }
       .controles { bottom: 6px; gap: 4px; }
       .controles button { padding: 6px 10px; font-size: 0.58rem; }
-      .instrucoes { bottom: 48px; font-size: 0.52rem; padding: 4px 10px; }
+      .instrucoes { bottom: 200px; font-size: 0.52rem; padding: 4px 10px; }
     }
   </style>
 </head>
@@ -502,6 +507,13 @@
     <span class="cientifico" id="nome-cientifico"></span>
     <span class="bioma" id="nome-bioma"></span>
   </div>
+
+  <select class="qualidade-select" id="qualidade-select" title="Ajuste a qualidade gráfica">
+    <option value="baixa">⚡ Baixa</option>
+    <option value="media">⚖ Média</option>
+    <option value="alta">✨ Alta</option>
+  </select>
+
   <div class="loading" id="loading">🌀 Carregando ambiente 3D...</div>
   <div class="hd-badge" id="hd-badge">
     <span class="spinner"></span>
@@ -516,7 +528,6 @@
             id="gaze-progress-circle"></circle>
   </svg>
 
-  <!-- Crosshair que aparece só em VR (HTML overlay) -->
   <div class="vr-crosshair"></div>
 
   <button class="modo-toggle" id="modo-toggle" title="Alternar entre 3D e AR">
@@ -530,7 +541,6 @@
   <button class="mao-toggle" id="mao-toggle" title="Modo Mão — use o QR como varinha mágica">
     🖐️ Modo Mão
   </button>
-  
 
   <div class="controles" id="controles" style="display:none;">
     <button id="btn-anim" title="Pausar/Retomar rotação">⏸ Pausar</button>
@@ -569,16 +579,25 @@
   <script src="bioma_recife_tartaruga_pente.js"></script>
   <script src="bioma_oceano_tartaruga_couro.js"></script>
 
+  <!-- FPS walker (D-pad + gaze-walk) -->
+  <script src="fps-walker.js"></script>
+
   <script>
     /* ============================================================
        ESTADO GLOBAL
        ============================================================ */
     const EstadoApp = {
-      modo: '3d',           // '3d' | 'ar' | 'vr'
+      modo: '3d',
       animal: null,
       modeloPesado: '',
+      modeloPesadoOriginal: '',
       cameraAR: null,
       cameraVR: null,
+      gazeIntervalId: null,
+      linhaARAtiva: false,
+      linhaARFrameId: null,
+      maoAtiva: false,
+      maoFrameId: null,
       gazeState: {
         alvoAtual: null,
         tempoInicio: 0,
@@ -588,8 +607,35 @@
       }
     };
 
+    function pararTodosLoops() {
+      if (EstadoApp.gazeIntervalId) { clearInterval(EstadoApp.gazeIntervalId); EstadoApp.gazeIntervalId = null; }
+      EstadoApp.linhaARAtiva = false;
+      if (EstadoApp.linhaARFrameId) { cancelAnimationFrame(EstadoApp.linhaARFrameId); EstadoApp.linhaARFrameId = null; }
+      EstadoApp.maoAtiva = false;
+      if (EstadoApp.maoFrameId) { cancelAnimationFrame(EstadoApp.maoFrameId); EstadoApp.maoFrameId = null; }
+    }
+
+    function resetarBotaoExplorar() {
+      const btn = document.getElementById('fps-toggle');
+      if (!btn) return;
+      btn.textContent = '🚶 Explorar';
+      btn.style.borderColor = '#00e0ff';
+      btn.style.background = 'linear-gradient(135deg, rgba(0,180,255,0.5), rgba(0,100,200,0.35))';
+      btn.style.boxShadow = '0 0 20px rgba(0,224,255,0.5)';
+    }
+
+    (function configurarSeletorQualidade() {
+      const sel = document.getElementById('qualidade-select');
+      if (!sel || !window.MewQualidade) return;
+      sel.value = window.MewQualidade.nivel;
+      sel.addEventListener('change', (e) => {
+        window.MewQualidade.setNivel(e.target.value);
+        location.reload();
+      });
+    })();
+
     /* ============================================================
-       COMPONENTE ORBIT-CAMERA (só modo 3D desktop)
+       COMPONENTE ORBIT-CAMERA
        ============================================================ */
     AFRAME.registerComponent('orbit-camera', {
       schema: {
@@ -679,9 +725,7 @@
       },
 
       tick: function (t, dt) {
-        /* Ignora se estiver em VR */
         if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return;
-
         if (!this._initialized) {
           const canvas = this.el.sceneEl && this.el.sceneEl.canvas;
           if (!canvas) return;
@@ -722,9 +766,7 @@
       },
 
       updateCamera: function () {
-        /* Não move a câmera se estiver em VR */
         if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return;
-
         const sinPhi = Math.sin(this.phi), cosPhi = Math.cos(this.phi);
         const sinT = Math.sin(this.theta), cosT = Math.cos(this.theta);
         const px = this.target.x + this.distance * sinPhi * sinT;
@@ -819,10 +861,7 @@
           }
         }
       },
-      onTouchEnd: function () {
-        this.isDragging = false;
-        this._pinchStartDist = 0;
-      },
+      onTouchEnd: function () { this.isDragging = false; this._pinchStartDist = 0; },
       atualizarTeclasVisuais: function (code, ativa) {
         const el = document.querySelector(`.tecla[data-key="${code}"]`);
         if (el) el.classList.toggle('ativa', ativa);
@@ -875,6 +914,7 @@
       document.getElementById('gaze-reticle-progresso').style.display = 'none';
       document.getElementById('modo-toggle').style.display = 'none';
       document.getElementById('vr-toggle').style.display = 'none';
+      document.getElementById('qualidade-select').style.display = 'none';
     } else if (!faunaId || isNaN(numeroIndex) || numeroIndex <= 0) {
       document.getElementById('loading').textContent = '⚠️ Animal não especificado na URL.';
     } else {
@@ -912,9 +952,12 @@
       document.getElementById('nome-bioma').textContent = `🌿 Bioma: ${nomeBioma}`;
       document.title = `${animal.nome_popular} — Projeto Mew (3D)`;
 
-      EstadoApp.modeloPesado = animal.modelo_gltf || 'assets/modelo/animais.glb';
+      const original = animal.modelo_gltf || 'assets/modelo/animais.glb';
+      EstadoApp.modeloPesadoOriginal = original;
+      EstadoApp.modeloPesado = window.MewQualidade
+        ? window.MewQualidade.resolverModelo(original)
+        : original;
 
-      /* Detecta se é dispositivo móvel para mostrar botão de VR Cardboard */
       const ehMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
       if (ehMobile && 'xr' in navigator) {
         document.getElementById('vr-toggle').classList.add('visivel');
@@ -925,13 +968,14 @@
     }
 
     /* ============================================================
-       TROCA DE MODO (3D ↔ AR)
+       TROCA DE MODO 3D ↔ AR
        ============================================================ */
     function trocarModo(novoModo, primeiraVez) {
       if (!EstadoApp.animal) return;
-      if (novoModo === 'vr') return; /* VR é tratado à parte, sem reconstruir cena */
+      if (novoModo === 'vr') return;
       if (!primeiraVez && EstadoApp.modo === novoModo) return;
 
+      pararTodosLoops();
       EstadoApp.modo = novoModo;
       EstadoApp.gazeState.alvoAtual = null;
       EstadoApp.gazeState.disparado = false;
@@ -939,6 +983,9 @@
 
       const container = document.getElementById('scene-container');
       container.innerHTML = '';
+
+      if (document.pointerLockElement) document.exitPointerLock();
+      resetarBotaoExplorar();
 
       const btn = document.getElementById('modo-toggle');
       if (novoModo === 'ar') {
@@ -976,19 +1023,13 @@
       trocarModo(EstadoApp.modo === 'ar' ? '3d' : 'ar');
     });
 
-    /* ============================================================
-       BOTÃO VR — ativa modo VR Cardboard via WebXR
-       ============================================================ */
     document.getElementById('vr-toggle').addEventListener('click', async () => {
       const cena = document.querySelector('a-scene');
       if (!cena) return;
       try {
-        if (cena.enterVR) {
-          await cena.enterVR();
-        } else if (cena.xrSession) {
-          await cena.xrSession.end();
-        } else {
-          /* Fallback: aciona o botão nativo do A-Frame */
+        if (cena.enterVR) await cena.enterVR();
+        else if (cena.xrSession) await cena.xrSession.end();
+        else {
           const btnVR = cena.querySelector('.a-enter-vr-button');
           if (btnVR) btnVR.click();
         }
@@ -999,7 +1040,7 @@
     });
 
     /* ============================================================
-       LISTENERS DE ENTRADA/SAÍDA DE VR
+       LISTENERS VR
        ============================================================ */
     function configurarListenersVR(cena) {
       cena.addEventListener('enter-vr', () => {
@@ -1007,18 +1048,21 @@
         document.body.classList.add('em-vr');
         EstadoApp.modo = 'vr';
 
-        /* Reconfigura a câmera para VR:
-           - Remove orbit-camera (que força posição)
-           - Ativa look-controls (giroscópio do celular) */
         const camEl = cena.querySelector('#camera, [camera]');
-        if (camEl) {
-          camEl.removeAttribute('orbit-camera');
+        if (camEl && camEl.hasAttribute('fps-walker')) {
+          // Se está no walker, NÃO remove; o walker sabe lidar com VR
+          // Mas ajusta look-controls
           camEl.setAttribute('look-controls', 'enabled: true');
-          camEl.setAttribute('wasd-controls', 'enabled: false');
-          /* Em VR, a "posição" do usuário é relativa — coloca o observador
-             de pé no cenário, olhando pro animal (que está em 0,0,0). */
-          camEl.setAttribute('position', '0 1.6 3.5');
-          camEl.setAttribute('rotation', '0 0 0');
+        } else {
+          if (camEl) {
+            camEl.removeAttribute('orbit-camera');
+            camEl.setAttribute('look-controls', 'enabled: true');
+            camEl.setAttribute('wasd-controls', 'enabled: false');
+            camEl.object3D.position.set(0, 0, 0);
+            camEl.object3D.rotation.set(0, 0, 0);
+            const threeCam = camEl.getObject3D('camera');
+            if (threeCam) { threeCam.position.set(0, 0, 0); threeCam.rotation.set(0, 0, 0); }
+          }
         }
       });
 
@@ -1027,25 +1071,39 @@
         document.body.classList.remove('em-vr');
         EstadoApp.modo = '3d';
 
-        /* Restaura a câmera orbital */
         const camEl = cena.querySelector('#camera, [camera]');
+        if (camEl && camEl.hasAttribute('fps-walker')) {
+          // Mantém walker
+          return;
+        }
         if (camEl) {
           camEl.setAttribute('look-controls', 'enabled: false');
+          camEl.setAttribute('wasd-controls', 'enabled: false');
+          camEl.object3D.position.set(0, 0, 0);
+          camEl.object3D.rotation.set(0, 0, 0);
+          const threeCam = camEl.getObject3D('camera');
+          if (threeCam) { threeCam.position.set(0, 0, 0); threeCam.rotation.set(0, 0, 0); }
           camEl.setAttribute('orbit-camera',
             'distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;');
         }
+
+        resetarBotaoExplorar();
+        const controles = document.getElementById('controles');
+        if (controles) controles.style.display = 'flex';
       });
     }
 
     /* ============================================================
-       CONSTRUÇÃO DO AMBIENTE (compartilhado)
+       AMBIENTE
        ============================================================ */
     function montarAmbienteHTML() {
       const animal = EstadoApp.animal;
       let ambienteHtml = '';
       let bioma = null;
+      const perfil = window.MewQualidade ? window.MewQualidade.perfil : { densidade: 'alta' };
+      const densidade = perfil.densidade === 'baixa' ? 'baixa' : 'alta';
       if (window.MewBiomas && typeof window.MewBiomas.montarCena3D === 'function') {
-        const resultado = window.MewBiomas.montarCena3D(animal, { densidade: 'alta' });
+        const resultado = window.MewBiomas.montarCena3D(animal, { densidade });
         ambienteHtml = resultado.html;
         bioma = resultado.bioma;
       } else {
@@ -1060,13 +1118,21 @@
     }
 
     /* ============================================================
-       MODO 3D — com suporte a VR Cardboard no celular
+       CONSTRUÇÃO DO MODO 3D
        ============================================================ */
     function construirCena3D() {
       const container = document.getElementById('scene-container');
       const { ambienteHtml, bioma } = montarAmbienteHTML();
+      const perfil = window.MewQualidade.perfil;
       const fogAttr = bioma
         ? `fog="type: exponential; color: ${bioma.fog}; density: ${bioma.fogDensity}"`
+        : '';
+      const shadowAttr = perfil.sombras
+        ? `shadow="type: ${perfil.shadowMapSize >= 2048 ? 'pcfsoft' : 'pcf'}"`
+        : '';
+      const rendererAttr = `renderer="antialias: ${perfil.antialias}; colorManagement: true;"`;
+      const fallbackAttr = (EstadoApp.modeloPesado !== EstadoApp.modeloPesadoOriginal)
+        ? ` data-fallback-src="url(${EstadoApp.modeloPesadoOriginal})"`
         : '';
 
       container.innerHTML = `
@@ -1074,8 +1140,8 @@
           id="cena-3d"
           embedded
           ${fogAttr}
-          renderer="antialias: true; colorManagement: true;"
-          shadow="type: pcfsoft"
+          ${shadowAttr}
+          ${rendererAttr}
           vr-mode-ui="enabled: false"
           style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
         >
@@ -1111,31 +1177,47 @@
       document.getElementById('teclas-wasd').style.display = 'grid';
 
       const cena = container.querySelector('a-scene');
+
+      const assetEl = document.getElementById('modelo-pesado-asset');
+      if (assetEl && fallbackAttr) {
+        assetEl.addEventListener('error', () => {
+          console.warn('[LOD] Asset principal sem variante. Usando original.');
+          assetEl.setAttribute('src', EstadoApp.modeloPesadoOriginal);
+          EstadoApp.modeloPesado = EstadoApp.modeloPesadoOriginal;
+        }, { once: true });
+      }
+
       cena.addEventListener('loaded', () => {
-        console.log('🎬 Cena 3D pronta — bioma:', bioma?.nome);
+        console.log('🎬 Cena 3D pronta — bioma:', bioma?.nome, '— qualidade:', perfil.densidade);
         document.getElementById('loading').style.display = 'none';
 
-        /* Configura entrada/saída de VR */
+        if (window.MewQualidade) {
+          window.MewQualidade.aplicarFallback(cena);
+          window.MewQualidade.ajustarLuzes(cena);
+        }
+
         configurarListenersVR(cena);
         iniciarGaze(cena);
         configurarBotoesFauna();
         agendarCarregamentoPesado();
-      });
+      }, { once: true });
     }
 
     /* ============================================================
-       MODO AR — sem alterações
+       MODO AR
        ============================================================ */
     function construirCenaAR() {
       const container = document.getElementById('scene-container');
       const { ambienteHtml } = montarAmbienteHTML();
+      const perfil = window.MewQualidade.perfil;
+      const rendererAttr = `renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: ${perfil.antialias};"`;
 
       container.innerHTML = `
         <a-scene
           id="cena-ar"
           embedded
           arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;"
-          renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: true;"
+          ${rendererAttr}
           vr-mode-ui="enabled: false"
           style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
         >
@@ -1157,19 +1239,14 @@
                      animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
               </a-box>
             </a-entity>
-                        <a-entity id="linha-ar"
+
+            <a-entity id="linha-ar"
                       geometry="primitive: cylinder; radius: 0.012; height: 1;"
                       material="shader: standard; color: #7ee898; emissive: #7ee898; emissiveIntensity: 0.8; opacity: 0.9; transparent: true"
                       position="0 0.05 0"
                       visible="false"></a-entity>
 
-            <!-- ============================================
-                 MODO MÃO — esfera brilhante + varinha
-                 A varinha sai perpendicular à face do QR
-                 ============================================ -->
             <a-entity id="mao-grupo" visible="false">
-
-              <!-- Halo pulsante ao redor da mão -->
               <a-ring id="mao-halo" position="0 0 0" rotation="-90 0 0"
                       radius-inner="0.08" radius-outer="0.13"
                       color="#c084fc"
@@ -1177,26 +1254,21 @@
                       animation="property: scale; from: 1 1 1; to: 2.2 2.2 2.2; dur: 1600; dir: alternate; loop: true; easing: easeOutSine"
                       animation__op="property: material.opacity; from: 0.6; to: 0; dur: 1600; dir: alternate; loop: true"></a-ring>
 
-              <!-- Esfera brilhante = "mão" -->
               <a-sphere id="mao-esfera" position="0 0 0" radius="0.05"
                         color="#c084fc"
                         material="shader: standard; emissive: #c084fc; emissiveIntensity: 1.8; opacity: 0.9; transparent: true"
                         animation="property: scale; from: 1 1 1; to: 1.35 1.35 1.35; dur: 800; dir: alternate; loop: true; easing: easeInOutSine"></a-sphere>
 
-              <!-- Varinha (cilindro ao longo de +Z, comprimento ajustado em runtime) -->
               <a-entity id="mao-varinha"
                         geometry="primitive: cylinder; radius: 0.008; height: 2;"
                         material="shader: standard; color: #c084fc; emissive: #c084fc; emissiveIntensity: 0.9; opacity: 0.85; transparent: true"
                         position="0 0 1"
                         rotation="-90 0 0"></a-entity>
 
-              <!-- Ponta brilhante da varinha -->
               <a-sphere id="mao-ponta" position="0 0 2" radius="0.03"
                         color="#ffcb05"
                         material="shader: standard; emissive: #ffcb05; emissiveIntensity: 2"></a-sphere>
-
             </a-entity>
-
           </a-marker>
 
           <a-entity id="ar-camera" camera></a-entity>
@@ -1222,18 +1294,23 @@
           }
         }, 600);
 
+        if (window.MewQualidade) {
+          window.MewQualidade.aplicarFallback(cena);
+        }
+
         iniciarGaze(cena);
         iniciarLinhaAR(cena);
+        iniciarModoMao(cena);
         agendarCarregamentoPesado();
-      });
+      }, { once: true });
     }
 
     /* ============================================================
-       CARREGAMENTO — Cubo instantâneo, GLB por último
+       CARREGAMENTO PESADO
        ============================================================ */
     function agendarCarregamentoPesado() {
       const start = () => {
-        console.log('⏳ Carregando modelo pesado (último a carregar)');
+        console.log('⏳ Carregando modelo pesado');
         const hdBadge = document.getElementById('hd-badge');
         hdBadge.classList.add('ativo');
         carregarModeloPesado();
@@ -1274,7 +1351,6 @@
         clearTimeout(timeoutFallback);
         ajustarModeloPesado(modeloPesado);
         console.log('✅ Modelo PESADO carregado');
-
         modeloPesado.setAttribute('visible', 'true');
         if (cubo) {
           cubo.setAttribute('visible', 'false');
@@ -1306,13 +1382,11 @@
         mesh.rotation.set(0, 0, 0);
         mesh.scale.set(1, 1, 1);
         mesh.updateMatrixWorld(true);
-
         const box = new THREE.Box3().setFromObject(mesh);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
-
         const ALVO = EstadoApp.modo === 'ar' ? 0.8 : 2.0;
         const escala = ALVO / maxDim;
         mesh.scale.set(escala, escala, escala);
@@ -1327,15 +1401,20 @@
     }
 
     /* ============================================================
-       GAZE — funciona nos 3 modos
+       GAZE
        ============================================================ */
     function iniciarGaze(sceneEl) {
+      pararGaze();
       const reticle = document.getElementById('gaze-reticle');
       const progresso = document.getElementById('gaze-reticle-progresso');
       const circle = document.getElementById('gaze-progress-circle');
       if (!reticle) return;
 
+      const perfil = window.MewQualidade ? window.MewQualidade.perfil : { gazeIntervalMs: 100, raycasterDistancia: 50 };
+      const intervalMs = perfil.gazeIntervalMs;
+
       const raycaster = new THREE.Raycaster();
+      raycaster.far = perfil.raycasterDistancia;
       const centro = new THREE.Vector2(0, 0);
       const circ = 2 * Math.PI * 20;
       circle.style.strokeDasharray = circ;
@@ -1363,10 +1442,16 @@
         circle.style.strokeDashoffset = circ;
       }
 
-      function loop() {
-        requestAnimationFrame(loop);
+      let hotspotsCache = null;
+      let hotspotsFrame = 0;
 
-        /* No AR e no VR, esconde o retículo HTML (o crosshair do VR já cobre) */
+      function tick() {
+        hotspotsFrame++;
+        if (!hotspotsCache || hotspotsFrame > 30) {
+          hotspotsCache = Array.from(document.querySelectorAll('[info-hotspot]'));
+          hotspotsFrame = 0;
+        }
+
         if (EstadoApp.modo === 'ar' || EstadoApp.modo === 'vr') {
           reticle.style.display = 'none';
           progresso.style.display = 'none';
@@ -1380,11 +1465,10 @@
 
         raycaster.setFromCamera(centro, cam);
 
-        const hotspots = document.querySelectorAll('[info-hotspot]');
         let alvo = null;
         let menorDist = Infinity;
 
-        hotspots.forEach((el) => {
+        hotspotsCache.forEach((el) => {
           if (!el.object3D || !el.components['info-hotspot']) return;
           const hits = raycaster.intersectObject(el.object3D, true);
           if (hits.length > 0 && hits[0].distance < menorDist) {
@@ -1418,7 +1502,6 @@
           EstadoApp.gazeState.ultimoDisparado = alvo;
           const comp = alvo.components['info-hotspot'];
           if (comp && typeof comp.toggle === 'function') comp.toggle();
-          console.log('[gaze] 👁️ Ativado:', (alvo.getAttribute('info-hotspot') || {}).titulo);
           setTimeout(() => {
             resetarGaze();
             setTimeout(() => {
@@ -1429,57 +1512,50 @@
           }, 700);
         }
       }
-      loop();
+
+      EstadoApp.gazeIntervalId = setInterval(tick, intervalMs);
+      tick();
+    }
+
+    function pararGaze() {
+      if (EstadoApp.gazeIntervalId) {
+        clearInterval(EstadoApp.gazeIntervalId);
+        EstadoApp.gazeIntervalId = null;
+      }
     }
 
     /* ============================================================
-       MODO MÃO — o QR vira uma varinha mágica
-       A varinha sai perpendicular à face do QR (+Z local)
-       e aponta para as esferas.
+       MODO MÃO
        ============================================================ */
     const EstadoMao = {
-      ativo: false,
-      alvoAtual: null,
-      tempoInicio: 0,
-      disparado: false,
-      ultimoDisparado: null,
-      dwellMs: 3000,
-      raycaster: null,
-      fromV: null,
-      dirV: null,
-      localZ: null
+      alvoAtual: null, tempoInicio: 0, disparado: false, ultimoDisparado: null,
+      dwellMs: 3000, raycaster: null, fromV: null, dirV: null, localZ: null
     };
 
     function iniciarModoMao(sceneEl) {
+      pararMao();
       const maoGrupo   = sceneEl.querySelector('#mao-grupo');
       const maoVarinha = sceneEl.querySelector('#mao-varinha');
       const maoPonta   = sceneEl.querySelector('#mao-ponta');
       const marcador   = sceneEl.querySelector('#marcador-qr');
       const btnMao     = document.getElementById('mao-toggle');
-
       if (!maoGrupo || !marcador || !btnMao) return;
 
       EstadoMao.raycaster = new THREE.Raycaster();
       EstadoMao.fromV     = new THREE.Vector3();
       EstadoMao.dirV      = new THREE.Vector3();
       EstadoMao.localZ    = new THREE.Vector3(0, 0, 1);
+      EstadoApp.maoAtiva = false;
 
-      /* Toggle do botão */
       btnMao.addEventListener('click', () => {
-        EstadoMao.ativo = !EstadoMao.ativo;
-        maoGrupo.setAttribute('visible', EstadoMao.ativo);
-        btnMao.classList.toggle('ativo', EstadoMao.ativo);
-
-        /* Desliga o gaze normal enquanto a mão está ativa
-           (evita dois alvos simultâneos) */
+        EstadoApp.maoAtiva = !EstadoApp.maoAtiva;
+        maoGrupo.setAttribute('visible', EstadoApp.maoAtiva);
+        btnMao.classList.toggle('ativo', EstadoApp.maoAtiva);
         EstadoApp.gazeState.alvoAtual = null;
         EstadoApp.gazeState.disparado = false;
         EstadoApp.gazeState.ultimoDisparado = null;
-
-        console.log('[Modo Mão]', EstadoMao.ativo ? 'ATIVO' : 'desligado');
       });
 
-      /* Mostra o botão só quando o marcador aparece */
       let marcadorVisivel = false;
       marcador.addEventListener('markerFound', () => {
         marcadorVisivel = true;
@@ -1487,9 +1563,7 @@
       });
       marcador.addEventListener('markerLost', () => {
         marcadorVisivel = false;
-        if (EstadoMao.ativo) {
-          maoGrupo.setAttribute('visible', false);
-        }
+        if (EstadoApp.maoAtiva) maoGrupo.setAttribute('visible', false);
         EstadoMao.alvoAtual = null;
         EstadoMao.disparado = false;
       });
@@ -1510,28 +1584,17 @@
       }
 
       function loop() {
-        requestAnimationFrame(loop);
+        if (EstadoApp.modo !== 'ar') { EstadoApp.maoFrameId = null; return; }
+        EstadoApp.maoFrameId = requestAnimationFrame(loop);
+        if (!EstadoApp.maoAtiva || !marcadorVisivel) return;
 
-        if (!EstadoMao.ativo || !marcadorVisivel) return;
-
-        /* Origem e direção em world space */
         marcador.object3D.getWorldPosition(EstadoMao.fromV);
-        EstadoMao.dirV
-          .copy(EstadoMao.localZ)
-          .applyQuaternion(marcador.object3D.quaternion)
-          .normalize();
-
-        /* Raycast a partir da mão */
+        EstadoMao.dirV.copy(EstadoMao.localZ).applyQuaternion(marcador.object3D.quaternion).normalize();
         EstadoMao.raycaster.set(EstadoMao.fromV, EstadoMao.dirV);
         EstadoMao.raycaster.far = 10;
 
-        /* Procura hotspots atingidos */
         const hotspots = document.querySelectorAll('[info-hotspot]');
-        let alvo = null;
-        let menorDist = Infinity;
-        let corAlvo = '#c084fc';
-        let hitPoint = null;
-
+        let alvo = null, menorDist = Infinity, corAlvo = '#c084fc', hitPoint = null;
         hotspots.forEach((el) => {
           if (!el.object3D) return;
           const hits = EstadoMao.raycaster.intersectObject(el.object3D, true);
@@ -1543,7 +1606,6 @@
           }
         });
 
-        /* Ajusta o comprimento da varinha até o alvo (ou padrão 2) */
         let comprimentoVarinha = 2;
         if (hitPoint) {
           const toHit = new THREE.Vector3().subVectors(hitPoint, EstadoMao.fromV);
@@ -1551,10 +1613,8 @@
           if (proj > 0.3) comprimentoVarinha = proj;
         }
 
-        /* Atualiza visual da varinha */
         if (maoVarinha) {
-          maoVarinha.setAttribute('geometry',
-            'primitive: cylinder; radius: 0.008; height: ' + comprimentoVarinha.toFixed(3) + ';');
+          maoVarinha.setAttribute('geometry', 'primitive: cylinder; radius: 0.008; height: ' + comprimentoVarinha.toFixed(3) + ';');
           maoVarinha.setAttribute('position', '0 0 ' + (comprimentoVarinha / 2).toFixed(3));
           maoVarinha.setAttribute('material', 'color', corAlvo);
           maoVarinha.setAttribute('material', 'emissive', corAlvo);
@@ -1565,13 +1625,10 @@
           maoPonta.setAttribute('material', 'emissive', corAlvo);
         }
 
-        /* Sem alvo: reseta */
         if (!alvo) {
           if (EstadoMao.alvoAtual || EstadoMao.disparado) resetarMao();
           return;
         }
-
-        /* Alvo novo */
         if (EstadoMao.alvoAtual !== alvo) {
           EstadoMao.alvoAtual = alvo;
           EstadoMao.tempoInicio = performance.now();
@@ -1580,21 +1637,15 @@
           return;
         }
 
-        /* Mesmo alvo → progride o dwell */
         const decorrido = performance.now() - EstadoMao.tempoInicio;
         const pct = Math.min(decorrido / EstadoMao.dwellMs, 1);
-
-        /* Feedback: ponta fica mais brilhante conforme o tempo passa */
-        if (maoPonta) {
-          maoPonta.setAttribute('material', 'emissiveIntensity', (1.5 + pct * 2.5).toFixed(2));
-        }
+        if (maoPonta) maoPonta.setAttribute('material', 'emissiveIntensity', (1.5 + pct * 2.5).toFixed(2));
 
         if (pct >= 1 && !EstadoMao.disparado) {
           EstadoMao.disparado = true;
           EstadoMao.ultimoDisparado = alvo;
           const comp = alvo.components['info-hotspot'];
           if (comp && typeof comp.toggle === 'function') comp.toggle();
-          console.log('[Modo Mão] ✅ Ativado:', (alvo.getAttribute('info-hotspot') || {}).titulo);
           setTimeout(() => {
             resetarMao();
             setTimeout(() => {
@@ -1603,15 +1654,18 @@
           }, 700);
         }
       }
-
       loop();
-      console.log('🖐️ Modo Mão iniciado');
     }
-    
+
+    function pararMao() {
+      if (EstadoApp.maoFrameId) { cancelAnimationFrame(EstadoApp.maoFrameId); EstadoApp.maoFrameId = null; }
+    }
+
     /* ============================================================
-       LINHA AR — mantém igual
+       LINHA AR
        ============================================================ */
     function iniciarLinhaAR(sceneEl) {
+      pararLinhaAR();
       const linha = sceneEl.querySelector('#linha-ar');
       const marcador = sceneEl.querySelector('#marcador-qr');
       if (!linha || !marcador) return;
@@ -1628,6 +1682,7 @@
       const localTo = new THREE.Vector3();
 
       let marcadorVisivel = false;
+      EstadoApp.linhaARAtiva = true;
 
       marcador.addEventListener('markerFound', () => {
         marcadorVisivel = true;
@@ -1639,7 +1694,8 @@
       });
 
       function loop() {
-        requestAnimationFrame(loop);
+        if (!EstadoApp.linhaARAtiva) { EstadoApp.linhaARFrameId = null; return; }
+        EstadoApp.linhaARFrameId = requestAnimationFrame(loop);
         if (EstadoApp.modo !== 'ar' || !marcadorVisivel) return;
 
         const cam = EstadoApp.cameraAR || sceneEl.camera;
@@ -1650,10 +1706,7 @@
 
         raycaster.setFromCamera(centro, cam);
         const hotspots = document.querySelectorAll('[info-hotspot]');
-        let alvoPos = null;
-        let alvoCor = '#7ee898';
-        let menorDist = Infinity;
-
+        let alvoPos = null, alvoCor = '#7ee898', menorDist = Infinity;
         hotspots.forEach((el) => {
           if (!el.object3D) return;
           const hits = raycaster.intersectObject(el.object3D, true);
@@ -1665,20 +1718,16 @@
           }
         });
 
-        if (alvoPos) {
-          toV.copy(alvoPos);
-        } else {
+        if (alvoPos) toV.copy(alvoPos);
+        else {
           const camDir = new THREE.Vector3();
           cam.getWorldDirection(camDir);
           cam.getWorldPosition(toV);
           toV.add(camDir.multiplyScalar(1.5));
         }
 
-        localFrom.copy(fromV);
-        marcador.object3D.worldToLocal(localFrom);
-        localTo.copy(toV);
-        marcador.object3D.worldToLocal(localTo);
-
+        localFrom.copy(fromV); marcador.object3D.worldToLocal(localFrom);
+        localTo.copy(toV);   marcador.object3D.worldToLocal(localTo);
         localDir.subVectors(localTo, localFrom);
         const len = localDir.length();
         if (len < 0.001) return;
@@ -1701,6 +1750,11 @@
       loop();
     }
 
+    function pararLinhaAR() {
+      EstadoApp.linhaARAtiva = false;
+      if (EstadoApp.linhaARFrameId) { cancelAnimationFrame(EstadoApp.linhaARFrameId); EstadoApp.linhaARFrameId = null; }
+    }
+
     /* ============================================================
        BOTÕES DE CONTROLE
        ============================================================ */
@@ -1708,7 +1762,6 @@
       const btnAnim  = document.getElementById('btn-anim');
       const btnRot   = document.getElementById('btn-rotacao');
       const btnReset = document.getElementById('btn-reset');
-
       if (!btnAnim || btnAnim.dataset.configurado) return;
       btnAnim.dataset.configurado = 'true';
 

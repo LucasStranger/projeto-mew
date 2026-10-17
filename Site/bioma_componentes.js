@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_componentes.js — MASTER (v6 — VR-ready)
+   bioma_componentes.js — MASTER (v7 — quality-aware)
    Popup HTML (desktop) + Popup 3D (VR) simultâneos
    ========================================================= */
 (function () {
@@ -8,6 +8,10 @@
   const R = (nome, def) => {
     if (!AFRAME.components[nome]) AFRAME.registerComponent(nome, def);
   };
+
+  // Helper: animações decorativas estão ligadas?
+  const animLigada = () =>
+    !window.MewQualidade || window.MewQualidade.perfil.animacoesDecorativas;
 
   /* --------------------------------------------------------
      CSS injetado para o popup HTML (desktop/celular)
@@ -140,7 +144,7 @@
     }
   });
 
-  /* ---------- info-hotspot (v6 — VR-ready) ---------- */
+  /* ---------- info-hotspot (v7 — quality-aware) ---------- */
   R('info-hotspot', {
     schema: {
       titulo:    { type: 'string', default: 'Elemento' },
@@ -162,8 +166,10 @@
       marc.setAttribute('color', cor);
       marc.setAttribute('material',
         'shader: standard; emissive: ' + cor + '; emissiveIntensity: 1; opacity: 0.95; transparent: true');
-      marc.setAttribute('animation',
-        'property: scale; from: 1 1 1; to: 1.4 1.4 1.4; dur: 900; dir: alternate; loop: true; easing: easeInOutSine');
+      if (animLigada()) {
+        marc.setAttribute('animation',
+          'property: scale; from: 1 1 1; to: 1.4 1.4 1.4; dur: 900; dir: alternate; loop: true; easing: easeInOutSine');
+      }
       this.el.appendChild(marc);
 
       /* Anel pulsante */
@@ -173,10 +179,12 @@
       anel.setAttribute('color', cor);
       anel.setAttribute('rotation', '-90 0 0');
       anel.setAttribute('material', 'shader: flat; opacity: 0.55; transparent: true; side: double');
-      anel.setAttribute('animation',
-        'property: scale; from: 1 1 1; to: 1.9 1.9 1.9; dur: 1400; dir: alternate; loop: true; easing: easeOutSine');
-      anel.setAttribute('animation__op',
-        'property: material.opacity; from: 0.65; to: 0.02; dur: 1400; dir: alternate; loop: true');
+      if (animLigada()) {
+        anel.setAttribute('animation',
+          'property: scale; from: 1 1 1; to: 1.9 1.9 1.9; dur: 1400; dir: alternate; loop: true; easing: easeOutSine');
+        anel.setAttribute('animation__op',
+          'property: material.opacity; from: 0.65; to: 0.02; dur: 1400; dir: alternate; loop: true');
+      }
       this.el.appendChild(anel);
 
       /* Luz ambiente */
@@ -370,10 +378,13 @@
     }
   });
 
-  /* ---------- sway-grass ---------- */
+  /* ==========================================================
+     SWAY-* — animações decorativas (todas respeitam qualidade)
+     ========================================================== */
   R('sway-grass', {
     schema: { ampl: { default: 8 } },
     init: function () {
+      if (!animLigada()) return;
       const a = this.data.ampl;
       const dur = 2400 + Math.random() * 1800;
       this.el.setAttribute('animation__swx',
@@ -385,10 +396,10 @@
     }
   });
 
-  /* ---------- sway-capim ---------- */
   R('sway-capim', {
     schema: { ampl: { default: 10 } },
     init: function () {
+      if (!animLigada()) return;
       const a = this.data.ampl;
       const d = 2400 + Math.random() * 1600;
       this.el.setAttribute('animation__cx',
@@ -400,10 +411,10 @@
     }
   });
 
-  /* ---------- sway-dry ---------- */
   R('sway-dry', {
     schema: { ampl: { default: 6 } },
     init: function () {
+      if (!animLigada()) return;
       const a = this.data.ampl;
       const d = 2800 + Math.random() * 1600;
       this.el.setAttribute('animation__dx',
@@ -415,10 +426,10 @@
     }
   });
 
-  /* ---------- sway-leaf ---------- */
   R('sway-leaf', {
     schema: { ampl: { default: 5 }, dur: { default: 3000 } },
     init: function () {
+      if (!animLigada()) return;
       const a = this.data.ampl;
       const d = this.data.dur + Math.random() * 1200;
       this.el.setAttribute('animation__lx',
@@ -430,10 +441,10 @@
     }
   });
 
-  /* ---------- sway-bamboo ---------- */
   R('sway-bamboo', {
     schema: { ampl: { default: 12 } },
     init: function () {
+      if (!animLigada()) return;
       const a = this.data.ampl;
       const d = 2200 + Math.random() * 1600;
       this.el.setAttribute('animation',
@@ -446,6 +457,7 @@
   R('bobber', {
     schema: { amp: { default: 0.12 }, dur: { default: 2600 } },
     init: function () {
+      if (!animLigada()) return;
       const y = this.el.object3D.position.y;
       this.el.setAttribute('animation',
         'property: position; from: 0 ' + y + ' 0; to: 0 ' + (y + this.data.amp) + ' 0; dur: ' +
@@ -457,6 +469,7 @@
   R('flutter-by', {
     schema: { raio: { default: 1.5 }, alt: { default: 1.2 }, dur: { default: 8000 } },
     init: function () {
+      if (!animLigada()) return;
       const d = this.data.dur + Math.random() * 3000;
       this.el.setAttribute('animation__y',
         'property: position; from: 0 ' + this.data.alt + ' 0; to: 0 ' + (this.data.alt + 0.4) +
@@ -484,6 +497,7 @@
   R('flutter-bird', {
     schema: { raio: { default: 3 }, alt: { default: 2 }, dur: { default: 9000 } },
     init: function () {
+      if (!animLigada()) return;
       const d = this.data.dur + Math.random() * 3000;
       const raio = this.data.raio;
       let i = 0;
@@ -508,6 +522,7 @@
   R('ghost-fade', {
     schema: { dur: { default: 6000 } },
     init: function () {
+      if (!animLigada()) return;
       this.el.setAttribute('animation',
         'property: material.opacity; from: 0.15; to: 0.55; dur: ' + this.data.dur +
         '; dir: alternate; loop: true; easing: easeInOutSine');
@@ -519,9 +534,7 @@
     if (!sceneEl || sceneEl.dataset.cursorOk === '1') return;
     sceneEl.dataset.cursorOk = '1';
     const add = () => {
-      /* Em VR não precisa de cursor de mouse */
       if (sceneEl.is('vr-mode')) return;
-
       const cam = sceneEl.querySelector('a-camera, [camera]');
       if (!cam || cam.querySelector('[cursor]')) return;
       const c = document.createElement('a-entity');
@@ -533,5 +546,5 @@
     else sceneEl.addEventListener('loaded', add, { once: true });
   };
 
-  console.log('[bioma_componentes] v6 — VR-ready (popup HTML + painel 3D).');
+  console.log('[bioma_componentes] v7 — quality-aware (sway off em baixa).');
 })();

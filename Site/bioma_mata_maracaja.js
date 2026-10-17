@@ -1,11 +1,6 @@
 /* =========================================================
-   bioma_mata_maracaja.js — v3
+   bioma_mata_maracaja.js — v4 (LOD + qualidade)
    Mata Atlântica NOTURNA — Gato-maracajá (Leopardus wiedii)
-   Correções:
-   - Iluminação muito mais forte (fog leve, ambient alto)
-   - Árvores em anel distante (raio 15-28)
-   - Galhos com altura adequada
-   - Nada no centro
    Depende de: bioma_componentes.js
    ========================================================= */
 (function () {
@@ -20,62 +15,71 @@
     return { x: Math.cos(a) * r, z: Math.sin(a) * r };
   }
 
-  /* ---- GLB helper (com a correção que o Gemini fez) ---- */
   function glb(src, x, z, rot, alturaAlvo, yOffset) {
-    const id = 'glb_' + Math.random().toString(36).slice(2, 9);
-    const altura = alturaAlvo || 3;
-    const yBase = yOffset || 0;
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const ajustar = () => {
-        const mesh = el.getObject3D('mesh');
-        if (!mesh) return false;
+  const id = 'glb_' + Math.random().toString(36).slice(2, 9);
+  const altura = alturaAlvo || 3;
+  const yBase = yOffset || 0;
 
-        mesh.position.set(0, 0, 0);
-        mesh.rotation.set(0, 0, 0);
-        mesh.scale.set(1, 1, 1);
-        mesh.updateMatrixWorld(true);
+  const caminhoOriginal = 'assets/ambiente/' + src;
+  const caminhoFinal = window.MewQualidade
+    ? window.MewQualidade.resolverModelo(caminhoOriginal)
+    : caminhoOriginal;
 
-        const box = new THREE.Box3().setFromObject(mesh);
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
 
-        const escala = altura / size.y;
-        mesh.scale.set(escala, escala, escala);
-        mesh.updateMatrixWorld(true);
+    const ajustar = () => {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh) return false;
 
-        /* Correção do Gemini — compensa a posição do pai */
-        const box2 = new THREE.Box3().setFromObject(mesh);
-        const center2 = box2.getCenter(new THREE.Vector3());
-        const parentPos = new THREE.Vector3();
-        el.object3D.getWorldPosition(parentPos);
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
 
-        mesh.position.x = parentPos.x - center2.x;
-        mesh.position.z = parentPos.z - center2.z;
-        mesh.position.y = parentPos.y - box2.min.y;
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
 
-        mesh.updateMatrixWorld(true);
-        return true;
-      };
-      if (ajustar()) return;
-      let t = 0;
-      const iv = setInterval(() => {
-        t++;
-        if (ajustar() || t > 60) clearInterval(iv);
-      }, 100);
+      const escala = altura / size.y;
+      mesh.scale.set(escala, escala, escala);
+      mesh.updateMatrixWorld(true);
+
+      const box2 = new THREE.Box3().setFromObject(mesh);
+      const center2 = box2.getCenter(new THREE.Vector3());
+      const parentPos = new THREE.Vector3();
+      el.object3D.getWorldPosition(parentPos);
+
+      mesh.position.x = parentPos.x - center2.x;
+      mesh.position.z = parentPos.z - center2.z;
+      mesh.position.y = parentPos.y - box2.min.y;
+
+      mesh.updateMatrixWorld(true);
+      return true;
+    };
+    if (ajustar()) return;
+    let t = 0;
+    const iv = setInterval(() => {
+      t++;
+      if (ajustar() || t > 60) clearInterval(iv);
     }, 100);
-    return '<a-entity id="' + id + '" ' +
-           'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-           'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-           'gltf-model="url(assets/ambiente/' + src + ')" ' +
-           'shadow="cast: true; receive: true"></a-entity>';
-  }
+  }, 100);
 
-  /* ============================================================
-     PROCEDURAIS
-     ============================================================ */
+  const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+    ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+    : '';
+  const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+    ? 'shadow="cast: true; receive: true"'
+    : 'shadow="cast: false; receive: false"';
+
+  return '<a-entity id="' + id + '" ' +
+         'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+         'gltf-model="url(' + caminhoFinal + ')" ' +
+         sombraAttr + '></a-entity>';
+}
 
   function gerarVagalume(x, y, z) {
     const dur = randInt(2500, 5000);
@@ -113,9 +117,6 @@
     return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '">' + folhas + '</a-entity>';
   }
 
-  /* ============================================================
-     MONTAGEM PRINCIPAL
-     ============================================================ */
   function montarBiomaMaracaja(animal, opts) {
     opts = opts || {};
     const denso = opts.densidade !== 'baixa';
@@ -129,9 +130,7 @@
       ? '<a-sky src="' + skySrc + '" color="' + skyBase + '"></a-sky>'
       : '<a-sky color="' + skyBase + '"></a-sky>';
 
-    /* ============================================================
-       ESTRELAS (grandes, brilhantes)
-       ============================================================ */
+    /* ESTRELAS */
     for (let i = 0; i < (denso ? 60 : 40); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = 50 + Math.random() * 40;
@@ -141,9 +140,7 @@
 
     html += gerarLua();
 
-    /* ============================================================
-       CHÃO — mais claro pra dar pra ver a cena
-       ============================================================ */
+    /* CHÃO */
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="#1A2A18" shadow="receive: true"></a-circle>';
     for (let i = 0; i < (denso ? 15 : 8); i++) {
       const p = pos(4, 30);
@@ -151,9 +148,7 @@
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.005 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="#223018" opacity="0.7" transparent="true"></a-circle>';
     }
 
-    /* ============================================================
-   GLBs — ÁRVORES (guardando posições pra prender os galhos)
-   ============================================================ */
+    /* ÁRVORES em anel */
     const arvoresPosicoes = [];
 
     const nArvores = denso ? 22 : 14;
@@ -175,53 +170,35 @@
       arvoresPosicoes.push({ x: p.x, z: p.z, altura });
     }
 
-    /* ============================================================
-      GLBs — GALHOS presos nas árvores (um por árvore, alternado)
-      Cada galho sai do TRONCO da árvore, na altura Y=3.5
-      ============================================================ */
+    /* GALHOS presos nas árvores */
     const arvoresComGalho = [...arvoresPosicoes].sort(() => Math.random() - 0.5);
     const nGalhos = Math.min(denso ? 10 : 6, arvoresComGalho.length);
 
     for (let i = 0; i < nGalhos; i++) {
       const arvore = arvoresComGalho[i];
-
-      /* Ângulo aleatório em volta do tronco — o galho aponta pra fora */
       const ang = rand(0, Math.PI * 2);
-
-      /* Pequeno deslocamento pra sair do centro do tronco */
       const offset = 0.9;
       const gx = arvore.x + Math.cos(ang) * offset;
       const gz = arvore.z + Math.sin(ang) * offset;
-
-      /* Rotação = ângulo em graus. Assim o galho aponta pra fora do tronco. */
       const rotacaoY = (ang * 180 / Math.PI);
-
-      /* Altura do galho: entre 3 e 5m do chão */
       const alturaY = rand(3.0, 5.0);
-
       html += glb('noite_galho.glb', gx, gz, rotacaoY, 0.8, alturaY);
     }
 
-    /* ============================================================
-       GLBs — Troncos bioluminescentes no chão
-       ============================================================ */
+    /* Troncos bioluminescentes */
     const nTroncos = denso ? 10 : 5;
     for (let i = 0; i < nTroncos; i++) {
       const p = pos(6, 18);
       html += glb('noite_tronco_biopunk.glb', p.x, p.z, rand(0,360), 1.2);
     }
 
-    /* ============================================================
-       Procedurais de volume
-       ============================================================ */
+    /* Samambaias */
     for (let i = 0; i < (denso ? 30 : 18); i++) {
       const p = pos(4, 20);
       html += gerarSamambaiaNoturna(p.x, p.z);
     }
 
-    /* ============================================================
-       VAGALUMES — muitos, brilhantes, em toda a cena
-       ============================================================ */
+    /* VAGALUMES */
     const nVagalumes = denso ? 80 : 45;
     for (let i = 0; i < nVagalumes; i++) {
       const a = Math.random() * Math.PI * 2;
@@ -229,64 +206,16 @@
       html += gerarVagalume(Math.cos(a) * r, rand(0.8, 5.5), Math.sin(a) * r);
     }
 
-    /* ============================================================
-       HOTSPOTS — sempre fora do centro
-       ============================================================ */
-        /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição + imagem)
-       ============================================================ */
-    html += '<a-entity position="0 2.2 6" info-hotspot="' +
-      'titulo: Gato-maracaja; ' +
-      'categoria: Mamifero; ' +
-      'imagem: assets/hotspots/noite_maracaja_animal.jpg; ' +
-      'descricao: Leopardus wiedii. Felino arboricola de habitos noturnos. Desce de troncos de cabeca para baixo usando tornozelos que giram 180 graus. Vulneravel no Brasil. Ocorre em remanescentes de Mata Atlantica e Brejos de Altitude em Pernambuco.; ' +
-      'cor: #C8A860"></a-entity>';
+    /* HOTSPOTS */
+    html += '<a-entity position="0 2.2 6" info-hotspot="titulo: Gato-maracaja; categoria: Mamifero; imagem: assets/hotspots/noite_maracaja_animal.jpg; descricao: Leopardus wiedii. Felino arboricola de habitos noturnos. Desce de troncos de cabeca para baixo usando tornozelos que giram 180 graus. Vulneravel no Brasil. Ocorre em remanescentes de Mata Atlantica e Brejos de Altitude em Pernambuco.; cor: #C8A860"></a-entity>';
+    html += '<a-entity position="-8 3.0 -8" info-hotspot="titulo: Copa fechada; categoria: Habitat; imagem: assets/hotspots/noite_maracaja_copa.jpg; descricao: Estrato superior da floresta, onde o maracaja passa a maior parte do tempo.; cor: #153A1E"></a-entity>';
+    html += '<a-entity position="6 3.0 -10" info-hotspot="titulo: Lianas; categoria: Ecologia; imagem: assets/hotspots/noite_maracaja_liana.jpg; descricao: Pontes naturais entre as copas das arvores. O maracaja usa essas conexoes como atalho para cacar sem descer ao chao.; cor: #0A1A0A"></a-entity>';
+    html += '<a-entity position="-6 1.5 -12" info-hotspot="titulo: Fungos bioluminescentes; categoria: Ecologia; imagem: assets/hotspots/noite_maracaja_fungos.jpg; descricao: Brilham no escuro da mata. Indicam madeira em decomposicao e alta umidade.; cor: #40E0D0"></a-entity>';
+    html += '<a-entity position="8 2.0 -14" info-hotspot="titulo: Vagalumes; categoria: Ecologia; imagem: assets/hotspots/noite_maracaja_vagalumes.jpg; descricao: Sinalizam mata saudavel. Sao bioindicadores de umidade e ausencia de pesticidas.; cor: #FFE860"></a-entity>';
+    html += '<a-entity position="-4 3.5 -18" info-hotspot="titulo: APA Aldeia-Beberibe; categoria: Conservacao; imagem: assets/hotspots/noite_maracaja_apa.jpg; descricao: Area de Protecao Ambiental na Regiao Metropolitana do Recife. Um dos ultimos refugios do gato-maracaja na regiao.; cor: #A080FF"></a-entity>';
+    html += '<a-entity position="-10 1.5 6" info-hotspot="titulo: Fragmentacao; categoria: Ameaca; imagem: assets/hotspots/noite_maracaja_ameacas.jpg; descricao: Estradas e urbanizacao isolam populacoes. Atropelamentos e perda de habitat sao as maiores ameacas ao gato-maracaja.; cor: #E8482A"></a-entity>';
 
-    html += '<a-entity position="-8 3.0 -8" info-hotspot="' +
-      'titulo: Copa fechada; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/noite_maracaja_copa.jpg; ' +
-      'descricao: Estrato superior da floresta, onde o maracaja passa a maior parte do tempo. Suas articulacoes flexiveis permitem que ele cace, durma e crie filhotes a dezenas de metros do chao, longe de predadores terrestres.; ' +
-      'cor: #153A1E"></a-entity>';
-
-    html += '<a-entity position="6 3.0 -10" info-hotspot="' +
-      'titulo: Lianas; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/noite_maracaja_liana.jpg; ' +
-      'descricao: Pontes naturais entre as copas das arvores. O maracaja usa essas conexoes como atalho para cacar sem descer ao chao, o que reduz o risco de encontros com predadores maiores como a jaguatirica.; ' +
-      'cor: #0A1A0A"></a-entity>';
-
-    html += '<a-entity position="-6 1.5 -12" info-hotspot="' +
-      'titulo: Fungos bioluminescentes; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/noite_maracaja_fungos.jpg; ' +
-      'descricao: Brilham no escuro da mata. Indicam madeira em decomposicao e alta umidade. Sao bioindicadores de floresta saudavel e fazem parte do ciclo de reciclagem de nutrientes do sub-bosque, onde o maracaja tambem caca.; ' +
-      'cor: #40E0D0"></a-entity>';
-
-    html += '<a-entity position="8 2.0 -14" info-hotspot="' +
-      'titulo: Vagalumes; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/noite_maracaja_vagalumes.jpg; ' +
-      'descricao: Sinalizam mata saudavel. Sao bioindicadores de umidade e ausencia de pesticidas. A presenca de muitos vagalumes indica que o fragmento ainda sustenta a cadeia alimentar completa, incluindo predadores noturnos como o maracaja.; ' +
-      'cor: #FFE860"></a-entity>';
-
-    html += '<a-entity position="-4 3.5 -18" info-hotspot="' +
-      'titulo: APA Aldeia-Beberibe; ' +
-      'categoria: Conservacao; ' +
-      'imagem: assets/hotspots/noite_maracaja_apa.jpg; ' +
-      'descricao: Area de Protecao Ambiental na Regiao Metropolitana do Recife. Um dos ultimos refugios do gato-maracaja na regiao. A APA protege remanescentes de Mata Atlantica que conectam fragmentos importantes para a especie.; ' +
-      'cor: #A080FF"></a-entity>';
-
-    html += '<a-entity position="-10 1.5 6" info-hotspot="' +
-      'titulo: Fragmentacao; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/noite_maracaja_ameacas.jpg; ' +
-      'descricao: Estradas e urbanizacao isolam populacoes. Atropelamentos e perda de habitat sao as maiores ameacas ao gato-maracaja. Sem corredores ecologicos, os jovens nao conseguem se dispersar e a especie desaparece dos fragmentos.; ' +
-      'cor: #E8482A"></a-entity>';
-
-    /* ============================================================
-       ILUMINAÇÃO — MUITO mais clara pra ver a cena
-       ============================================================ */
+    /* Iluminação */
     html += '<a-entity light="type: ambient; color: #8090C0; intensity: 0.9"></a-entity>' +
             '<a-entity position="18 22 -35" light="type: point; color: #F0E8C0; intensity: 1.2; distance: 80"></a-entity>' +
             '<a-entity position="10 15 10" light="type: point; color: #6A9AC8; intensity: 0.7; distance: 30"></a-entity>' +
@@ -324,5 +253,5 @@
   };
 
   window.MewBiomas.montarBiomaMaracaja = montarBiomaMaracaja;
-  console.log('[bioma_mata_maracaja] v3 — Iluminação clara, árvores em anel, sem sobreposição.');
+  console.log('[bioma_mata_maracaja] v4 — LOD + qualidade registrado.');
 })();

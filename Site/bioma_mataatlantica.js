@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_mataatlantica.js — v3 (com GLBs)
+   bioma_mataatlantica.js — v4 (LOD + qualidade)
    Bioma Mata Atlântica — Saíra-pintor (Tangara fastuosa).
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -20,6 +20,11 @@
   const altura = alturaAlvo || 3;
   const yBase = yOffset || 0;
 
+  const caminhoOriginal = 'assets/ambiente/' + src;
+  const caminhoFinal = window.MewQualidade
+    ? window.MewQualidade.resolverModelo(caminhoOriginal)
+    : caminhoOriginal;
+
   setTimeout(() => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -28,25 +33,20 @@
       const mesh = el.getObject3D('mesh');
       if (!mesh) return false;
 
-      /* Reset */
       mesh.position.set(0, 0, 0);
       mesh.rotation.set(0, 0, 0);
       mesh.scale.set(1, 1, 1);
       mesh.updateMatrixWorld(true);
 
-      /* Mede tamanho original */
       const box = new THREE.Box3().setFromObject(mesh);
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
 
-      /* Escala pra bater a altura alvo */
       const escala = altura / size.y;
       mesh.scale.set(escala, escala, escala);
       mesh.updateMatrixWorld(true);
 
-      /* Recalcula depois da escala */
-      /* Recalcula depois da escala */
       const box2 = new THREE.Box3().setFromObject(mesh);
       const center2 = box2.getCenter(new THREE.Vector3());
 
@@ -54,7 +54,6 @@
       const parentPos = new THREE.Vector3();
       el.object3D.getWorldPosition(parentPos);
 
-      // Ajusta o mesh internamente compensando a posição original do pai
       mesh.position.x = parentPos.x - center2.x;
       mesh.position.z = parentPos.z - center2.z;
       mesh.position.y = parentPos.y - box2.min.y;
@@ -72,11 +71,18 @@
     }, 100);
   }, 100);
 
+  const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+    ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+    : '';
+  const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+    ? 'shadow="cast: true; receive: true"'
+    : 'shadow="cast: false; receive: false"';
+
   return '<a-entity id="' + id + '" ' +
          'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-         'gltf-model="url(assets/ambiente/' + src + ')" ' +
-         'shadow="cast: true; receive: true"></a-entity>';
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+         'gltf-model="url(' + caminhoFinal + ')" ' +
+         sombraAttr + '></a-entity>';
 }
 
   /* Procedurais leves */
@@ -242,7 +248,6 @@
 
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="' + chaoBase + '" shadow="receive: true"></a-circle>';
 
-    /* Manchas de folhiço */
     for (let i = 0; i < (denso ? 20 : 12); i++) {
       const p = pos(2, 35);
       const r = rand(1.5, 4);
@@ -250,49 +255,39 @@
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.006 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + cor + '" opacity="0.55" transparent="true"></a-circle>';
     }
 
-    /* Folhas soltas */
     for (let i = 0; i < (denso ? 60 : 30); i++) {
       const p = pos(1, 25);
       const cor = pick(['#5A3A20', '#8A5A28', '#4A7A32', '#A86A28']);
       html += '<a-plane position="' + p.x.toFixed(2) + ' 0.012 ' + p.z.toFixed(2) + '" width="' + rand(0.12,0.22).toFixed(2) + '" height="' + rand(0.08,0.15).toFixed(2) + '" color="' + cor + '" material="shader: flat; side: double; opacity: 0.9; transparent: true" rotation="-90 ' + rand(0,360).toFixed(1) + ' 0"></a-plane>';
     }
 
-    /* Raios de luz */
     for (let i = 0; i < (denso ? 8 : 4); i++) {
       const p = pos(2, 20);
       html += gerarRaioCopa(p.x, p.z, rand(6, 9), rand(0.8, 1.8));
     }
 
-    /* ============================================================
-       GLBs — Palmeiras juçara
-       ============================================================ */
+    /* Palmeiras juçara */
     const nPalm = denso ? 14 : 8;
     for (let i = 0; i < nPalm; i++) {
       const p = pos(4, 22);
       html += glb('mata_palmeira.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       GLBs — Árvores frutíferas (fonte de alimento da saíra)
-       ============================================================ */
+    /* Árvores frutíferas */
     const nFrut = denso ? 8 : 5;
     for (let i = 0; i < nFrut; i++) {
       const p = pos(4, 16);
       html += glb('mata_frutifera.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       GLBs — Bromélias gigantes
-       ============================================================ */
+    /* Bromélias */
     const nBrom = denso ? 18 : 10;
     for (let i = 0; i < nBrom; i++) {
       const p = pos(2, 18);
       html += glb('mata_bromelia.glb', p.x, p.z, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       GLBs — Troncos caídos com musgo
-       ============================================================ */
+    /* Troncos */
     const nTroncos = denso ? 6 : 3;
     for (let i = 0; i < nTroncos; i++) {
       const p = pos(4, 18);
@@ -306,10 +301,9 @@
       html += gerarBambu(Math.cos(a) * r, Math.sin(a) * r);
     }
 
-    /* Riacho */
     html += gerarRiacho();
 
-    /* Samambaias (procedural em massa) */
+    /* Samambaias */
     for (let i = 0; i < (denso ? 40 : 24); i++) {
       const p = pos(1.5, 20);
       html += gerarSamambaia(p.x, p.z);
@@ -347,7 +341,7 @@
       html += gerarSairaPousada(0.5, 1.75, -5.2);
     }
 
-    /* Pássaros voando + borboletas */
+    /* Pássaros + borboletas */
     for (let i = 0; i < (denso ? 6 : 3); i++) {
       const a = rand(0, Math.PI * 2);
       const r = rand(3, 10);
@@ -359,79 +353,17 @@
       html += gerarBorboleta(Math.cos(a) * r, rand(0.6, 2.6), Math.sin(a) * r);
     }
 
-    /* Hotspots */
-        /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição + imagem)
-       ============================================================ */
-    html += '<a-entity position="0 2.2 2.5" info-hotspot="' +
-      'titulo: Saiara-pintor; ' +
-      'categoria: Ave; ' +
-      'imagem: assets/hotspots/mata_saira_ave.jpg; ' +
-      'descricao: Tangara fastuosa. Endemica do Nordeste brasileiro. Plumagem com turquesa, verde, amarelo, preto e violeta. Mede 13 a 14 cm e pesa 16 a 21 g. Vive em pequenos grupos familiares e e bastante territorialista. Ameacada pelo trafico.; ' +
-      'cor: #3FD9E0"></a-entity>';
-
-    html += '<a-entity position="-3.5 0.8 -3" info-hotspot="' +
-      'titulo: Samambaia; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/mata_saira_samambaia.jpg; ' +
-      'descricao: Indicador de mata umida preservada. So cresce em sub-bosque com sombra e alta umidade. Sua presenca sinaliza que a floresta mantem condicoes ideais para a saira-pintor e outras especies sensiveis.; ' +
-      'cor: #4A9A40"></a-entity>';
-
-    html += '<a-entity position="3.5 1.0 -4" info-hotspot="' +
-      'titulo: Arvore frutifera; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/mata_saira_frutifera.jpg; ' +
-      'descricao: Frutos silvestres sao o principal alimento da saira-pintor. Sem floresta nativa, a especie desaparece. Ela atua como dispersora de sementes, ajudando a regenerar a propria Mata Atlantica.; ' +
-      'cor: #F0A028"></a-entity>';
-
-    html += '<a-entity position="-2 0.6 3" info-hotspot="' +
-      'titulo: Bromelia; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/mata_saira_bromelia.jpg; ' +
-      'descricao: Planta epifita que acumula agua entre as folhas, formando uma minipiscina. Abriga sapos, insetos e micro-organismos. Simbolo da Mata Atlantica e microhabitat crucial para muitas especies.; ' +
-      'cor: #C8382A"></a-entity>';
-
-    html += '<a-entity position="5 2.8 -6" info-hotspot="' +
-      'titulo: Bambu; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/mata_saira_bambu.jpg; ' +
-      'descricao: Bambuzais nativos formam corredores de fauna na Mata Atlantica. A saira-pintor usa esses emaranhados para se esconder de predadores e como area de forrageamento. Tambem servem de abrigo para pequenos mamiferos.; ' +
-      'cor: #6A9A40"></a-entity>';
-
-    html += '<a-entity position="-5 2.5 -8" info-hotspot="' +
-      'titulo: Lianas e cipos; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/mata_saira_liana.jpg; ' +
-      'descricao: Plantas trepadeiras que conectam as copas das arvores, criando passagens aereas para a fauna. A saira-pintor forrageia pelas lianas em busca de insetos e frutas, usando-as como verdadeiras estradas na floresta.; ' +
-      'cor: #3A5A28"></a-entity>';
-
-    html += '<a-entity position="-1 0.5 -6" info-hotspot="' +
-      'titulo: Folhico; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/mata_saira_folhico.jpg; ' +
-      'descricao: Camada de folhas secas em decomposicao. Mantem a umidade do solo, alimenta decompositores e abriga invertebrados. Parte da cadeia alimentar que sustenta insetos, que alimentam aves como a saira-pintor.; ' +
-      'cor: #5A3A20"></a-entity>';
-
-    html += '<a-entity position="6 1.3 -2" info-hotspot="' +
-      'titulo: Riacho; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/mata_saira_riacho.jpg; ' +
-      'descricao: Cursos de agua sao essenciais na Mata Atlantica. Riachos limpos indicam floresta viva e sao fonte de agua para todas as especies. A saira-pintor costuma forragear nas margens, onde a umidade atrai insetos.; ' +
-      'cor: #4A90B8"></a-entity>';
-
-    html += '<a-entity position="2 3.2 -12" info-hotspot="' +
-      'titulo: Mata Atlantica; ' +
-      'categoria: Bioma; ' +
-      'imagem: assets/hotspots/mata_saira_bioma.jpg; ' +
-      'descricao: Um dos biomas mais ricos e ameacados do planeta. Restam cerca de 12 porcento da cobertura original, muito fragmentada. No Nordeste, o Centro de Endemismo Pernambuco abriga especies unicas como a saira-pintor.; ' +
-      'cor: #2E7A30"></a-entity>';
-
-    html += '<a-entity position="-4 0.9 5" info-hotspot="' +
-      'titulo: Trafico de aves; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/mata_saira_trafico.jpg; ' +
-      'descricao: A saira-pintor e cobicada por sua beleza e canto. A captura ilegal e o desmatamento a colocaram em risco de extincao. Combater o trafico e restaurar a Mata Atlantica sao as principais estrategias para salva-la.; ' +
-      'cor: #E8482A"></a-entity>';
+    /* HOTSPOTS */
+    html += '<a-entity position="0 2.2 2.5" info-hotspot="titulo: Saiara-pintor; categoria: Ave; imagem: assets/hotspots/mata_saira_ave.jpg; descricao: Tangara fastuosa. Endemica do Nordeste brasileiro. Plumagem com turquesa, verde, amarelo, preto e violeta. Mede 13 a 14 cm e pesa 16 a 21 g. Vive em pequenos grupos familiares e e bastante territorialista. Ameacada pelo trafico.; cor: #3FD9E0"></a-entity>';
+    html += '<a-entity position="-3.5 0.8 -3" info-hotspot="titulo: Samambaia; categoria: Planta; imagem: assets/hotspots/mata_saira_samambaia.jpg; descricao: Indicador de mata umida preservada. So cresce em sub-bosque com sombra e alta umidade.; cor: #4A9A40"></a-entity>';
+    html += '<a-entity position="3.5 1.0 -4" info-hotspot="titulo: Arvore frutifera; categoria: Planta; imagem: assets/hotspots/mata_saira_frutifera.jpg; descricao: Frutos silvestres sao o principal alimento da saira-pintor. Sem floresta nativa, a especie desaparece.; cor: #F0A028"></a-entity>';
+    html += '<a-entity position="-2 0.6 3" info-hotspot="titulo: Bromelia; categoria: Planta; imagem: assets/hotspots/mata_saira_bromelia.jpg; descricao: Planta epifita que acumula agua entre as folhas, formando uma minipiscina.; cor: #C8382A"></a-entity>';
+    html += '<a-entity position="5 2.8 -6" info-hotspot="titulo: Bambu; categoria: Planta; imagem: assets/hotspots/mata_saira_bambu.jpg; descricao: Bambuzais nativos formam corredores de fauna na Mata Atlantica.; cor: #6A9A40"></a-entity>';
+    html += '<a-entity position="-5 2.5 -8" info-hotspot="titulo: Lianas e cipos; categoria: Ecologia; imagem: assets/hotspots/mata_saira_liana.jpg; descricao: Plantas trepadeiras que conectam as copas das arvores, criando passagens aereas para a fauna.; cor: #3A5A28"></a-entity>';
+    html += '<a-entity position="-1 0.5 -6" info-hotspot="titulo: Folhico; categoria: Ecologia; imagem: assets/hotspots/mata_saira_folhico.jpg; descricao: Camada de folhas secas em decomposicao. Mantem a umidade do solo, alimenta decompositores.; cor: #5A3A20"></a-entity>';
+    html += '<a-entity position="6 1.3 -2" info-hotspot="titulo: Riacho; categoria: Habitat; imagem: assets/hotspots/mata_saira_riacho.jpg; descricao: Cursos de agua sao essenciais na Mata Atlantica.; cor: #4A90B8"></a-entity>';
+    html += '<a-entity position="2 3.2 -12" info-hotspot="titulo: Mata Atlantica; categoria: Bioma; imagem: assets/hotspots/mata_saira_bioma.jpg; descricao: Um dos biomas mais ricos e ameacados do planeta. Restam cerca de 12 porcento da cobertura original.; cor: #2E7A30"></a-entity>';
+    html += '<a-entity position="-4 0.9 5" info-hotspot="titulo: Trafico de aves; categoria: Ameaca; imagem: assets/hotspots/mata_saira_trafico.jpg; descricao: A saira-pintor e cobicada por sua beleza e canto. A captura ilegal e o desmatamento a colocaram em risco de extincao.; cor: #E8482A"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #C8E8D8; intensity: 0.65"></a-entity>' +
@@ -461,5 +393,5 @@
   };
 
   window.MewBiomas.montarBiomaMataAtlantica = montarBiomaMataAtlantica;
-  console.log('[bioma_mataatlantica] v3 — Mata Atlântica (com GLBs) registrado.');
+  console.log('[bioma_mataatlantica] v4 — LOD + qualidade registrado.');
 })();

@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_cerrado_tamandua.js — v3 (com GLBs)
+   bioma_cerrado_tamandua.js — v4 (LOD + qualidade)
    Cerrado — Tamanduá-bandeira (Myrmecophaga tridactyla)
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -20,6 +20,11 @@
   const altura = alturaAlvo || 3;
   const yBase = yOffset || 0;
 
+  const caminhoOriginal = 'assets/ambiente/' + src;
+  const caminhoFinal = window.MewQualidade
+    ? window.MewQualidade.resolverModelo(caminhoOriginal)
+    : caminhoOriginal;
+
   setTimeout(() => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -28,28 +33,23 @@
       const mesh = el.getObject3D('mesh');
       if (!mesh) return false;
 
-      /* Reset */
       mesh.position.set(0, 0, 0);
       mesh.rotation.set(0, 0, 0);
       mesh.scale.set(1, 1, 1);
       mesh.updateMatrixWorld(true);
 
-      /* Mede tamanho original */
       const box = new THREE.Box3().setFromObject(mesh);
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
 
-      /* Escala pra bater a altura alvo */
       const escala = altura / size.y;
       mesh.scale.set(escala, escala, escala);
       mesh.updateMatrixWorld(true);
 
-      /* Recalcula depois da escala */
       const box2 = new THREE.Box3().setFromObject(mesh);
       const center2 = box2.getCenter(new THREE.Vector3());
 
-      /* Centraliza em X/Z e sobe o Y pra base tocar o chão */
       mesh.position.x = -center2.x;
       mesh.position.z = -center2.z;
       mesh.position.y = -box2.min.y;
@@ -67,11 +67,18 @@
     }, 100);
   }, 100);
 
+  const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+    ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+    : '';
+  const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+    ? 'shadow="cast: true; receive: true"'
+    : 'shadow="cast: false; receive: false"';
+
   return '<a-entity id="' + id + '" ' +
          'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-         'gltf-model="url(assets/ambiente/' + src + ')" ' +
-         'shadow="cast: true; receive: true"></a-entity>';
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+         'gltf-model="url(' + caminhoFinal + ')" ' +
+         sombraAttr + '></a-entity>';
 }
 
   /* ---------- Procedurais leves ---------- */
@@ -145,7 +152,6 @@
       '</a-entity>';
   }
 
-  /* ---------- Cena principal ---------- */
   function montarBiomaCerrado(animal, opts) {
     opts = opts || {};
     const denso = opts.densidade !== 'baixa';
@@ -159,10 +165,8 @@
       ? '<a-sky src="' + skySrc + '" color="' + skyBase + '"></a-sky>'
       : '<a-sky color="' + skyBase + '"></a-sky>';
 
-    /* Chão */
     html += '<a-circle position="0 0 0" rotation="-90 0 0" radius="90" color="' + chaoBase + '" shadow="receive: true"></a-circle>';
 
-    /* Manchas de terra vermelha */
     for (let i = 0; i < (denso ? 30 : 18); i++) {
       const p = pos(2, 40);
       const r = rand(1.5, 4);
@@ -170,20 +174,14 @@
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.005 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + cor + '" opacity="0.5" transparent="true"></a-circle>';
     }
 
-    /* Marcas de fogo */
     for (let i = 0; i < (denso ? 5 : 3); i++) {
       const p = pos(8, 25);
       html += gerarQueimada(p.x, p.z);
     }
 
-    /* Vereda (área úmida para os buritis) */
     html += '<a-circle position="10 0.02 -8" rotation="-90 0 0" radius="2.5" color="#6A7A5A" opacity="0.6" transparent="true"></a-circle>';
 
-    /* ============================================================
-       GLBs-herói (modelos do Meshy)
-       ============================================================ */
-
-    /* Buritis — agrupados na vereda */
+    /* Buritis */
     const nBuriti = denso ? 7 : 4;
     for (let i = 0; i < nBuriti; i++) {
       const a = (i / nBuriti) * Math.PI * 2;
@@ -191,14 +189,14 @@
       html += glb('cerrado_buriti.glb', 10 + Math.cos(a) * r, -8 + Math.sin(a) * r, rand(0,360), 5.0);
     }
 
-    /* Ipês floridos */
+    /* Ipês */
     const nIpe = denso ? 6 : 3;
     for (let i = 0; i < nIpe; i++) {
       const p = pos(10, 28);
       html += glb('cerrado_ipe.glb', p.x, p.z, rand(0,360), 5.0);
     }
 
-    /* Pequizeiros retorcidos — usamos o arquivo `pequizeiro_cerrado.glb` do seu disco */
+    /* Pequizeiros */
     const nPequi = denso ? 14 : 8;
     for (let i = 0; i < nPequi; i++) {
       const p = pos(6, 26);
@@ -212,16 +210,12 @@
       html += glb('cerrado_cupinzeiro.glb', p.x, p.z, rand(0,360), 3.5);
     }
 
-    /* Árvores mortas (queimadas) */
+    /* Árvores mortas */
     const nMorta = denso ? 6 : 3;
     for (let i = 0; i < nMorta; i++) {
       const p = pos(5, 22);
       html += glb('cerrado_morto.glb', p.x, p.z, rand(0,360), 4.0);
     }
-
-    /* ============================================================
-       Procedurais de volume (preenchem a cena)
-       ============================================================ */
 
     /* Murundus */
     for (let i = 0; i < (denso ? 20 : 12); i++) {
@@ -258,86 +252,18 @@
       html += gerarAraraVoando(p.x, rand(4, 7), p.z);
     }
 
-    /* Hotspots */
-        /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição + imagem)
-       ============================================================ */
-    html += '<a-entity position="0 2.0 2.5" info-hotspot="' +
-      'titulo: Tamandua-bandeira; ' +
-      'categoria: Mamifero; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_animal.jpg; ' +
-      'descricao: Myrmecophaga tridactyla. Pode medir ate 2.10 m e pesar 40 kg. Come cerca de 30 mil formigas e cupins por dia com sua lingua de 60 cm coberta de saliva pegajosa. Considerado Vulneravel no Brasil.; ' +
-      'cor: #4A3A2A"></a-entity>';
-
-    html += '<a-entity position="4 1.6 -4" info-hotspot="' +
-      'titulo: Cupinzeiro; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_cupinzeiro.jpg; ' +
-      'descricao: Construcao de cupins gigante do Cerrado. Fonte de alimento principal do tamandua, que abre o cupinzeiro com as garras dianteiras e lambe os insetos. As cavidades que ele cria viram abrigo para outras especies.; ' +
-      'cor: #7A5A3A"></a-entity>';
-
-    html += '<a-entity position="-4 0.7 -3" info-hotspot="' +
-      'titulo: Capim do Cerrado; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_capim.jpg; ' +
-      'descricao: Base da cadeia alimentar do Cerrado. Renasce rapidamente apos o fogo natural, alimenta insetos herbivoros que por sua vez alimentam o tamandua-bandeira. Essencial para a ciclagem de nutrientes do bioma.; ' +
-      'cor: #A0A860"></a-entity>';
-
-    html += '<a-entity position="4 1.2 -6" info-hotspot="' +
-      'titulo: Pequizeiro; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_pequizeiro.jpg; ' +
-      'descricao: Caryocar brasiliense. Arvore retorcida tipica do Cerrado. Seus frutos, os pequis, alimentam a fauna e as populacoes humanas do Cerrado. Considerada simbolo do bioma e ameacada pela expansao agricola.; ' +
-      'cor: #3A6A2A"></a-entity>';
-
-    html += '<a-entity position="10 4 -8" info-hotspot="' +
-      'titulo: Buriti; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_buriti.jpg; ' +
-      'descricao: Mauritia flexuosa. Palmeira das veredas, areas umidas do Cerrado. Funciona como corredor ecologico entre fragmentos e fonte de alimento para diversas especies. Sua presenca indica solo umido e nascente de agua.; ' +
-      'cor: #2E7A30"></a-entity>';
-
-    html += '<a-entity position="-4 0.6 -5" info-hotspot="' +
-      'titulo: Murundu; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_murundu.jpg; ' +
-      'descricao: Montinho de terra feito por cupins ao longo de milhares de anos. Muda a composicao do solo e cria microambientes unicos no Cerrado, permitindo o crescimento de especies vegetais que nao ocorrem em outros locais.; ' +
-      'cor: #8A6A4A"></a-entity>';
-
-    html += '<a-entity position="6 0.6 -8" info-hotspot="' +
-      'titulo: Marcas do fogo; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_fogo.jpg; ' +
-      'descricao: O fogo natural faz parte do ciclo do Cerrado. Queimadas criminosas, porem, devastam fauna e flora. O tamandua-bandeira e uma das principais vitimas, sofrendo queimaduras e perdendo seu alimento.; ' +
-      'cor: #2A2018"></a-entity>';
-
-    html += '<a-entity position="-6 1.4 -3" info-hotspot="' +
-      'titulo: Ipe florido; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_ipe.jpg; ' +
-      'descricao: Handroanthus spp. Simbolo do Cerrado e do Brasil. Floresce na estacao seca, anunciando a chegada das chuvas. Sua florada amarela, rosa ou branca transforma a paisagem e alimenta abelhas e beija-flores.; ' +
-      'cor: #F0C230"></a-entity>';
-
-    html += '<a-entity position="3 1.2 -3" info-hotspot="' +
-      'titulo: Seriema; ' +
-      'categoria: Ave; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_seriema.jpg; ' +
-      'descricao: Cariama cristata. Ave tipica do Cerrado. Anda em casais pelo chao e come insetos, lagartos e cobras pequenas. Considerada uma das aves mais antigas do bioma, com parentesco distante com as extintas aves do terror.; ' +
-      'cor: #8A8A80"></a-entity>';
-
-    html += '<a-entity position="0 3.0 -12" info-hotspot="' +
-      'titulo: Cerrado; ' +
-      'categoria: Bioma; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_bioma.jpg; ' +
-      'descricao: Berco das aguas do Brasil. Considerado a savana mais biodiversa do planeta, abriga mais de 10 mil especies de plantas. Ocupa cerca de 24 porcento do territorio nacional, mas ja perdeu metade da cobertura original.; ' +
-      'cor: #E8D8B0"></a-entity>';
-
-    html += '<a-entity position="-6 0.6 3" info-hotspot="' +
-      'titulo: Ameacas; ' +
-      'categoria: Conservacao; ' +
-      'imagem: assets/hotspots/cerrado_tamandua_ameacas.jpg; ' +
-      'descricao: Queimadas criminosas, atropelamentos, expansao do agronegocio e fragmentacao do habitat ameacam o tamandua-bandeira. A especie ja esta classificada como Vulneravel no Brasil e perde populacoes em varias regioes.; ' +
-      'cor: #E8482A"></a-entity>';
+    /* HOTSPOTS */
+    html += '<a-entity position="0 2.0 2.5" info-hotspot="titulo: Tamandua-bandeira; categoria: Mamifero; imagem: assets/hotspots/cerrado_tamandua_animal.jpg; descricao: Myrmecophaga tridactyla. Pode medir ate 2.10 m e pesar 40 kg. Come cerca de 30 mil formigas e cupins por dia com sua lingua de 60 cm coberta de saliva pegajosa. Considerado Vulneravel no Brasil.; cor: #4A3A2A"></a-entity>';
+    html += '<a-entity position="4 1.6 -4" info-hotspot="titulo: Cupinzeiro; categoria: Ecologia; imagem: assets/hotspots/cerrado_tamandua_cupinzeiro.jpg; descricao: Construcao de cupins gigante do Cerrado. Fonte de alimento principal do tamandua.; cor: #7A5A3A"></a-entity>';
+    html += '<a-entity position="-4 0.7 -3" info-hotspot="titulo: Capim do Cerrado; categoria: Planta; imagem: assets/hotspots/cerrado_tamandua_capim.jpg; descricao: Base da cadeia alimentar do Cerrado. Renasce rapidamente apos o fogo natural.; cor: #A0A860"></a-entity>';
+    html += '<a-entity position="4 1.2 -6" info-hotspot="titulo: Pequizeiro; categoria: Planta; imagem: assets/hotspots/cerrado_tamandua_pequizeiro.jpg; descricao: Caryocar brasiliense. Arvore retorcida tipica do Cerrado. Seus frutos, os pequis, alimentam a fauna e as populacoes humanas.; cor: #3A6A2A"></a-entity>';
+    html += '<a-entity position="10 4 -8" info-hotspot="titulo: Buriti; categoria: Planta; imagem: assets/hotspots/cerrado_tamandua_buriti.jpg; descricao: Mauritia flexuosa. Palmeira das veredas, areas umidas do Cerrado.; cor: #2E7A30"></a-entity>';
+    html += '<a-entity position="-4 0.6 -5" info-hotspot="titulo: Murundu; categoria: Ecologia; imagem: assets/hotspots/cerrado_tamandua_murundu.jpg; descricao: Montinho de terra feito por cupins ao longo de milhares de anos.; cor: #8A6A4A"></a-entity>';
+    html += '<a-entity position="6 0.6 -8" info-hotspot="titulo: Marcas do fogo; categoria: Ecologia; imagem: assets/hotspots/cerrado_tamandua_fogo.jpg; descricao: O fogo natural faz parte do ciclo do Cerrado. Queimadas criminosas devastam fauna e flora.; cor: #2A2018"></a-entity>';
+    html += '<a-entity position="-6 1.4 -3" info-hotspot="titulo: Ipe florido; categoria: Planta; imagem: assets/hotspots/cerrado_tamandua_ipe.jpg; descricao: Handroanthus spp. Simbolo do Cerrado e do Brasil. Floresce na estacao seca.; cor: #F0C230"></a-entity>';
+    html += '<a-entity position="3 1.2 -3" info-hotspot="titulo: Seriema; categoria: Ave; imagem: assets/hotspots/cerrado_tamandua_seriema.jpg; descricao: Cariama cristata. Ave tipica do Cerrado. Anda em casais pelo chao.; cor: #8A8A80"></a-entity>';
+    html += '<a-entity position="0 3.0 -12" info-hotspot="titulo: Cerrado; categoria: Bioma; imagem: assets/hotspots/cerrado_tamandua_bioma.jpg; descricao: Berco das aguas do Brasil. Considerado a savana mais biodiversa do planeta.; cor: #E8D8B0"></a-entity>';
+    html += '<a-entity position="-6 0.6 3" info-hotspot="titulo: Ameacas; categoria: Conservacao; imagem: assets/hotspots/cerrado_tamandua_ameacas.jpg; descricao: Queimadas criminosas, atropelamentos, expansao do agronegocio e fragmentacao do habitat ameacam o tamandua-bandeira.; cor: #E8482A"></a-entity>';
 
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #D8E0E0; intensity: 0.55"></a-entity>' +
@@ -366,5 +292,5 @@
   };
 
   window.MewBiomas.montarBiomaCerrado = montarBiomaCerrado;
-  console.log('[bioma_cerrado_tamandua] v3 — Cerrado (Tamanduá) com GLBs registrado.');
+  console.log('[bioma_cerrado_tamandua] v4 — LOD + qualidade registrado.');
 })();

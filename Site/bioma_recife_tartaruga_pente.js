@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_recife_tartaruga_pente.js — v2 (com GLBs)
+   bioma_recife_tartaruga_pente.js — v3 (LOD + qualidade)
    RECIFE DE CORAIS RASO — Tartaruga-de-pente (Eretmochelys imbricata)
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -20,6 +20,11 @@
   const altura = alturaAlvo || 3;
   const yBase = yOffset || 0;
 
+  const caminhoOriginal = 'assets/ambiente/' + src;
+  const caminhoFinal = window.MewQualidade
+    ? window.MewQualidade.resolverModelo(caminhoOriginal)
+    : caminhoOriginal;
+
   setTimeout(() => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -28,33 +33,26 @@
       const mesh = el.getObject3D('mesh');
       if (!mesh) return false;
 
-      /* Reset */
       mesh.position.set(0, 0, 0);
       mesh.rotation.set(0, 0, 0);
       mesh.scale.set(1, 1, 1);
       mesh.updateMatrixWorld(true);
 
-      /* Mede tamanho original */
       const box = new THREE.Box3().setFromObject(mesh);
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
 
-      /* Escala pra bater a altura alvo */
       const escala = altura / size.y;
       mesh.scale.set(escala, escala, escala);
       mesh.updateMatrixWorld(true);
 
-      /* Recalcula depois da escala */
-      /* Recalcula depois da escala */
       const box2 = new THREE.Box3().setFromObject(mesh);
       const center2 = box2.getCenter(new THREE.Vector3());
 
-      // Captura a posição global da entidade pai (<a-entity>)
       const parentPos = new THREE.Vector3();
       el.object3D.getWorldPosition(parentPos);
 
-      // Ajusta o mesh internamente compensando a posição original do pai
       mesh.position.x = parentPos.x - center2.x;
       mesh.position.z = parentPos.z - center2.z;
       mesh.position.y = parentPos.y - box2.min.y;
@@ -72,11 +70,18 @@
     }, 100);
   }, 100);
 
+  const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+    ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+    : '';
+  const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+    ? 'shadow="cast: true; receive: true"'
+    : 'shadow="cast: false; receive: false"';
+
   return '<a-entity id="' + id + '" ' +
          'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-         'gltf-model="url(assets/ambiente/' + src + ')" ' +
-         'shadow="cast: true; receive: true"></a-entity>';
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+         'gltf-model="url(' + caminhoFinal + ')" ' +
+         sombraAttr + '></a-entity>';
 }
 
   function gerarAnemona(x, z, cor) {
@@ -181,9 +186,7 @@
       html += gerarRaioSol(p.x, p.z, rand(5, 7), rand(1.0, 2.0));
     }
 
-    /* ============================================================
-       GLBs — ESPONJAS (alimento principal)
-       ============================================================ */
+    /* Esponjas */
     const nEspBarril = denso ? 14 : 8;
     for (let i = 0; i < nEspBarril; i++) {
       const p = pos(3, 20);
@@ -194,7 +197,6 @@
       const p = pos(3, 20);
       html += glb('recife_esponja_tubo.glb', p.x, p.z, rand(0,360), 1.2);
     }
-    /* Núcleo de esponjas à esquerda */
     for (let i = 0; i < (denso ? 10 : 5); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = rand(0, 2.5);
@@ -202,9 +204,7 @@
       html += glb(src, -4 + Math.cos(a)*r, -4 + Math.sin(a)*r, rand(0,360), 1.2);
     }
 
-    /* ============================================================
-       GLBs — Corais variados
-       ============================================================ */
+    /* Corais */
     const nCoralRamo = denso ? 12 : 7;
     for (let i = 0; i < nCoralRamo; i++) {
       const p = pos(4, 22);
@@ -220,7 +220,6 @@
       const p = pos(4, 22);
       html += glb('recife_coral_cerebro.glb', p.x, p.z, rand(0,360), 1.0);
     }
-    /* Núcleo de corais à direita */
     for (let i = 0; i < (denso ? 15 : 8); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = rand(0, 3);
@@ -228,26 +227,27 @@
       html += glb(pick(srcs), 5 + Math.cos(a)*r, -5 + Math.sin(a)*r, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       Procedurais de volume
-       ============================================================ */
+    /* Anêmonas */
     const coresAne = ['#FFB6C1', '#FF9AA2', '#E8B4D8', '#FFC0CB', '#F0A0E0'];
     for (let i = 0; i < (denso ? 16 : 9); i++) {
       const p = pos(4, 16);
       html += gerarAnemona(p.x, p.z, pick(coresAne));
     }
 
+    /* Pedras */
     for (let i = 0; i < (denso ? 12 : 7); i++) {
       const p = pos(3, 22);
       html += gerarPedra(p.x, p.z, rand(0.8, 1.6));
     }
 
+    /* Estrelas */
     const coresEstrela = ['#FF8C69', '#FF6B9D', '#FFD700', '#E8A87C', '#F0A8D8'];
     for (let i = 0; i < (denso ? 18 : 10); i++) {
       const p = pos(2, 20);
       html += gerarEstrela(p.x, p.z, pick(coresEstrela));
     }
 
+    /* Peixes */
     const coresPeixes = ['#FFD166', '#FF8C42', '#7ED9E5', '#F7A072', '#E0BBE4', '#FFB347', '#F0A8D8'];
     for (let i = 0; i < (denso ? 22 : 12); i++) {
       const a = Math.random() * Math.PI * 2;
@@ -273,65 +273,16 @@
       html += gerarBolha(p.x, rand(0.1, 0.6), p.z, rand(2.2, 2.6));
     }
 
-    /* Hotspots */
-        /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição + imagem)
-       ============================================================ */
-    html += '<a-entity position="0 1.8 2.5" info-hotspot="' +
-      'titulo: Tartaruga-de-pente; ' +
-      'categoria: Reptil; ' +
-      'imagem: assets/hotspots/recife_pente_animal.jpg; ' +
-      'descricao: Eretmochelys imbricata. Carapaca em mosaico marrom e ambar. Bico estreito em forma de gancho, adaptado para retirar esponjas das fendas do recife. Criticamente em Perigo segundo a IUCN, e Em Perigo no Brasil. Uma das tartarugas marinhas mais ameacadas do mundo.; ' +
-      'cor: #FFA07A"></a-entity>';
+    /* HOTSPOTS */
+    html += '<a-entity position="0 1.8 2.5" info-hotspot="titulo: Tartaruga-de-pente; categoria: Reptil; imagem: assets/hotspots/recife_pente_animal.jpg; descricao: Eretmochelys imbricata. Carapaca em mosaico marrom e ambar. Bico estreito em forma de gancho, adaptado para retirar esponjas das fendas do recife. Criticamente em Perigo segundo a IUCN, e Em Perigo no Brasil.; cor: #FFA07A"></a-entity>';
+    html += '<a-entity position="-4 0.9 -4" info-hotspot="titulo: Esponjas gigantes; categoria: Ecologia; imagem: assets/hotspots/recife_pente_esponjas.jpg; descricao: Principal alimento da tartaruga-de-pente. Esponjas-do-mar competem por espaco com os corais, e ao controla-las a tartaruga ajuda a manter o recife saudavel.; cor: #FF6B9D"></a-entity>';
+    html += '<a-entity position="5 1.0 -5" info-hotspot="titulo: Recife de corais; categoria: Ecologia; imagem: assets/hotspots/recife_pente_corais.jpg; descricao: Bercario de peixes e invertebrados. Habitat critico para a tartaruga-de-pente, ameacado por branqueamento e poluicao.; cor: #FFD700"></a-entity>';
+    html += '<a-entity position="-6 0.8 3" info-hotspot="titulo: Anemona; categoria: Ecologia; imagem: assets/hotspots/recife_pente_anemona.jpg; descricao: Animal urticante que vive em simbiose com peixes-palhaco. Invertebrados do recife sustentam toda a cadeia alimentar.; cor: #FFB6C1"></a-entity>';
+    html += '<a-entity position="4 1.5 -3" info-hotspot="titulo: Peixes de recife; categoria: Ecologia; imagem: assets/hotspots/recife_pente_peixes.jpg; descricao: Ricos em cores e especies. Muitos limpam a carapaca da tartaruga-de-pente, removendo parasitas.; cor: #FFD166"></a-entity>';
+    html += '<a-entity position="-3 1.2 5" info-hotspot="titulo: Estrela-do-mar; categoria: Ecologia; imagem: assets/hotspots/recife_pente_estrela.jpg; descricao: Predadora de moluscos e detritivora. Sinaliza recifes saudaveis e desaparece em areas poluidas.; cor: #FF8C69"></a-entity>';
+    html += '<a-entity position="0 2.4 -8" info-hotspot="titulo: Aguas rasas; categoria: Habitat; imagem: assets/hotspots/recife_pente_aguasrasas.jpg; descricao: A tartaruga-de-pente forrageia em recifes rasos ate cerca de 20 m de profundidade. Diferente da tartaruga-de-couro, que vive em alto-mar.; cor: #40C8E8"></a-entity>';
+    html += '<a-entity position="-7 0.7 -6" info-hotspot="titulo: Ameacas; categoria: Conservacao; imagem: assets/hotspots/recife_pente_ameacas.jpg; descricao: Pesca acidental em redes, poluicao por plastico, ocupacao costeira e coleta ilegal de ovos ameacam a tartaruga-de-pente.; cor: #E8482A"></a-entity>';
 
-    html += '<a-entity position="-4 0.9 -4" info-hotspot="' +
-      'titulo: Esponjas gigantes; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/recife_pente_esponjas.jpg; ' +
-      'descricao: Principal alimento da tartaruga-de-pente. Esponjas-do-mar competem por espaco com os corais, e ao controla-las a tartaruga ajuda a manter o recife saudavel. Seu bico afilado arranca pedacos de esponjas entre os corais.; ' +
-      'cor: #FF6B9D"></a-entity>';
-
-    html += '<a-entity position="5 1.0 -5" info-hotspot="' +
-      'titulo: Recife de corais; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/recife_pente_corais.jpg; ' +
-      'descricao: Bercario de peixes e invertebrados. Habitat critico para a tartaruga-de-pente, ameacado por branqueamento e poluicao. Os recifes de Porto de Galinhas e Fernando de Noronha sao essenciais para a especie em Pernambuco.; ' +
-      'cor: #FFD700"></a-entity>';
-
-    html += '<a-entity position="-6 0.8 3" info-hotspot="' +
-      'titulo: Anemona; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/recife_pente_anemona.jpg; ' +
-      'descricao: Animal urticante que vive em simbiose com peixes-palhaco. Invertebrados do recife sustentam toda a cadeia alimentar, incluindo a tartaruga-de-pente. A presenca de anemonas coloridas indica recife saudavel.; ' +
-      'cor: #FFB6C1"></a-entity>';
-
-    html += '<a-entity position="4 1.5 -3" info-hotspot="' +
-      'titulo: Peixes de recife; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/recife_pente_peixes.jpg; ' +
-      'descricao: Ricos em cores e especies. Muitos limpam a carapaca da tartaruga-de-pente, removendo parasitas. Essa relacao de limpeza mutua e um exemplo classico de simbiose nos recifes de coral.; ' +
-      'cor: #FFD166"></a-entity>';
-
-    html += '<a-entity position="-3 1.2 5" info-hotspot="' +
-      'titulo: Estrela-do-mar; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/recife_pente_estrela.jpg; ' +
-      'descricao: Predadora de moluscos e detritivora. Sinaliza recifes saudaveis e desaparece em areas poluidas. Bioindicador importante da qualidade ambiental dos recifes pernambucanos, essenciais para a tartaruga-de-pente.; ' +
-      'cor: #FF8C69"></a-entity>';
-
-    html += '<a-entity position="0 2.4 -8" info-hotspot="' +
-      'titulo: Aguas rasas; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/recife_pente_aguasrasas.jpg; ' +
-      'descricao: A tartaruga-de-pente forrageia em recifes rasos ate cerca de 20 m de profundidade. Diferente da tartaruga-de-couro, que vive em alto-mar, ela passa a vida adulta nos recifes costeiros, onde encontra suas esponjas.; ' +
-      'cor: #40C8E8"></a-entity>';
-
-    html += '<a-entity position="-7 0.7 -6" info-hotspot="' +
-      'titulo: Ameacas; ' +
-      'categoria: Conservacao; ' +
-      'imagem: assets/hotspots/recife_pente_ameacas.jpg; ' +
-      'descricao: Pesca acidental em redes, poluicao por plastico, ocupacao costeira e coleta ilegal de ovos ameacam a tartaruga-de-pente. O bycatch em redes de espera e a principal causa de morte da especie em Pernambuco.; ' +
-      'cor: #E8482A"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #E0F8FF; intensity: 0.9"></a-entity>' +
             '<a-entity position="8 14 6" light="type: directional; color: #FFF8E0; intensity: 1.15; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
@@ -360,5 +311,5 @@
   };
 
   window.MewBiomas.montarBiomaRecifeTartarugaPente = montarBiomaRecifeTartarugaPente;
-  console.log('[bioma_recife_tartaruga_pente] v2 — Recife (Tartaruga-de-pente) com GLBs registrado.');
+  console.log('[bioma_recife_tartaruga_pente] v3 — LOD + qualidade registrado.');
 })();

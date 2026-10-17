@@ -3,6 +3,142 @@
    Detecta o habitat do animal e monta uma cena A-Frame
    com céu panorâmico, chão, vegetação e objetos temáticos.
    ========================================================= */
+
+/* =========================================================
+   SISTEMA DE QUALIDADE — Projeto Mew
+   Central para todos os biomas, componentes e o viewer.
+   ========================================================= */
+window.MewQualidade = (function () {
+  'use strict';
+
+  const PERFIS = {
+    baixa: {
+      densidade: 'baixa',
+      densidadeMult: 0.35,
+      sombras: false,
+      shadowMapSize: 512,
+      antialias: false,
+      pixelRatio: 1,
+      animacoesDecorativas: false,
+      gazeIntervalMs: 150,
+      raycasterDistancia: 20,
+      modelosLOD: true
+    },
+    media: {
+      densidade: 'media',
+      densidadeMult: 0.7,
+      sombras: true,
+      shadowMapSize: 1024,
+      antialias: true,
+      pixelRatio: 1,
+      animacoesDecorativas: true,
+      gazeIntervalMs: 100,
+      raycasterDistancia: 50,
+      modelosLOD: true
+    },
+    alta: {
+      densidade: 'alta',
+      densidadeMult: 1.0,
+      sombras: true,
+      shadowMapSize: 2048,
+      antialias: true,
+      pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      animacoesDecorativas: true,
+      gazeIntervalMs: 80,
+      raycasterDistancia: 100,
+      modelosLOD: false
+    }
+  };
+
+  function detectarAutomatico() {
+    try {
+      if (window.AFRAME && AFRAME.utils && AFRAME.utils.device && AFRAME.utils.device.isMobileVR) {
+        if (AFRAME.utils.device.isMobileVR()) return 'baixa';
+      }
+      const ua = navigator.userAgent || '';
+      if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return 'baixa';
+      const mem = navigator.deviceMemory || 4;
+      const cores = navigator.hardwareConcurrency || 4;
+      if (mem < 4 || cores < 4) return 'baixa';
+      if (mem < 8 || cores < 8) return 'media';
+      return 'alta';
+    } catch (e) {
+      return 'media';
+    }
+  }
+
+  let nivel;
+  try {
+    const salvo = localStorage.getItem('mew-qualidade');
+    nivel = PERFIS[salvo] ? salvo : detectarAutomatico();
+  } catch (e) {
+    nivel = detectarAutomatico();
+  }
+
+  function resolverModelo(caminho) {
+    if (!caminho) return caminho;
+    if (!PERFIS[nivel].modelosLOD) return caminho;
+    if (nivel === 'alta') return caminho;
+    const sufixo = nivel === 'baixa' ? '_low' : '_med';
+    return String(caminho).replace(/\.glb$/i, sufixo + '.glb');
+  }
+
+  function aplicarFallback(sceneEl) {
+    if (!sceneEl) return;
+    if (!PERFIS[nivel].modelosLOD) return;
+    const setup = () => {
+      sceneEl.querySelectorAll('[data-fallback-src]').forEach((el) => {
+        el.addEventListener('model-error', () => {
+          const fb = el.getAttribute('data-fallback-src');
+          if (fb) {
+            console.warn('[LOD] Fallback para original:', fb);
+            el.setAttribute('gltf-model', fb);
+            el.removeAttribute('data-fallback-src');
+          }
+        }, { once: true });
+      });
+    };
+    if (sceneEl.hasLoaded) setup();
+    else sceneEl.addEventListener('loaded', setup, { once: true });
+  }
+
+  function ajustarLuzes(sceneEl) {
+    if (!sceneEl) return;
+    const aplicar = () => {
+      const perfil = PERFIS[nivel];
+      sceneEl.querySelectorAll('[light]').forEach((el) => {
+        const l = el.getAttribute('light');
+        if (!l) return;
+        if (l.castShadow === undefined) return;
+        if (!perfil.sombras) {
+          el.setAttribute('light', 'castShadow', false);
+        } else if (perfil.shadowMapSize !== 2048) {
+          el.setAttribute('light', 'shadowMapWidth', perfil.shadowMapSize);
+          el.setAttribute('light', 'shadowMapHeight', perfil.shadowMapSize);
+        }
+      });
+    };
+    if (sceneEl.hasLoaded) aplicar();
+    else sceneEl.addEventListener('loaded', aplicar, { once: true });
+  }
+
+  return {
+    PERFIS,
+    get nivel() { return nivel; },
+    get perfil() { return PERFIS[nivel]; },
+    setNivel(n) {
+      if (PERFIS[n]) {
+        nivel = n;
+        try { localStorage.setItem('mew-qualidade', n); } catch (e) {}
+      }
+    },
+    detectarAutomatico,
+    resolverModelo,
+    aplicarFallback,
+    ajustarLuzes
+  };
+})();
+
 (function () {
   'use strict';
 
@@ -484,6 +620,7 @@
     BIOMAS,
     detectarBioma,
     montarCena3D,
-    criarTexturaGradiente
+    criarTexturaGradiente,
+    resolverModelo: function (caminho) { return window.MewQualidade.resolverModelo(caminho); }
   };
 })();

@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_oceano_tartaruga_couro.js — v2 (com GLBs)
+   bioma_oceano_tartaruga_couro.js — v3 (LOD + qualidade)
    ALTO-MAR PELÁGICO — Tartaruga-de-couro (Dermochelys coriacea)
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -20,6 +20,11 @@
   const altura = alturaAlvo || 3;
   const yBase = yOffset || 0;
 
+  const caminhoOriginal = 'assets/ambiente/' + src;
+  const caminhoFinal = window.MewQualidade
+    ? window.MewQualidade.resolverModelo(caminhoOriginal)
+    : caminhoOriginal;
+
   setTimeout(() => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -28,33 +33,26 @@
       const mesh = el.getObject3D('mesh');
       if (!mesh) return false;
 
-      /* Reset */
       mesh.position.set(0, 0, 0);
       mesh.rotation.set(0, 0, 0);
       mesh.scale.set(1, 1, 1);
       mesh.updateMatrixWorld(true);
 
-      /* Mede tamanho original */
       const box = new THREE.Box3().setFromObject(mesh);
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
 
-      /* Escala pra bater a altura alvo */
       const escala = altura / size.y;
       mesh.scale.set(escala, escala, escala);
       mesh.updateMatrixWorld(true);
 
-      /* Recalcula depois da escala */
-      /* Recalcula depois da escala */
       const box2 = new THREE.Box3().setFromObject(mesh);
       const center2 = box2.getCenter(new THREE.Vector3());
 
-      // Captura a posição global da entidade pai (<a-entity>)
       const parentPos = new THREE.Vector3();
       el.object3D.getWorldPosition(parentPos);
 
-      // Ajusta o mesh internamente compensando a posição original do pai
       mesh.position.x = parentPos.x - center2.x;
       mesh.position.z = parentPos.z - center2.z;
       mesh.position.y = parentPos.y - box2.min.y;
@@ -72,11 +70,18 @@
     }, 100);
   }, 100);
 
+  const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+    ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+    : '';
+  const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+    ? 'shadow="cast: true; receive: true"'
+    : 'shadow="cast: false; receive: false"';
+
   return '<a-entity id="' + id + '" ' +
          'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-         'gltf-model="url(assets/ambiente/' + src + ')" ' +
-         'shadow="cast: true; receive: true"></a-entity>';
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+         'gltf-model="url(' + caminhoFinal + ')" ' +
+         sombraAttr + '></a-entity>';
 }
 
   function gerarRede(x, y, z) {
@@ -159,9 +164,7 @@
       html += gerarRaioSol(p.x, p.z, rand(6, 9), rand(1.2, 2.2));
     }
 
-    /* ============================================================
-       GLBs — ÁGUAS-VIVAS (alimento principal)
-       ============================================================ */
+    /* Águas-vivas */
     const nAguaPink = denso ? 20 : 12;
     for (let i = 0; i < nAguaPink; i++) {
       const a = Math.random() * Math.PI * 2;
@@ -185,10 +188,7 @@
       html += glb(src, -10 + Math.cos(a)*r, -9 + Math.sin(a)*r, rand(0,360), 1.0, y);
     }
 
-    /* ============================================================
-       GLBs — Sacolas plásticas (ameaça)
-       ============================================================ */
-        /* SACOLAS PLÁSTICAS (poucas, espalhadas longe) */
+    /* Sacolas plásticas */
     const nSacolas = denso ? 4 : 2;
     for (let i = 0; i < nSacolas; i++) {
       const a = Math.random() * Math.PI * 2;
@@ -197,18 +197,12 @@
       html += glb('oceano_sacola.glb', Math.cos(a)*r, Math.sin(a)*r, rand(0,360), 0.4, y);
     }
 
-    /* ============================================================
-       GLBs — Barcos pesqueiros
-       ============================================================ */
+    /* Barcos pesqueiros */
     html += glb('oceano_barco.glb', -18, 15, rand(0,360), 1.0, 2.9);
     html += glb('oceano_barco.glb', 22, -12, rand(0,360), 1.0, 2.9);
     if (denso) html += glb('oceano_barco.glb', -25, -8, rand(0,360), 1.0, 2.9);
 
-    /* ============================================================
-       Procedurais de volume
-       ============================================================ */
-
-    /* REDES DE PESCA (procedural, mais leves) */
+    /* Redes de pesca */
     html += gerarRede(-7, 1.2, -6);
     html += gerarRede(8, 2.0, 4);
     if (denso) html += gerarRede(2, 0.8, -9);
@@ -232,72 +226,17 @@
       html += gerarBolha(p.x, rand(-2.5, 0.5), p.z, rand(2.6, 3.0));
     }
 
-    /* Hotspots */
-        /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição + imagem)
-       ============================================================ */
-    html += '<a-entity position="0 2.0 3.5" info-hotspot="' +
-      'titulo: Tartaruga-de-couro; ' +
-      'categoria: Reptil; ' +
-      'imagem: assets/hotspots/oceano_couro_animal.jpg; ' +
-      'descricao: Dermochelys coriacea. Maior tartaruga do mundo, pode medir 2 m e pesar 700 kg. Mergulha ate 1.200 m para caca aguas-vivas. Carapaca coriacea, sem placas rigidas. Criticamente em Perigo globalmente e Vulneravel no Brasil.; ' +
-      'cor: #4A7A90"></a-entity>';
+    /* HOTSPOTS */
+    html += '<a-entity position="0 2.0 3.5" info-hotspot="titulo: Tartaruga-de-couro; categoria: Reptil; imagem: assets/hotspots/oceano_couro_animal.jpg; descricao: Dermochelys coriacea. Maior tartaruga do mundo, pode medir 2 m e pesar 700 kg. Mergulha ate 1.200 m para caca aguas-vivas. Carapaca coriacea, sem placas rigidas. Criticamente em Perigo globalmente e Vulneravel no Brasil.; cor: #4A7A90"></a-entity>';
+    html += '<a-entity position="-6 2.0 -5" info-hotspot="titulo: Aguas-vivas; categoria: Ecologia; imagem: assets/hotspots/oceano_couro_aguaviva.jpg; descricao: Alimento principal da tartaruga-de-couro. Sua boca sem dentes e adaptada para engolir medusas inteiras.; cor: #F0C8F0"></a-entity>';
+    html += '<a-entity position="6 1.8 4" info-hotspot="titulo: Sacola plastica; categoria: Ameaca; imagem: assets/hotspots/oceano_couro_sacola.jpg; descricao: A maior ameaca a tartaruga-de-couro. Flutuando, sacolas plasticas parecem aguas-vivas. A tartaruga come e morre por obstrucao intestinal.; cor: #F8F8F0"></a-entity>';
+    html += '<a-entity position="-7 1.5 -6" info-hotspot="titulo: Rede de pesca; categoria: Ameaca; imagem: assets/hotspots/oceano_couro_rede.jpg; descricao: Captura acidental em redes de deriva mata milhares de tartarugas por ano no Atlantico.; cor: #B0B0A0"></a-entity>';
+    html += '<a-entity position="18 3.2 15" info-hotspot="titulo: Barco pesqueiro; categoria: Ameaca; imagem: assets/hotspots/oceano_couro_barco.jpg; descricao: Frota industrial e artesanal divide o oceano com a tartaruga-de-couro. Fiscalizacao e uso de dispositivos como o TED sao essenciais.; cor: #3A2818"></a-entity>';
+    html += '<a-entity position="4 2.2 -8" info-hotspot="titulo: Peixes pelagicos; categoria: Ecologia; imagem: assets/hotspots/oceano_couro_peixes.jpg; descricao: Pequenos cardumes vivem na zona pelagica. Sustentam atuns, tubaroes e aves marinhas.; cor: #4A7A90"></a-entity>';
+    html += '<a-entity position="-4 3.0 -10" info-hotspot="titulo: Alto-mar pelagico; categoria: Habitat; imagem: assets/hotspots/oceano_couro_altomar.jpg; descricao: Zona oceanica aberta, longe da costa. A tartaruga-de-couro passa a maior parte da vida aqui.; cor: #2A5A80"></a-entity>';
+    html += '<a-entity position="0 3.5 -14" info-hotspot="titulo: Desova no litoral; categoria: Conservacao; imagem: assets/hotspots/oceano_couro_desova.jpg; descricao: No Brasil, a especie desova principalmente no Espirito Santo, com registros ocasionais em Pernambuco.; cor: #C8B080"></a-entity>';
+    html += '<a-entity position="-10 1.5 8" info-hotspot="titulo: Mergulho profundo; categoria: Ecologia; imagem: assets/hotspots/oceano_couro_mergulho.jpg; descricao: Suporta pressao de mais de 120 atmosferas. Adaptacoes unicas permitem colapso pulmonar controlado e bradicardia extrema durante mergulhos de ate 1.200 m.; cor: #0A2A5A"></a-entity>';
 
-    html += '<a-entity position="-6 2.0 -5" info-hotspot="' +
-      'titulo: Aguas-vivas; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/oceano_couro_aguaviva.jpg; ' +
-      'descricao: Alimento principal da tartaruga-de-couro. Sua boca sem dentes e adaptada para engolir medusas inteiras. Papilas queratinizadas no esofago impedem que as presas escorregadias voltem para fora quando ela expulsa a agua ingerida.; ' +
-      'cor: #F0C8F0"></a-entity>';
-
-    html += '<a-entity position="6 1.8 4" info-hotspot="' +
-      'titulo: Sacola plastica; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/oceano_couro_sacola.jpg; ' +
-      'descricao: A maior ameaca a tartaruga-de-couro. Flutuando, sacolas plasticas parecem aguas-vivas. A tartaruga come e morre por obstrucao intestinal. Estima-se que mais de 1 milhao de animais marinhos morrem por plastico a cada ano.; ' +
-      'cor: #F8F8F0"></a-entity>';
-
-    html += '<a-entity position="-7 1.5 -6" info-hotspot="' +
-      'titulo: Rede de pesca; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/oceano_couro_rede.jpg; ' +
-      'descricao: Captura acidental em redes de deriva mata milhares de tartarugas por ano no Atlantico. O espinhel pelagico e as redes de emalhe sao as artes que mais matam tartarugas-de-couro, que engancham as nadadeiras longas ou engolem o anzol.; ' +
-      'cor: #B0B0A0"></a-entity>';
-
-    html += '<a-entity position="18 3.2 15" info-hotspot="' +
-      'titulo: Barco pesqueiro; ' +
-      'categoria: Ameaca; ' +
-      'imagem: assets/hotspots/oceano_couro_barco.jpg; ' +
-      'descricao: Frota industrial e artesanal divide o oceano com a tartaruga-de-couro. Fiscalizacao e uso de dispositivos como o TED sao essenciais para reduzir a mortalidade. O Brasil tem legislacao, mas a fiscalizacao ainda e um desafio.; ' +
-      'cor: #3A2818"></a-entity>';
-
-    html += '<a-entity position="4 2.2 -8" info-hotspot="' +
-      'titulo: Peixes pelagicos; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/oceano_couro_peixes.jpg; ' +
-      'descricao: Pequenos cardumes vivem na zona pelagica. Sustentam atuns, tubaroes e aves marinhas. Fazem parte da mesma teia trofica que a tartaruga-de-couro, que ocupa o topo como predador de medusas.; ' +
-      'cor: #4A7A90"></a-entity>';
-
-    html += '<a-entity position="-4 3.0 -10" info-hotspot="' +
-      'titulo: Alto-mar pelagico; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/oceano_couro_altomar.jpg; ' +
-      'descricao: Zona oceanica aberta, longe da costa. A tartaruga-de-couro passa a maior parte da vida aqui, migrando milhares de quilometros entre areas de alimentacao e reproducao. Uma das especies mais migratorias do planeta.; ' +
-      'cor: #2A5A80"></a-entity>';
-
-    html += '<a-entity position="0 3.5 -14" info-hotspot="' +
-      'titulo: Desova no litoral; ' +
-      'categoria: Conservacao; ' +
-      'imagem: assets/hotspots/oceano_couro_desova.jpg; ' +
-      'descricao: No Brasil, a especie desova principalmente no Espirito Santo, com registros ocasionais em Pernambuco. A femea volta a praia a cada 2 ou 3 anos para botar cerca de 100 ovos. Apenas 1 em cada 1.000 filhotes chega a fase adulta.; ' +
-      'cor: #C8B080"></a-entity>';
-
-    html += '<a-entity position="-10 1.5 8" info-hotspot="' +
-      'titulo: Mergulho profundo; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/oceano_couro_mergulho.jpg; ' +
-      'descricao: Suporta pressao de mais de 120 atmosferas. Adaptacoes unicas permitem colapso pulmonar controlado e bradicardia extrema durante mergulhos de ate 1.200 m. Pode ficar mais de 1 hora submersa sem respirar.; ' +
-      'cor: #0A2A5A"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #6A90B8; intensity: 0.6"></a-entity>' +
             '<a-entity position="6 18 6" light="type: directional; color: #C8E8F8; intensity: 0.9; castShadow: true; shadowMapWidth: 1024; shadowMapHeight: 1024"></a-entity>' +
@@ -326,5 +265,5 @@
   };
 
   window.MewBiomas.montarBiomaOceanoTartarugaCouro = montarBiomaOceanoTartarugaCouro;
-  console.log('[bioma_oceano_tartaruga_couro] v2 — Oceano (Tartaruga-de-couro) com GLBs registrado.');
+  console.log('[bioma_oceano_tartaruga_couro] v3 — LOD + qualidade registrado.');
 })();

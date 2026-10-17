@@ -1,5 +1,5 @@
 /* =========================================================
-   bioma_costeiro.js — v4 (com GLBs)
+   bioma_costeiro.js — v5 (LOD + qualidade)
    Bioma Costeiro/Marinho — Peixe-boi-marinho.
    Depende de: bioma_componentes.js
    ========================================================= */
@@ -20,6 +20,11 @@
   const altura = alturaAlvo || 3;
   const yBase = yOffset || 0;
 
+  const caminhoOriginal = 'assets/ambiente/' + src;
+  const caminhoFinal = window.MewQualidade
+    ? window.MewQualidade.resolverModelo(caminhoOriginal)
+    : caminhoOriginal;
+
   setTimeout(() => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -28,28 +33,23 @@
       const mesh = el.getObject3D('mesh');
       if (!mesh) return false;
 
-      /* Reset */
       mesh.position.set(0, 0, 0);
       mesh.rotation.set(0, 0, 0);
       mesh.scale.set(1, 1, 1);
       mesh.updateMatrixWorld(true);
 
-      /* Mede tamanho original */
       const box = new THREE.Box3().setFromObject(mesh);
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       if (!isFinite(maxDim) || maxDim <= 0.0001) return false;
 
-      /* Escala pra bater a altura alvo */
       const escala = altura / size.y;
       mesh.scale.set(escala, escala, escala);
       mesh.updateMatrixWorld(true);
 
-      /* Recalcula depois da escala */
       const box2 = new THREE.Box3().setFromObject(mesh);
       const center2 = box2.getCenter(new THREE.Vector3());
 
-      /* Centraliza em X/Z e sobe o Y pra base tocar o chão */
       mesh.position.x = -center2.x;
       mesh.position.z = -center2.z;
       mesh.position.y = -box2.min.y;
@@ -67,14 +67,20 @@
     }, 100);
   }, 100);
 
+  const fallbackAttr = (caminhoFinal !== caminhoOriginal)
+    ? ' data-fallback-src="url(' + caminhoOriginal + ')"'
+    : '';
+  const sombraAttr = (window.MewQualidade && window.MewQualidade.perfil.sombras)
+    ? 'shadow="cast: true; receive: true"'
+    : 'shadow="cast: false; receive: false"';
+
   return '<a-entity id="' + id + '" ' +
          'position="' + x.toFixed(2) + ' ' + yBase + ' ' + z.toFixed(2) + '" ' +
-         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0" ' +
-         'gltf-model="url(assets/ambiente/' + src + ')" ' +
-         'shadow="cast: true; receive: true"></a-entity>';
+         'rotation="0 ' + (rot || 0).toFixed(1) + ' 0"' + fallbackAttr + ' ' +
+         'gltf-model="url(' + caminhoFinal + ')" ' +
+         sombraAttr + '></a-entity>';
 }
 
-  /* ---------- Procedurais LEVES ---------- */
   function gerarTufoCapim(x, z, alt) {
     const cores = ['#3E7A3A', '#4A8A42', '#356E32'];
     const cor = pick(cores);
@@ -207,27 +213,21 @@ function gerarPlacaItamaraca(x, z, rot) {
 
   return '<a-entity position="' + x.toFixed(2) + ' 0 ' + z.toFixed(2) + '" rotation="0 ' + rot.toFixed(1) + ' 0">' +
 
-    /* Postes */
     '<a-cylinder position="-0.7 0.8 0" radius="0.05" height="1.6" color="#3A2818"></a-cylinder>' +
     '<a-cylinder position="0.7 0.8 0" radius="0.05" height="1.6" color="#3A2818"></a-cylinder>' +
 
-    /* Moldura escura */
     '<a-box position="0 1.65 0" width="2.0" height="1.25" depth="0.07" ' +
     'color="' + moldura + '" material="shader: flat; color: ' + moldura + '"></a-box>' +
 
-    /* Face verde */
     '<a-box position="0 1.65 0.04" width="1.88" height="1.13" depth="0.03" ' +
     'color="' + face + '" material="shader: flat; color: ' + face + '"></a-box>' +
 
-    /* Faixa do header */
     '<a-box position="0 2.13 0.06" width="1.88" height="0.26" depth="0.01" ' +
     'color="' + header + '" material="shader: flat; color: ' + header + '"></a-box>' +
 
-    /* Linha fina */
     '<a-box position="0 1.99 0.065" width="1.88" height="0.015" depth="0.005" ' +
     'color="' + branco + '" material="shader: flat; color: ' + branco + '"></a-box>' +
 
-    /* Logos circulares */
     '<a-circle position="-0.74 2.13 0.07" radius="0.08" ' +
     'color="' + verde + '" material="shader: flat; color: ' + verde + '"></a-circle>' +
     '<a-circle position="-0.74 2.13 0.071" radius="0.055" ' +
@@ -237,7 +237,6 @@ function gerarPlacaItamaraca(x, z, rot) {
     '<a-circle position="0.74 2.13 0.071" radius="0.055" ' +
     'color="' + header + '" material="shader: flat; color: ' + header + '"></a-circle>' +
 
-    /* Textos — SEM material override (usa msdf padrão, que tem acentos) */
     '<a-text value="CENTRO DE PRESERVAÇÃO" ' +
     'position="0 2.13 0.08" align="center" ' +
     'color="' + branco + '" width="1.5"></a-text>' +
@@ -280,19 +279,15 @@ function gerarPlacaItamaraca(x, z, rot) {
       html += '<a-circle position="' + p.x.toFixed(2) + ' 0.008 ' + p.z.toFixed(2) + '" rotation="-90 0 0" radius="' + r.toFixed(2) + '" color="' + cor + '" opacity="0.45" transparent="true"></a-circle>';
     }
 
-    /* Superfície da água */
     html += '<a-circle position="0 2.85 0" rotation="-90 0 0" radius="90" color="#5FB8D4" opacity="0.18" transparent="true"></a-circle>';
     html += '<a-circle position="0 2.86 0" rotation="-90 0 0" radius="90" color="#A8E8F5" opacity="0.06" transparent="true"></a-circle>';
 
-    /* Raios de sol */
     for (let i = 0; i < (denso ? 5 : 3); i++) {
       const p = pos(3, 15);
       html += gerarRaioSol(p.x, p.z, rand(4, 6), rand(0.8, 1.6));
     }
 
-    /* ============================================================
-       GLBs — Mangue (círculo no horizonte)
-       ============================================================ */
+    /* Mangues */
     const nMangues = denso ? 16 : 10;
     for (let i = 0; i < nMangues; i++) {
       const ang = (i / nMangues) * Math.PI * 2 + rand(-0.15, 0.15);
@@ -300,22 +295,19 @@ function gerarPlacaItamaraca(x, z, rot) {
       html += glb('costeiro_mangue.glb', Math.cos(ang) * r, Math.sin(ang) * r, rand(0,360), 1.0);
     }
 
-    /* ============================================================
-       GLBs — Recife de corais (à direita)
-       ============================================================ */
+    /* Recifes */
     const nRecife = denso ? 14 : 8;
     for (let i = 0; i < nRecife; i++) {
       const p = pos(5, 20);
       html += glb('costeiro_recife.glb', p.x, p.z, rand(0,360), 1.0);
     }
-    /* Núcleo de recife */
     for (let i = 0; i < (denso ? 10 : 5); i++) {
       const a = Math.random() * Math.PI * 2;
       const r = rand(0, 2.5);
       html += glb('costeiro_recife.glb', 4 + Math.cos(a) * r, -4 + Math.sin(a) * r, rand(0,360), 1.0);
     }
 
-    /* Capim-marinho (procedural em massa) */
+    /* Capim-marinho */
     for (let i = 0; i < (denso ? 130 : 80); i++) {
       const p = pos(1.5, 20);
       html += gerarTufoCapim(p.x, p.z);
@@ -343,7 +335,7 @@ function gerarPlacaItamaraca(x, z, rot) {
       html += gerarPedra(p.x, p.z, 2.5);
     }
 
-    /* Detalhes (estrela, ouriço, concha) */
+    /* Detalhes */
     for (let i = 0; i < (denso ? 22 : 12); i++) {
       const p = pos(2, 20);
       const t = Math.random();
@@ -378,9 +370,7 @@ function gerarPlacaItamaraca(x, z, rot) {
       html += gerarPoste(Math.cos(a) * r - 5, Math.sin(a) * r - 8, rand(1.8, 3.2));
     }
 
-    /* ============================================================
-       GLBs — Boias e barco
-       ============================================================ */
+    /* Boias e barcos */
     const nBoias = denso ? 4 : 2;
     for (let i = 0; i < nBoias; i++) {
       const p = pos(8, 16);
@@ -393,68 +383,18 @@ function gerarPlacaItamaraca(x, z, rot) {
       html += glb('costeiro_barco.glb', Math.cos(a) * r, Math.sin(a) * r, rand(0,360), 1.0, 2.5);
     }
 
-    /* Placa ICMBio */
     html += gerarPlacaItamaraca(-9, -5, 30);
 
-    /* Hotspots */
-       /* ============================================================
-       HOTSPOTS — v2 (categoria + descrição + imagem)
-       ============================================================ */
-    html += '<a-entity position="0 1.5 2.5" info-hotspot="' +
-      'titulo: Peixe-boi-marinho; ' +
-      'categoria: Mamifero; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_animal.jpg; ' +
-      'descricao: Trichechus manatus. Mamifero aquatico docil, pode medir ate 4 m e pesar 1 tonelada. Herbivoro, consome ate 50 kg de capim-marinho por dia. Em Pernambuco e classificado como Em Perigo por causa da perda de habitat, redes de pesca e poluicao.; ' +
-      'cor: #FF6B9D"></a-entity>';
+    /* HOTSPOTS */
+    html += '<a-entity position="0 1.5 2.5" info-hotspot="titulo: Peixe-boi-marinho; categoria: Mamifero; imagem: assets/hotspots/costeiro_peixeboi_animal.jpg; descricao: Trichechus manatus. Mamifero aquatico docil, pode medir ate 4 m e pesar 1 tonelada. Herbivoro, consome ate 50 kg de capim-marinho por dia.; cor: #FF6B9D"></a-entity>';
+    html += '<a-entity position="-3 0.75 -3.5" info-hotspot="titulo: Capim-marinho; categoria: Planta; imagem: assets/hotspots/costeiro_peixeboi_capim.jpg; descricao: Halodule wrightii e Syringodium filiforme. Principal alimento do peixe-boi.; cor: #7ee898"></a-entity>';
+    html += '<a-entity position="4 0.95 -4" info-hotspot="titulo: Recife de corais; categoria: Ecologia; imagem: assets/hotspots/costeiro_peixeboi_recife.jpg; descricao: Bercario de peixes e invertebrados.; cor: #FF8C69"></a-entity>';
+    html += '<a-entity position="0 3.2 -30" info-hotspot="titulo: Manguezal; categoria: Habitat; imagem: assets/hotspots/costeiro_peixeboi_mangue.jpg; descricao: Raizes aereas seguram o lodo e protegem filhotes.; cor: #2E8B57"></a-entity>';
+    html += '<a-entity position="-9 1.6 -5" info-hotspot="titulo: Centro de Preservacao; categoria: Conservacao; imagem: assets/hotspots/costeiro_peixeboi_centro.jpg; descricao: A Ilha de Itamaraca sedia o CMA do ICMBio.; cor: #40E0D0"></a-entity>';
+    html += '<a-entity position="0 0.85 -7" info-hotspot="titulo: Estuario; categoria: Habitat; imagem: assets/hotspots/costeiro_peixeboi_estuario.jpg; descricao: Encontro da agua doce do rio com o mar.; cor: #FFD166"></a-entity>';
+    html += '<a-entity position="-4 2.3 -10" info-hotspot="titulo: Bacia do Pina; categoria: Habitat; imagem: assets/hotspots/costeiro_peixeboi_bacia.jpg; descricao: Zona portuaria do Recife onde peixes-boi ja foram registrados.; cor: #F7A072"></a-entity>';
+    html += '<a-entity position="7 2.7 -12" info-hotspot="titulo: Boia sinalizadora; categoria: Conservacao; imagem: assets/hotspots/costeiro_peixeboi_boia.jpg; descricao: Marca zonas de protecao e rotas de navegacao para evitar colisoes.; cor: #E85A3A"></a-entity>';
 
-    html += '<a-entity position="-3 0.75 -3.5" info-hotspot="' +
-      'titulo: Capim-marinho; ' +
-      'categoria: Planta; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_capim.jpg; ' +
-      'descricao: Halodule wrightii e Syringodium filiforme. Principal alimento do peixe-boi. Cada adulto come 30 a 50 kg por dia. As pradarias marinhas formam verdadeiros pastos submersos, essenciais para a sobrevivencia da especie.; ' +
-      'cor: #7ee898"></a-entity>';
-
-    html += '<a-entity position="4 0.95 -4" info-hotspot="' +
-      'titulo: Recife de corais; ' +
-      'categoria: Ecologia; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_recife.jpg; ' +
-      'descricao: Bercario de peixes e invertebrados. Peixes-boi usam como abrigo e area de descanso. Os recifes costeiros de Pernambuco, como os de Porto de Galinhas e Boa Viagem, formam barreiras naturais que protegem as aguas calmas onde vivem os filhotes.; ' +
-      'cor: #FF8C69"></a-entity>';
-
-    html += '<a-entity position="0 3.2 -30" info-hotspot="' +
-      'titulo: Manguezal; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_mangue.jpg; ' +
-      'descricao: Raizes aereas seguram o lodo e protegem filhotes. Fonte de agua doce para o peixe-boi. Os canais de mangue funcionam como corredores seguros, areas de descanso e protecao contra correntes oceanicas fortes.; ' +
-      'cor: #2E8B57"></a-entity>';
-
-    html += '<a-entity position="-9 1.6 -5" info-hotspot="' +
-      'titulo: Centro de Preservacao; ' +
-      'categoria: Conservacao; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_centro.jpg; ' +
-      'descricao: A Ilha de Itamaraca sedia o CMA do ICMBio, centro de resgate, reabilitacao e soltura de peixes-boi. Um dos principais centros de pesquisa da especie no Brasil. Referencia mundial em conservacao de mamiferos aquaticos.; ' +
-      'cor: #40E0D0"></a-entity>';
-
-    html += '<a-entity position="0 0.85 -7" info-hotspot="' +
-      'titulo: Estuario; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_estuario.jpg; ' +
-      'descricao: Encontro da agua doce do rio com o mar. Agua salobra rica em nutrientes. Rota obrigatoria do peixe-boi, que precisa de agua doce dos rios para regular o sal do corpo. Sem estuario, a especie nao sobrevive no mar.; ' +
-      'cor: #FFD166"></a-entity>';
-
-    html += '<a-entity position="-4 2.3 -10" info-hotspot="' +
-      'titulo: Bacia do Pina; ' +
-      'categoria: Habitat; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_bacia.jpg; ' +
-      'descricao: Zona portuaria do Recife onde peixes-boi ja foram registrados. Corredor urbano da especie. Mostra a capacidade do peixe-boi de transitar por areas modificadas, desde que haja agua doce e alimento disponiveis.; ' +
-      'cor: #F7A072"></a-entity>';
-
-    html += '<a-entity position="7 2.7 -12" info-hotspot="' +
-      'titulo: Boia sinalizadora; ' +
-      'categoria: Conservacao; ' +
-      'imagem: assets/hotspots/costeiro_peixeboi_boia.jpg; ' +
-      'descricao: Marca zonas de protecao e rotas de navegacao para evitar colisoes com peixes-boi. Medida essencial, ja que os animais nadam rente a superficie para respirar e sao vitimas frequentes de helices de barcos e jet skis.; ' +
-      'cor: #E85A3A"></a-entity>';
     /* Iluminação */
     html += '<a-entity light="type: ambient; color: #DFF8FF; intensity: 0.85"></a-entity>' +
             '<a-entity position="6 12 6" light="type: directional; color: #FFF8E0; intensity: 1.15; castShadow: true; shadowMapWidth: 2048; shadowMapHeight: 2048"></a-entity>' +
@@ -481,5 +421,5 @@ function gerarPlacaItamaraca(x, z, rot) {
   };
 
   window.MewBiomas.montarBiomaCosteiro = montarBiomaCosteiro;
-  console.log('[bioma_costeiro] v4 — Costeiro/Marinho (com GLBs) registrado.');
+  console.log('[bioma_costeiro] v5 — LOD + qualidade registrado.');
 })();
