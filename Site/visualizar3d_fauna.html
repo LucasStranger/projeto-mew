@@ -9,559 +9,302 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #05140c;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
+    
+    html, body { 
+      width: 100%; 
+      height: 100%; 
+      overflow: hidden; 
+      -webkit-text-size-adjust: 100%; 
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: #05140c; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+    
+    #scene-container { 
+      position: fixed; 
+      inset: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      z-index: 0; 
     }
 
-    .info {
-      position: absolute; top: 15px; left: 15px; z-index: 100;
-      background: rgba(5, 30, 15, 0.88);
-      border: 2px solid rgba(63, 185, 80, 0.55);
-      border-radius: 12px; padding: 10px 18px;
-      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 0 20px rgba(63, 185, 80, 0.35);
-      max-width: 42vw;
+    /* ================= HEADER E UI ================= */
+    .info { 
+      position: absolute; top: 15px; left: 15px; z-index: 100; 
+      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); 
+      border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); 
+      box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); max-width: 42vw; 
     }
-    .info a {
-      color: #7ee898; text-decoration: none;
-      font-family: 'Courier New', monospace; font-weight: bold;
-      letter-spacing: 1px; text-transform: uppercase;
-      font-size: 0.85rem; transition: all 0.25s;
-      display: block; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
+    .info a { 
+      color: #7ee898; text-decoration: none; font-family: 'Courier New', monospace; 
+      font-weight: bold; letter-spacing: 1px; text-transform: uppercase; 
+      font-size: 0.85rem; transition: all 0.25s; display: block; 
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
     }
-    .info a:hover { color: #fff; text-shadow: 0 0 12px #3fb950; }
-
-    .nome-animal {
-      position: absolute; top: 15px; right: 15px; z-index: 100;
-      background: rgba(5, 30, 15, 0.88);
-      border: 2px solid rgba(63, 185, 80, 0.55);
-      border-radius: 12px; padding: 10px 18px;
-      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 0 20px rgba(63, 185, 80, 0.35);
-      color: #7ee898;
-      font-family: 'Courier New', monospace; font-weight: bold;
-      letter-spacing: 1px; text-transform: uppercase;
-      font-size: 0.82rem; max-width: 45vw;
-      text-align: right; line-height: 1.35;
+    .nome-animal { 
+      position: absolute; top: 15px; right: 15px; z-index: 100; 
+      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); 
+      border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); 
+      box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); color: #7ee898; 
+      font-family: 'Courier New', monospace; font-weight: bold; 
+      letter-spacing: 1px; text-transform: uppercase; font-size: 0.82rem; 
+      max-width: 45vw; text-align: right; line-height: 1.35; 
     }
-    .nome-animal .cientifico {
-      display: block; font-style: italic; font-weight: normal;
-      font-size: 0.72rem; color: #a8d8b8;
-      text-transform: none; letter-spacing: 0.5px; margin-top: 3px;
+    .nome-animal .cientifico { 
+      display: block; font-style: italic; font-weight: normal; 
+      font-size: 0.72rem; color: #a8d8b8; text-transform: none; 
+      letter-spacing: 0.5px; margin-top: 3px; 
     }
-    .nome-animal .bioma {
-      display: block; font-size: 0.62rem; color: #6ab880;
-      letter-spacing: 1.5px; margin-top: 5px; padding-top: 5px;
-      border-top: 1px dashed rgba(63, 185, 80, 0.35);
+    .nome-animal .bioma { 
+      display: block; font-size: 0.62rem; color: #6ab880; 
+      letter-spacing: 1.5px; margin-top: 5px; padding-top: 5px; 
+      border-top: 1px dashed rgba(63, 185, 80, 0.35); 
     }
-
-    .qualidade-select {
-      position: absolute; top: 88px; right: 15px; z-index: 150;
-      background: rgba(5, 30, 15, 0.92);
-      border: 2px solid rgba(63, 185, 80, 0.55);
-      color: #7ee898; padding: 7px 12px;
-      border-radius: 10px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.75rem; font-weight: bold;
-      letter-spacing: 1px; text-transform: uppercase;
-      cursor: pointer;
-      backdrop-filter: blur(6px);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+    
+    .qualidade-select { 
+      position: absolute; top: 88px; right: 15px; z-index: 150; 
+      background: rgba(5, 30, 15, 0.92); border: 2px solid rgba(63, 185, 80, 0.55); 
+      color: #7ee898; padding: 7px 12px; border-radius: 10px; 
+      font-family: 'Courier New', monospace; font-size: 0.75rem; 
+      font-weight: bold; letter-spacing: 1px; text-transform: uppercase; 
+      cursor: pointer; backdrop-filter: blur(6px); 
     }
     .qualidade-select option { background: #05140c; color: #7ee898; }
 
-    .loading {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: #7ee898;
-      font-family: 'Courier New', monospace;
-      font-size: 1.2rem; letter-spacing: 2px; z-index: 100;
-      text-shadow: 0 0 15px rgba(63, 185, 80, 0.8);
-      background: rgba(0, 0, 0, 0.6);
-      padding: 20px 30px; border-radius: 12px;
-      border: 2px solid rgba(63, 185, 80, 0.4);
-      text-align: center; max-width: 90vw;
-      pointer-events: none;
+    .loading { 
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+      color: #7ee898; font-family: 'Courier New', monospace; font-size: 1.2rem; 
+      letter-spacing: 2px; z-index: 100; text-shadow: 0 0 15px rgba(63, 185, 80, 0.8); 
+      background: rgba(0, 0, 0, 0.6); padding: 20px 30px; border-radius: 12px; 
+      border: 2px solid rgba(63, 185, 80, 0.4); text-align: center; 
+      max-width: 90vw; pointer-events: none; 
     }
 
-    .hd-badge {
-      position: absolute; bottom: 100px; left: 50%;
-      transform: translateX(-50%); z-index: 100;
-      color: #a8d8b8;
-      font-family: 'Courier New', monospace;
-      font-size: 0.65rem; letter-spacing: 1px;
-      background: rgba(0, 0, 0, 0.55);
-      padding: 5px 12px; border-radius: 12px;
-      border: 1px solid rgba(63, 185, 80, 0.3);
-      pointer-events: none;
-      display: none;
+    /* ================= MIRA E HOTSPOTS ================= */
+    .gaze-reticle { 
+      position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; 
+      transform: translate(-50%, -50%); pointer-events: none; z-index: 500; 
+      opacity: 0.75; transition: opacity 0.3s; 
     }
-    .hd-badge.ativo { display: block; }
-    .hd-badge .spinner {
-      display: inline-block;
-      width: 8px; height: 8px;
-      border: 2px solid rgba(63, 185, 80, 0.3);
-      border-top-color: #7ee898;
-      border-radius: 50%;
-      animation: girar 0.8s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
+    .gaze-reticle::before, .gaze-reticle::after { 
+      content: ''; position: absolute; top: 50%; left: 50%; 
+      border-radius: 50%; transform: translate(-50%, -50%); 
     }
-    @keyframes girar { to { transform: rotate(360deg); } }
-
-    .gaze-reticle {
-      position: fixed;
-      top: 50%; left: 50%;
-      width: 44px; height: 44px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 500;
-      opacity: 0.75;
-      transition: opacity 0.3s;
+    .gaze-reticle::before { 
+      width: 44px; height: 44px; border: 2px solid rgba(126, 232, 152, 0.55); 
+      box-shadow: 0 0 12px rgba(63, 185, 80, 0.4); transition: all 0.25s; 
     }
-    .gaze-reticle::before,
-    .gaze-reticle::after {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .gaze-reticle::before {
-      width: 44px; height: 44px;
-      border: 2px solid rgba(126, 232, 152, 0.55);
-      box-shadow: 0 0 12px rgba(63, 185, 80, 0.4);
-      transition: all 0.25s;
-    }
-    .gaze-reticle::after {
-      width: 5px; height: 5px;
-      background: #7ee898;
-      box-shadow: 0 0 8px #3fb950;
+    .gaze-reticle::after { 
+      width: 5px; height: 5px; background: #7ee898; box-shadow: 0 0 8px #3fb950; 
     }
     .gaze-reticle.ativo { opacity: 1; }
-    .gaze-reticle.ativo::before {
-      border-color: rgba(255, 203, 5, 0.7);
-      box-shadow: 0 0 22px rgba(255, 203, 5, 0.6);
-      animation: gazeHalo 2.2s ease-in-out infinite;
+    .gaze-reticle.ativo::before { 
+      border-color: rgba(255, 203, 5, 0.7); 
+      box-shadow: 0 0 22px rgba(255, 203, 5, 0.6); 
+      animation: gazeHalo 2.2s ease-in-out infinite; 
     }
-    @keyframes gazeHalo {
-      0%, 100% { box-shadow: 0 0 16px rgba(255, 203, 5, 0.5); }
-      50%      { box-shadow: 0 0 30px rgba(255, 203, 5, 0.9); }
+    @keyframes gazeHalo { 
+      0%, 100% { box-shadow: 0 0 16px rgba(255, 203, 5, 0.5); } 
+      50% { box-shadow: 0 0 30px rgba(255, 203, 5, 0.9); } 
     }
 
-    .gaze-reticle-progresso {
-      position: fixed;
-      top: 50%; left: 50%;
-      width: 44px; height: 44px;
-      transform: translate(-50%, -50%) rotate(-90deg);
-      pointer-events: none;
-      z-index: 501;
-      opacity: 0.95;
-      display: none;
+    .gaze-reticle-progresso { 
+      position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; 
+      transform: translate(-50%, -50%) rotate(-90deg); pointer-events: none; 
+      z-index: 501; opacity: 0.95; display: none; 
     }
     .gaze-reticle-progresso.ativo { display: block; }
-    .gaze-reticle-progresso circle {
-      fill: none;
-      stroke: #ffcb05;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      filter: drop-shadow(0 0 6px rgba(255, 203, 5, 0.9));
+    .gaze-reticle-progresso circle { 
+      fill: none; stroke: #ffcb05; stroke-width: 2.5; stroke-linecap: round; 
+      filter: drop-shadow(0 0 6px rgba(255, 203, 5, 0.9)); 
     }
 
-    .modo-toggle {
-      position: absolute; bottom: 110px; right: 20px; z-index: 150;
-      background: linear-gradient(135deg, rgba(63, 185, 80, 0.45), rgba(30, 130, 60, 0.3));
-      border: 2px solid #7ee898;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem; font-weight: bold;
-      letter-spacing: 1.5px; padding: 10px 18px;
-      border-radius: 25px; cursor: pointer;
-      transition: all 0.25s; text-transform: uppercase;
-      box-shadow: 0 0 20px rgba(63, 185, 80, 0.6);
-      backdrop-filter: blur(6px);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+    /* ================= BOTÕES ================= */
+    .modo-toggle { 
+      position: absolute; bottom: 110px; right: 20px; z-index: 150; 
+      background: linear-gradient(135deg, rgba(63, 185, 80, 0.45), rgba(30, 130, 60, 0.3)); 
+      border: 2px solid #7ee898; color: #fff; font-family: 'Courier New', monospace; 
+      font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; 
+      border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; 
+      box-shadow: 0 0 20px rgba(63, 185, 80, 0.6); backdrop-filter: blur(6px); 
     }
-    .modo-toggle:hover {
-      background: linear-gradient(135deg, rgba(63, 185, 80, 0.65), rgba(30, 130, 60, 0.5));
-      transform: translateY(-2px) scale(1.03);
-      box-shadow: 0 0 28px rgba(63, 185, 80, 0.9);
-    }
-    .modo-toggle.ar-ativo {
-      background: linear-gradient(135deg, rgba(255, 203, 5, 0.45), rgba(255, 152, 0, 0.3));
-      border-color: #ffcb05;
-      box-shadow: 0 0 20px rgba(255, 203, 5, 0.7);
+    .modo-toggle.ar-ativo { 
+      background: linear-gradient(135deg, rgba(255, 203, 5, 0.45), rgba(255, 152, 0, 0.3)); 
+      border-color: #ffcb05; box-shadow: 0 0 20px rgba(255, 203, 5, 0.7); 
     }
 
-    .vr-toggle {
-      position: absolute; bottom: 165px; right: 20px; z-index: 150;
-      background: linear-gradient(135deg, rgba(160, 100, 255, 0.45), rgba(100, 40, 200, 0.3));
-      border: 2px solid #c084fc;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem; font-weight: bold;
-      letter-spacing: 1.5px; padding: 10px 18px;
-      border-radius: 25px; cursor: pointer;
-      transition: all 0.25s; text-transform: uppercase;
-      box-shadow: 0 0 20px rgba(192, 132, 252, 0.5);
-      backdrop-filter: blur(6px);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      display: none;
+    .vr-toggle { 
+      position: absolute; bottom: 165px; right: 20px; z-index: 150; 
+      background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(100, 40, 200, 0.4)); 
+      border: 2px solid #c084fc; color: #fff; font-family: 'Courier New', monospace; 
+      font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; 
+      border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; 
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.6); backdrop-filter: blur(6px); 
+      display: none; 
     }
     .vr-toggle.visivel { display: block; }
-    .vr-toggle:hover {
-      background: linear-gradient(135deg, rgba(160, 100, 255, 0.7), rgba(100, 40, 200, 0.5));
-      transform: translateY(-2px) scale(1.03);
-      box-shadow: 0 0 28px rgba(192, 132, 252, 0.9);
-    }
 
-    .mao-toggle {
-      position: absolute; bottom: 220px; right: 20px; z-index: 150;
-      background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(80, 40, 160, 0.4));
-      border: 2px solid #c084fc;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem; font-weight: bold;
-      letter-spacing: 1.5px; padding: 10px 18px;
-      border-radius: 25px; cursor: pointer;
-      transition: all 0.25s; text-transform: uppercase;
-      box-shadow: 0 0 20px rgba(192, 132, 252, 0.5);
-      backdrop-filter: blur(6px);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      display: none;
+    .mao-toggle { 
+      position: absolute; bottom: 220px; right: 20px; z-index: 150; 
+      background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(80, 40, 160, 0.4)); 
+      border: 2px solid #c084fc; color: #fff; font-family: 'Courier New', monospace; 
+      font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; 
+      border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; 
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.5); backdrop-filter: blur(6px); 
+      display: none; 
     }
     .mao-toggle.visivel { display: block; }
-    .mao-toggle:hover {
-      background: linear-gradient(135deg, rgba(160, 100, 255, 0.8), rgba(80, 40, 160, 0.6));
-      transform: translateY(-2px) scale(1.03);
-      box-shadow: 0 0 28px rgba(192, 132, 252, 0.9);
-    }
-    .mao-toggle.ativo {
-      background: linear-gradient(135deg, rgba(255, 203, 5, 0.5), rgba(255, 152, 0, 0.35));
-      border-color: #ffcb05;
-      box-shadow: 0 0 22px rgba(255, 203, 5, 0.8);
+    .mao-toggle.ativo { 
+      background: linear-gradient(135deg, rgba(255, 203, 5, 0.5), rgba(255, 152, 0, 0.35)); 
+      border-color: #ffcb05; box-shadow: 0 0 22px rgba(255, 203, 5, 0.8); 
     }
 
-    .instrucoes {
-      position: absolute; bottom: 20px; left: 50%;
-      transform: translateX(-50%); z-index: 100;
-      color: #a8d8b8;
-      font-family: 'Courier New', monospace;
-      font-size: 0.75rem; letter-spacing: 1px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px 18px; border-radius: 20px;
-      border: 1px solid rgba(63, 185, 80, 0.25);
-      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-      white-space: nowrap; max-width: calc(100vw - 40px);
-      text-align: center;
+    /* ================= CONTROLES DESKTOP ================= */
+    .instrucoes { 
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; 
+      color: #a8d8b8; font-family: 'Courier New', monospace; font-size: 0.75rem; 
+      letter-spacing: 1px; background: rgba(0, 0, 0, 0.6); padding: 8px 18px; 
+      border-radius: 20px; border: 1px solid rgba(63, 185, 80, 0.25); backdrop-filter: blur(4px); 
+      white-space: nowrap; max-width: calc(100vw - 40px); text-align: center; 
     }
     .instrucoes span { color: #7ee898; font-weight: bold; }
     .instrucoes .instr-mobile { display: none; }
     .instrucoes .instr-desktop { display: inline; }
 
-    .controles {
-      position: absolute; bottom: 60px; left: 50%;
-      transform: translateX(-50%); z-index: 100;
-      display: flex; gap: 8px;
+    .controles { 
+      position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 100; 
+      display: flex; gap: 8px; 
     }
-    .controles button {
-      background: rgba(5, 30, 15, 0.88);
-      border: 2px solid rgba(63, 185, 80, 0.55);
-      color: #7ee898;
-      font-family: 'Courier New', monospace;
-      font-size: 0.75rem; font-weight: bold;
-      letter-spacing: 1px; padding: 8px 14px;
-      border-radius: 8px; cursor: pointer;
-      transition: all 0.25s; text-transform: uppercase;
-      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+    .controles button { 
+      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); 
+      color: #7ee898; font-family: 'Courier New', monospace; font-size: 0.75rem; 
+      font-weight: bold; letter-spacing: 1px; padding: 8px 14px; border-radius: 8px; 
+      cursor: pointer; transition: all 0.25s; text-transform: uppercase; backdrop-filter: blur(6px); 
     }
-    .controles button:hover {
-      background: rgba(63, 185, 80, 0.25);
-      border-color: #3fb950;
-      box-shadow: 0 0 12px rgba(63, 185, 80, 0.6);
-      transform: translateY(-2px);
+    .teclas-wasd { 
+      position: absolute; bottom: 20px; right: 20px; z-index: 100; display: grid; 
+      grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(2, 34px); gap: 4px; opacity: 0.85; 
     }
-    .controles button.ativo {
-      background: rgba(63, 185, 80, 0.35);
-      border-color: #7ee898; color: #fff;
-      box-shadow: 0 0 14px rgba(63, 185, 80, 0.7);
-    }
-
-    .teclas-wasd {
-      position: absolute; bottom: 20px; right: 20px; z-index: 100;
-      display: grid;
-      grid-template-columns: repeat(3, 34px);
-      grid-template-rows: repeat(2, 34px);
-      gap: 4px; opacity: 0.85;
-    }
-    .teclas-wasd .tecla {
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(5, 30, 15, 0.88);
-      border: 2px solid rgba(63, 185, 80, 0.45);
-      border-radius: 6px; color: #7ee898;
-      font-family: 'Courier New', monospace;
-      font-weight: bold; font-size: 0.85rem;
-      transition: all 0.15s; user-select: none;
+    .teclas-wasd .tecla { 
+      display: flex; align-items: center; justify-content: center; 
+      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.45); 
+      border-radius: 6px; color: #7ee898; font-family: 'Courier New', monospace; 
+      font-weight: bold; font-size: 0.85rem; transition: all 0.15s; user-select: none; 
     }
     .teclas-wasd .tecla.w { grid-column: 2; grid-row: 1; }
     .teclas-wasd .tecla.a { grid-column: 1; grid-row: 2; }
     .teclas-wasd .tecla.s { grid-column: 2; grid-row: 2; }
     .teclas-wasd .tecla.d { grid-column: 3; grid-row: 2; }
-    .teclas-wasd .tecla.ativa {
-      background: rgba(63, 185, 80, 0.45);
-      border-color: #7ee898; color: #fff;
-      box-shadow: 0 0 12px rgba(63, 185, 80, 0.7);
+    .teclas-wasd .tecla.ativa { 
+      background: rgba(63, 185, 80, 0.45); border-color: #7ee898; color: #fff; 
+      box-shadow: 0 0 12px rgba(63, 185, 80, 0.7); 
     }
 
-    body.em-vr .info,
-    body.em-vr .nome-animal,
-    body.em-vr .qualidade-select,
-    body.em-vr .controles,
-    body.em-vr .teclas-wasd,
-    body.em-vr .instrucoes,
-    body.em-vr .modo-toggle,
-    body.em-vr .vr-toggle,
-    body.em-vr .mao-toggle,
-    body.em-vr .hd-badge,
-    body.em-vr .gaze-reticle,
-    body.em-vr .gaze-reticle-progresso {
-      display: none !important;
+    /* ================= VR ================= */
+    body.em-vr .info, body.em-vr .nome-animal, body.em-vr .qualidade-select, 
+    body.em-vr .controles, body.em-vr .teclas-wasd, body.em-vr .instrucoes, 
+    body.em-vr .modo-toggle, body.em-vr .vr-toggle, body.em-vr .mao-toggle, 
+    body.em-vr .hd-badge, body.em-vr .gaze-reticle, body.em-vr .gaze-reticle-progresso, 
+    body.em-vr #fps-toggle { 
+      display: none !important; 
     }
 
-    .vr-crosshair {
-      position: fixed;
-      top: 50%; left: 50%;
-      width: 12px; height: 12px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 600;
-      display: none;
+    .vr-crosshair { 
+      position: fixed; top: 50%; left: 50%; width: 12px; height: 12px; 
+      transform: translate(-50%, -50%); pointer-events: none; z-index: 600; display: none; 
     }
     body.em-vr .vr-crosshair { display: block; }
-    .vr-crosshair::before,
-    .vr-crosshair::after {
-      content: '';
-      position: absolute;
-      background: #ffcb05;
-      box-shadow: 0 0 8px #ffcb05;
+    .vr-crosshair::before, .vr-crosshair::after { 
+      content: ''; position: absolute; background: #ffcb05; box-shadow: 0 0 8px #ffcb05; 
     }
-    .vr-crosshair::before {
-      top: 50%; left: 0;
-      width: 100%; height: 2px;
-      transform: translateY(-50%);
-    }
-    .vr-crosshair::after {
-      top: 0; left: 50%;
-      width: 2px; height: 100%;
-      transform: translateX(-50%);
-    }
+    .vr-crosshair::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
+    .vr-crosshair::after { top: 0; left: 50%; width: 2px; height: 100%; transform: translateX(-50%); }
 
-    .aviso-file {
-      position: fixed; inset: 0;
-      background: rgba(3, 15, 8, 0.96);
-      z-index: 9999;
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
+    .hd-badge { 
+      position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 100; 
+      color: #a8d8b8; font-family: 'Courier New', monospace; font-size: 0.65rem; 
+      letter-spacing: 1px; background: rgba(0, 0, 0, 0.55); padding: 5px 12px; 
+      border-radius: 12px; border: 1px solid rgba(63, 185, 80, 0.3); pointer-events: none; display: none; 
     }
-    .aviso-file-box {
-      max-width: 640px;
-      background: linear-gradient(135deg, #05140c 0%, #030a06 100%);
-      border: 3px solid #3fb950;
-      border-radius: 16px; padding: 2rem 1.8rem;
-      box-shadow: 0 0 60px rgba(63, 185, 80, 0.5);
-      color: #d5ffdd;
-      font-family: 'Courier New', monospace;
+    .hd-badge.ativo { display: block; }
+    .hd-badge .spinner { 
+      display: inline-block; width: 8px; height: 8px; border: 2px solid rgba(63, 185, 80, 0.3); 
+      border-top-color: #7ee898; border-radius: 50%; animation: girar 0.8s linear infinite; 
+      vertical-align: middle; margin-right: 6px; 
     }
-    .aviso-file-box h2 {
-      color: #7ee898; font-size: 1.2rem;
-      letter-spacing: 2px; text-transform: uppercase;
-      margin-bottom: 1rem;
-      border-bottom: 2px dashed rgba(63, 185, 80, 0.35);
-      padding-bottom: 0.6rem;
-    }
-    .aviso-file-box p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.8rem; }
-    .aviso-file-box code {
-      background: rgba(63, 185, 80, 0.12);
-      border: 1px solid rgba(63, 185, 80, 0.35);
-      color: #7ee898; padding: 0.15rem 0.5rem;
-      border-radius: 4px; font-size: 0.85rem;
-    }
-    .aviso-file-box ol { margin-left: 1.2rem; margin-bottom: 1rem; }
-    .aviso-file-box li { margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.5; }
-    .aviso-file-box li b { color: #7ee898; }
-    .aviso-file-box .btn-voltar {
-      display: inline-block; margin-top: 0.5rem;
-      padding: 0.6rem 1.2rem;
-      background: rgba(63, 185, 80, 0.15);
-      border: 2px solid #3fb950; color: #7ee898;
-      border-radius: 8px; text-decoration: none;
-      font-weight: bold; letter-spacing: 1px;
-      text-transform: uppercase; font-size: 0.8rem;
-      transition: all 0.25s;
-    }
-    .aviso-file-box .btn-voltar:hover {
-      background: rgba(63, 185, 80, 0.3);
-      box-shadow: 0 0 14px rgba(63, 185, 80, 0.6);
-    }
+    @keyframes girar { to { transform: rotate(360deg); } }
 
-    @media (max-width: 900px) {
-      .nome-animal { max-width: 48vw; font-size: 0.75rem; }
-      .nome-animal .cientifico { font-size: 0.66rem; }
-      .nome-animal .bioma { font-size: 0.56rem; }
-      .qualidade-select { font-size: 0.65rem; padding: 5px 9px; top: 80px; }
-    }
+    /* ================= RESPONSIVO MOBILE ================= */
     @media (max-width: 700px) {
       .info { top: 8px; left: 8px; padding: 6px 10px; border-radius: 9px; max-width: 38vw; }
       .info a { font-size: 0.62rem; letter-spacing: 0.5px; }
       .info .voltar-complemento { display: none; }
-      .nome-animal {
-        top: 8px; right: 8px; max-width: 56vw;
-        padding: 6px 10px; border-radius: 9px;
-        font-size: 0.6rem; line-height: 1.3; letter-spacing: 0.5px;
-      }
+      .nome-animal { top: 8px; right: 8px; max-width: 56vw; padding: 6px 10px; border-radius: 9px; font-size: 0.6rem; line-height: 1.3; letter-spacing: 0.5px; }
       .nome-animal .cientifico { font-size: 0.54rem; margin-top: 2px; }
       .nome-animal .bioma { font-size: 0.5rem; margin-top: 3px; padding-top: 3px; letter-spacing: 1px; }
       .qualidade-select { top: 72px; right: 8px; font-size: 0.6rem; padding: 4px 8px; }
       .teclas-wasd { display: none !important; }
-      .instrucoes {
-        bottom: 258px;
-        left: 8px; right: 8px; transform: none;
-        max-width: none; font-size: 0.55rem; padding: 5px 10px;
-        border-radius: 12px; letter-spacing: 0.3px;
-        white-space: normal; line-height: 1.35;
-      }
+      .instrucoes { bottom: 258px; left: 8px; right: 8px; transform: none; max-width: none; font-size: 0.55rem; padding: 5px 10px; border-radius: 12px; letter-spacing: 0.3px; white-space: normal; line-height: 1.35; }
       .instrucoes .instr-desktop { display: none; }
       .instrucoes .instr-mobile { display: inline; }
       .controles { display: none !important; }
-
-      /* Reposiciona AR / VR / Mão pro canto superior esquerdo */
-      .modo-toggle {
-        top: 8px; left: 8px; right: auto; bottom: auto;
-        padding: 8px 12px; font-size: 0.62rem;
-        letter-spacing: 1px;
-      }
-      .vr-toggle.visivel {
-        top: 48px; left: 8px; right: auto; bottom: auto;
-        padding: 8px 12px; font-size: 0.62rem;
-        letter-spacing: 1px;
-      }
-      .mao-toggle {
-        top: 88px; left: 8px; right: auto; bottom: auto;
-        padding: 8px 12px; font-size: 0.62rem;
-        letter-spacing: 1px;
-      }
-    }
-    @media (max-width: 400px) {
-      .info { padding: 5px 8px; max-width: 34vw; }
-      .info a { font-size: 0.56rem; }
-      .nome-animal { padding: 5px 8px; max-width: 60vw; font-size: 0.54rem; }
-      .nome-animal .cientifico { font-size: 0.48rem; }
-      .nome-animal .bioma { font-size: 0.44rem; }
-      .instrucoes { font-size: 0.52rem; padding: 4px 8px; }
-      .qualidade-select { font-size: 0.55rem; padding: 3px 6px; top: 66px; }
-    }
-    @media (max-height: 500px) and (orientation: landscape) {
-      .nome-animal { max-width: 32vw; font-size: 0.6rem; padding: 6px 10px; }
-      .nome-animal .cientifico { font-size: 0.54rem; }
-      .nome-animal .bioma { font-size: 0.5rem; }
-      .info { padding: 6px 10px; }
-      .info a { font-size: 0.6rem; }
-      .controles { bottom: 6px; gap: 4px; }
-      .controles button { padding: 6px 10px; font-size: 0.58rem; }
-      .instrucoes { bottom: 200px; font-size: 0.52rem; padding: 4px 10px; }
+      .modo-toggle { top: 8px; left: 8px; right: auto; bottom: auto; padding: 8px 12px; font-size: 0.62rem; letter-spacing: 1px; }
+      .vr-toggle.visivel { top: 48px; left: 8px; right: auto; bottom: auto; padding: 8px 12px; font-size: 0.62rem; letter-spacing: 1px; }
+      .mao-toggle { top: 88px; left: 8px; right: auto; bottom: auto; padding: 8px 12px; font-size: 0.62rem; letter-spacing: 1px; }
     }
   </style>
 </head>
 <body>
-  <div class="aviso-file" id="aviso-file" style="display:none;">
-    <div class="aviso-file-box">
-      <h2>⚠ Modo file:// detectado</h2>
-      <p>Você abriu este arquivo direto pelo disco. O navegador <b>bloqueia</b> câmera, modelos 3D e VR.</p>
-      <p>Para funcionar, use HTTPS ou um servidor local:</p>
-      <ol>
-        <li><b>VS Code + Live Server:</b> botão direito em <code>index.html</code> → "Open with Live Server".</li>
-        <li><b>Python:</b> <code>python -m http.server 8000</code></li>
-        <li><b>Node:</b> <code>npx http-server -p 8000</code></li>
-        <li><b>HTTPS (VR em celular):</b> use ngrok, Vercel ou GitHub Pages.</li>
-      </ol>
-      <a href="index.html" class="btn-voltar">← Voltar para a Pokédex</a>
-    </div>
-  </div>
-
   <div class="info">
     <a href="#" id="voltar-link">← Voltar<span class="voltar-complemento"> aos detalhes</span></a>
   </div>
+  
   <div class="nome-animal" id="nome-animal">
     <span id="nome-popular">Carregando...</span>
     <span class="cientifico" id="nome-cientifico"></span>
     <span class="bioma" id="nome-bioma"></span>
   </div>
-
-  <select class="qualidade-select" id="qualidade-select" title="Ajuste a qualidade gráfica">
+  
+  <select class="qualidade-select" id="qualidade-select">
     <option value="baixa">⚡ Baixa</option>
     <option value="media">⚖ Média</option>
     <option value="alta">✨ Alta</option>
   </select>
-
+  
   <div class="loading" id="loading">🌀 Carregando ambiente 3D...</div>
+  
   <div class="hd-badge" id="hd-badge">
     <span class="spinner"></span>
-    <span id="hd-badge-texto">Carregando modelo em alta qualidade...</span>
+    <span id="hd-badge-texto">Carregando modelo...</span>
   </div>
-
+  
   <div class="gaze-reticle" id="gaze-reticle"></div>
   <svg class="gaze-reticle-progresso" id="gaze-reticle-progresso" viewBox="0 0 44 44">
-    <circle cx="22" cy="22" r="20"
-            stroke-dasharray="125.66"
-            stroke-dashoffset="125.66"
-            id="gaze-progress-circle"></circle>
+    <circle cx="22" cy="22" r="20" stroke-dasharray="125.66" stroke-dashoffset="125.66" id="gaze-progress-circle"></circle>
   </svg>
-
+  
   <div class="vr-crosshair"></div>
 
-  <button class="modo-toggle" id="modo-toggle" title="Alternar entre 3D e AR">
-    🥽 Modo AR
-  </button>
-
-  <button class="vr-toggle" id="vr-toggle" title="Entrar em modo VR (Cardboard)">
-    📱 VR Cardboard
-  </button>
-
-  <button class="mao-toggle" id="mao-toggle" title="Modo Mão — use o QR como varinha mágica">
-    🖐️ Modo Mão
-  </button>
+  <button class="modo-toggle" id="modo-toggle">🥽 Modo AR</button>
+  <button class="vr-toggle" id="vr-toggle">📱 VR Cardboard</button>
+  <button class="mao-toggle" id="mao-toggle">🖐️ Modo Mão</button>
 
   <div class="controles" id="controles" style="display:none;">
-    <button id="btn-anim" title="Pausar/Retomar rotação">⏸ Pausar</button>
-    <button id="btn-rotacao" title="Ativar rotação automática">🔄 Auto</button>
-    <button id="btn-reset" title="Resetar câmera">🎯 Resetar</button>
+    <button id="btn-anim">⏸ Pausar</button>
+    <button id="btn-rotacao">🔄 Auto</button>
+    <button id="btn-reset">🎯 Resetar</button>
   </div>
-
+  
   <div class="teclas-wasd" id="teclas-wasd" style="display:none;">
-    <div class="tecla w" data-key="KeyW">W</div>
-    <div class="tecla a" data-key="KeyA">A</div>
-    <div class="tecla s" data-key="KeyS">S</div>
-    <div class="tecla d" data-key="KeyD">D</div>
+    <div class="tecla w">W</div><div class="tecla a">A</div><div class="tecla s">S</div><div class="tecla d">D</div>
   </div>
-
+  
   <div class="instrucoes" id="instrucoes" style="display:none;">
-    <span class="instr-desktop">
-      <span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>💬 Clique</span> ou <span>👁️ Mire 3s</span> nas esferas
-    </span>
-    <span class="instr-mobile">
-      <span>👆 Arraste</span> girar · <span>🤏 Pinça</span> zoom · <span>💬 Toque</span> ou <span>👁️ Mire 3s</span> nas esferas
-    </span>
+    <span class="instr-desktop"><span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>👁️ Mire 3s</span></span>
+    <span class="instr-mobile"><span>👆 Arraste</span> girar · <span>👁️ Mire 3s</span></span>
   </div>
 
   <div id="scene-container"></div>
@@ -578,33 +321,16 @@
   <script src="bioma_transicao_jaguatirica.js"></script>
   <script src="bioma_recife_tartaruga_pente.js"></script>
   <script src="bioma_oceano_tartaruga_couro.js"></script>
-
-  <!-- FPS walker (D-pad + gaze-walk) -->
   <script src="fps-walker.js"></script>
 
   <script>
-    /* ============================================================
-       ESTADO GLOBAL
-       ============================================================ */
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
     const EstadoApp = {
-      modo: '3d',
-      animal: null,
-      modeloPesado: '',
-      modeloPesadoOriginal: '',
-      cameraAR: null,
-      cameraVR: null,
-      gazeIntervalId: null,
-      linhaARAtiva: false,
-      linhaARFrameId: null,
-      maoAtiva: false,
-      maoFrameId: null,
-      gazeState: {
-        alvoAtual: null,
-        tempoInicio: 0,
-        disparado: false,
-        ultimoDisparado: null,
-        dwellMs: 3000
-      }
+      modo: '3d', animal: null, modeloPesado: '', modeloPesadoOriginal: '',
+      cameraAR: null, cameraVR: null, gazeIntervalId: null,
+      linhaARAtiva: false, linhaARFrameId: null, maoAtiva: false, maoFrameId: null,
+      gazeState: { alvoAtual: null, tempoInicio: 0, disparado: false, ultimoDisparado: null, dwellMs: 3000 }
     };
 
     function pararTodosLoops() {
@@ -615,288 +341,72 @@
       if (EstadoApp.maoFrameId) { cancelAnimationFrame(EstadoApp.maoFrameId); EstadoApp.maoFrameId = null; }
     }
 
-    function resetarBotaoExplorar() {
-      const btn = document.getElementById('fps-toggle');
-      if (!btn) return;
-      btn.textContent = '🚶 Explorar';
-      btn.style.borderColor = '#00e0ff';
-      btn.style.background = 'linear-gradient(135deg, rgba(0,180,255,0.5), rgba(0,100,200,0.35))';
-      btn.style.boxShadow = '0 0 20px rgba(0,224,255,0.5)';
-    }
-
     (function configurarSeletorQualidade() {
       const sel = document.getElementById('qualidade-select');
       if (!sel || !window.MewQualidade) return;
       sel.value = window.MewQualidade.nivel;
-      sel.addEventListener('change', (e) => {
-        window.MewQualidade.setNivel(e.target.value);
-        location.reload();
+      sel.addEventListener('change', (e) => { 
+        window.MewQualidade.setNivel(e.target.value); 
+        location.reload(); 
       });
     })();
 
-    /* ============================================================
-       COMPONENTE ORBIT-CAMERA
-       ============================================================ */
     AFRAME.registerComponent('orbit-camera', {
-      schema: {
-        distance:        { type: 'number',  default: 4.0 },
-        minDistance:     { type: 'number',  default: 1.0 },
-        maxDistance:     { type: 'number',  default: 30 },
-        targetY:         { type: 'number',  default: 0.0 },
-        minPolar:        { type: 'number',  default: 0.10 },
-        maxPolar:        { type: 'number',  default: Math.PI - 0.10 },
-        autoRotate:      { type: 'boolean', default: false },
-        autoRotateSpeed: { type: 'number',  default: 0.8 },
-        rotateSpeed:     { type: 'number',  default: 1.0 },
-        zoomSpeed:       { type: 'number',  default: 0.6 },
-        moveSpeed:       { type: 'number',  default: 4.0 }
+      schema: { 
+        distance: { type: 'number', default: 4.0 }, 
+        minDistance: { type: 'number', default: 1.0 }, 
+        maxDistance: { type: 'number', default: 30 }, 
+        targetY: { type: 'number', default: 0.0 }, 
+        minPolar: { type: 'number', default: 0.10 }, 
+        maxPolar: { type: 'number', default: Math.PI - 0.10 }, 
+        autoRotate: { type: 'boolean', default: false }, 
+        autoRotateSpeed: { type: 'number', default: 0.8 }, 
+        rotateSpeed: { type: 'number', default: 1.0 }, 
+        zoomSpeed: { type: 'number', default: 0.6 }, 
+        moveSpeed: { type: 'number', default: 4.0 } 
       },
-
       init: function () {
-        this.theta = Math.PI / 4;
-        this.phi = Math.PI / 2.4;
-        this.distance = this.data.distance;
-        this.target = new THREE.Vector3(0, this.data.targetY, 0);
-
-        this.isDragging = false;
-        this.prevMouse = { x: 0, y: 0 };
-        this.keys = {};
-        this._pinchStartDist = 0;
-        this._pinchStartDistance = 0;
-        this._initialized = false;
-        this._tempV = new THREE.Vector3();
-        this._clickStart = null;
-
-        this._onDown       = this.onPointerDown.bind(this);
-        this._onMove       = this.onPointerMove.bind(this);
-        this._onUp         = this.onPointerUp.bind(this);
-        this._onWheel      = this.onWheel.bind(this);
-        this._onTouchStart = this.onTouchStart.bind(this);
-        this._onTouchMove  = this.onTouchMove.bind(this);
-        this._onTouchEnd   = this.onTouchEnd.bind(this);
-        this._onKeyDown    = (e) => { this.keys[e.code] = true; this.atualizarTeclasVisuais(e.code, true); };
-        this._onKeyUp      = (e) => { this.keys[e.code] = false; this.atualizarTeclasVisuais(e.code, false); };
-
-        this._docMouseDown = (e) => {
-          if (!this._pontoDentroDoCanvas(e.clientX, e.clientY)) return;
-          this._clickStart = { x: e.clientX, y: e.clientY, t: Date.now() };
-        };
-        this._docMouseUp = (e) => {
-          if (!this._clickStart) return;
-          const dx = Math.abs(e.clientX - this._clickStart.x);
-          const dy = Math.abs(e.clientY - this._clickStart.y);
-          const dt = Date.now() - this._clickStart.t;
-          const mov = Math.hypot(dx, dy);
-          const foiClique = mov < 15 && dt < 900;
-          this._clickStart = null;
-          if (foiClique) this.tentarCliqueEmHotspot(e.clientX, e.clientY);
-        };
-        this._docTouchStart = (e) => {
-          if (e.touches.length !== 1) return;
-          const t = e.touches[0];
-          if (!this._pontoDentroDoCanvas(t.clientX, t.clientY)) return;
-          this._clickStart = { x: t.clientX, y: t.clientY, t: Date.now() };
-        };
-        this._docTouchEnd = (e) => {
-          if (!this._clickStart || e.changedTouches.length !== 1) return;
-          const t = e.changedTouches[0];
-          const dx = Math.abs(t.clientX - this._clickStart.x);
-          const dy = Math.abs(t.clientY - this._clickStart.y);
-          const dt = Date.now() - this._clickStart.t;
-          const mov = Math.hypot(dx, dy);
-          const foiClique = mov < 20 && dt < 900;
-          this._clickStart = null;
-          if (foiClique) this.tentarCliqueEmHotspot(t.clientX, t.clientY);
-        };
-
-        document.addEventListener('mousedown', this._docMouseDown, true);
-        document.addEventListener('mouseup',   this._docMouseUp,   true);
-        document.addEventListener('touchstart', this._docTouchStart, { capture: true, passive: true });
-        document.addEventListener('touchend',   this._docTouchEnd,   { capture: true, passive: true });
-
+        this.theta = Math.PI / 4; this.phi = Math.PI / 2.4; this.distance = this.data.distance;
+        this.target = new THREE.Vector3(0, this.data.targetY, 0); this.isDragging = false; this.prevMouse = { x: 0, y: 0 };
+        this.keys = {}; this._pinchStartDist = 0; this._pinchStartDistance = 0; this._initialized = false; this._tempV = new THREE.Vector3(); this._clickStart = null;
+        
+        this._onDown = this.onPointerDown.bind(this); this._onMove = this.onPointerMove.bind(this); this._onUp = this.onPointerUp.bind(this); this._onWheel = this.onWheel.bind(this); this._onTouchStart = this.onTouchStart.bind(this); this._onTouchMove = this.onTouchMove.bind(this); this._onTouchEnd = this.onTouchEnd.bind(this);
+        this._onKeyDown = (e) => { this.keys[e.code] = true; }; this._onKeyUp = (e) => { this.keys[e.code] = false; };
+        
+        this._docMouseDown = (e) => { if (!this._pontoDentroDoCanvas(e.clientX, e.clientY)) return; this._clickStart = { x: e.clientX, y: e.clientY, t: Date.now() }; };
+        this._docMouseUp = (e) => { if (!this._clickStart) return; if (Math.hypot(e.clientX - this._clickStart.x, e.clientY - this._clickStart.y) < 15 && Date.now() - this._clickStart.t < 900) this.tentarCliqueEmHotspot(e.clientX, e.clientY); this._clickStart = null; };
+        this._docTouchStart = (e) => { if (e.touches.length !== 1) return; if (!this._pontoDentroDoCanvas(e.touches[0].clientX, e.touches[0].clientY)) return; this._clickStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() }; };
+        this._docTouchEnd = (e) => { if (!this._clickStart || e.changedTouches.length !== 1) return; if (Math.hypot(e.changedTouches[0].clientX - this._clickStart.x, e.changedTouches[0].clientY - this._clickStart.y) < 20 && Date.now() - this._clickStart.t < 900) this.tentarCliqueEmHotspot(e.changedTouches[0].clientX, e.changedTouches[0].clientY); this._clickStart = null; };
+        
+        document.addEventListener('mousedown', this._docMouseDown, true); document.addEventListener('mouseup', this._docMouseUp, true); document.addEventListener('touchstart', this._docTouchStart, { capture: true, passive: true }); document.addEventListener('touchend', this._docTouchEnd, { capture: true, passive: true });
         this.updateCamera();
       },
-
-      _pontoDentroDoCanvas: function (x, y) {
-        const canvas = this.canvas || (this.el.sceneEl && this.el.sceneEl.canvas);
-        if (!canvas) return false;
-        const r = canvas.getBoundingClientRect();
-        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-      },
-
+      _pontoDentroDoCanvas: function (x, y) { const canvas = this.canvas || (this.el.sceneEl && this.el.sceneEl.canvas); if (!canvas) return false; const r = canvas.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; },
       tick: function (t, dt) {
         if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return;
         if (!this._initialized) {
-          const canvas = this.el.sceneEl && this.el.sceneEl.canvas;
-          if (!canvas) return;
-          this.canvas = canvas;
-          canvas.addEventListener('mousedown', this._onDown);
-          window.addEventListener('mousemove', this._onMove);
-          window.addEventListener('mouseup', this._onUp);
-          canvas.addEventListener('wheel', this._onWheel, { passive: false });
-          canvas.addEventListener('touchstart', this._onTouchStart, { passive: true });
-          canvas.addEventListener('touchmove', this._onTouchMove, { passive: false });
-          canvas.addEventListener('touchend', this._onTouchEnd, { passive: true });
-          window.addEventListener('keydown', this._onKeyDown);
-          window.addEventListener('keyup', this._onKeyUp);
-          this._initialized = true;
+          const canvas = this.el.sceneEl && this.el.sceneEl.canvas; if (!canvas) return;
+          this.canvas = canvas; canvas.addEventListener('mousedown', this._onDown); window.addEventListener('mousemove', this._onMove); window.addEventListener('mouseup', this._onUp); canvas.addEventListener('wheel', this._onWheel, { passive: false }); canvas.addEventListener('touchstart', this._onTouchStart, { passive: true }); canvas.addEventListener('touchmove', this._onTouchMove, { passive: false }); canvas.addEventListener('touchend', this._onTouchEnd, { passive: true }); window.addEventListener('keydown', this._onKeyDown); window.addEventListener('keyup', this._onKeyUp); this._initialized = true;
         }
-
-        const dtSec = Math.min(dt || 16, 100) / 1000;
-        const sinT = Math.sin(this.theta), cosT = Math.cos(this.theta);
-        const fwdX = -sinT, fwdZ = -cosT, rgtX = cosT, rgtZ = -sinT;
-
-        let dx = 0, dz = 0;
-        if (this.keys['KeyW'] || this.keys['ArrowUp'])    { dx += fwdX; dz += fwdZ; }
-        if (this.keys['KeyS'] || this.keys['ArrowDown'])  { dx -= fwdX; dz -= fwdZ; }
-        if (this.keys['KeyA'] || this.keys['ArrowLeft'])  { dx -= rgtX; dz -= rgtZ; }
-        if (this.keys['KeyD'] || this.keys['ArrowRight']) { dx += rgtX; dz += rgtZ; }
-
-        if (dx !== 0 || dz !== 0) {
-          const len = Math.hypot(dx, dz) || 1;
-          dx /= len; dz /= len;
-          const speed = this.data.moveSpeed * dtSec;
-          this.target.x += dx * speed;
-          this.target.z += dz * speed;
-        }
-        if (this.data.autoRotate && !this.isDragging) {
-          this.theta += dtSec * this.data.autoRotateSpeed;
-        }
-        this.updateCamera();
+        const dtSec = Math.min(dt || 16, 100) / 1000; const sinT = Math.sin(this.theta), cosT = Math.cos(this.theta); const fwdX = -sinT, fwdZ = -cosT, rgtX = cosT, rgtZ = -sinT; let dx = 0, dz = 0;
+        if (this.keys['KeyW'] || this.keys['ArrowUp']) { dx += fwdX; dz += fwdZ; } if (this.keys['KeyS'] || this.keys['ArrowDown']) { dx -= fwdX; dz -= fwdZ; } if (this.keys['KeyA'] || this.keys['ArrowLeft']) { dx -= rgtX; dz -= rgtZ; } if (this.keys['KeyD'] || this.keys['ArrowRight']) { dx += rgtX; dz += rgtZ; }
+        if (dx !== 0 || dz !== 0) { const len = Math.hypot(dx, dz) || 1; dx /= len; dz /= len; this.target.x += dx * this.data.moveSpeed * dtSec; this.target.z += dz * this.data.moveSpeed * dtSec; }
+        if (this.data.autoRotate && !this.isDragging) this.theta += dtSec * this.data.autoRotateSpeed; this.updateCamera();
       },
-
-      updateCamera: function () {
-        if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return;
-        const sinPhi = Math.sin(this.phi), cosPhi = Math.cos(this.phi);
-        const sinT = Math.sin(this.theta), cosT = Math.cos(this.theta);
-        const px = this.target.x + this.distance * sinPhi * sinT;
-        const py = this.target.y + this.distance * cosPhi;
-        const pz = this.target.z + this.distance * sinPhi * cosT;
-        const cam = this.el.getObject3D('camera') || this.el.object3D;
-        if (!cam) return;
-        cam.position.set(px, py, pz);
-        cam.lookAt(this.target);
-        cam.updateMatrixWorld(true);
-      },
-
-      tentarCliqueEmHotspot: function (clientX, clientY) {
-        const canvas = this.canvas;
-        if (!canvas) return;
-        const cam = this.el.getObject3D('camera');
-        if (!cam) return;
-        const rect = canvas.getBoundingClientRect();
-        const mx = clientX - rect.left;
-        const my = clientY - rect.top;
-        cam.updateMatrixWorld(true);
-        const hotspots = document.querySelectorAll('[info-hotspot]');
-        let melhor = null;
-        let menorDist = 150;
-        hotspots.forEach((el) => {
-          if (!el.object3D) return;
-          el.object3D.getWorldPosition(this._tempV);
-          this._tempV.project(cam);
-          const sx = (this._tempV.x * 0.5 + 0.5) * rect.width;
-          const sy = (-this._tempV.y * 0.5 + 0.5) * rect.height;
-          const dist = Math.hypot(sx - mx, sy - my);
-          if (dist < menorDist) { menorDist = dist; melhor = el; }
-        });
-        if (melhor) {
-          const comp = melhor.components['info-hotspot'];
-          if (comp && typeof comp.toggle === 'function') comp.toggle();
-        }
-      },
-
-      onPointerDown: function (e) {
-        if (e.button !== 0) return;
-        this.isDragging = true;
-        this.prevMouse = { x: e.clientX, y: e.clientY };
-        if (this.canvas) this.canvas.style.cursor = 'grabbing';
-      },
-      onPointerMove: function (e) {
-        if (!this.isDragging) return;
-        const dx = e.clientX - this.prevMouse.x;
-        const dy = e.clientY - this.prevMouse.y;
-        this.prevMouse = { x: e.clientX, y: e.clientY };
-        this.theta -= dx * 0.008 * this.data.rotateSpeed;
-        this.phi   -= dy * 0.008 * this.data.rotateSpeed;
-        this.phi = Math.max(this.data.minPolar, Math.min(this.data.maxPolar, this.phi));
-      },
-      onPointerUp: function () {
-        this.isDragging = false;
-        if (this.canvas) this.canvas.style.cursor = 'grab';
-      },
-      onWheel: function (e) {
-        e.preventDefault();
-        this.distance += e.deltaY * 0.005 * this.data.zoomSpeed;
-        this.distance = Math.max(this.data.minDistance, Math.min(this.data.maxDistance, this.distance));
-      },
-      onTouchStart: function (e) {
-        if (e.touches.length === 1) {
-          this.isDragging = true;
-          this.prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        } else if (e.touches.length === 2) {
-          this.isDragging = false;
-          const dx = e.touches[0].clientX - e.touches[1].clientX;
-          const dy = e.touches[0].clientY - e.touches[1].clientY;
-          this._pinchStartDist = Math.hypot(dx, dy);
-          this._pinchStartDistance = this.distance;
-        }
-      },
-      onTouchMove: function (e) {
-        if (e.touches.length === 1 && this.isDragging) {
-          const dx = e.touches[0].clientX - this.prevMouse.x;
-          const dy = e.touches[0].clientY - this.prevMouse.y;
-          this.prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-          this.theta -= dx * 0.012 * this.data.rotateSpeed;
-          this.phi   -= dy * 0.012 * this.data.rotateSpeed;
-          this.phi = Math.max(this.data.minPolar, Math.min(this.data.maxPolar, this.phi));
-        } else if (e.touches.length === 2 && this._pinchStartDist > 0) {
-          e.preventDefault();
-          const dx = e.touches[0].clientX - e.touches[1].clientX;
-          const dy = e.touches[0].clientY - e.touches[1].clientY;
-          const dist = Math.hypot(dx, dy);
-          if (dist > 0) {
-            this.distance = this._pinchStartDistance * (this._pinchStartDist / dist);
-            this.distance = Math.max(this.data.minDistance, Math.min(this.data.maxDistance, this.distance));
-          }
-        }
-      },
+      updateCamera: function () { if (this.el.sceneEl && this.el.sceneEl.is('vr-mode')) return; const sinPhi = Math.sin(this.phi), cosPhi = Math.cos(this.phi); const sinT = Math.sin(this.theta), cosT = Math.cos(this.theta); const px = this.target.x + this.distance * sinPhi * sinT; const py = this.target.y + this.distance * cosPhi; const pz = this.target.z + this.distance * sinPhi * cosT; const cam = this.el.getObject3D('camera') || this.el.object3D; if (!cam) return; cam.position.set(px, py, pz); cam.lookAt(this.target); cam.updateMatrixWorld(true); },
+      tentarCliqueEmHotspot: function (clientX, clientY) { const canvas = this.canvas; if (!canvas) return; const cam = this.el.getObject3D('camera'); if (!cam) return; const rect = canvas.getBoundingClientRect(); const mx = clientX - rect.left, my = clientY - rect.top; cam.updateMatrixWorld(true); const hotspots = document.querySelectorAll('[info-hotspot]'); let melhor = null, menorDist = 150; hotspots.forEach((el) => { if (!el.object3D) return; el.object3D.getWorldPosition(this._tempV); this._tempV.project(cam); const sx = (this._tempV.x * 0.5 + 0.5) * rect.width; const sy = (-this._tempV.y * 0.5 + 0.5) * rect.height; const dist = Math.hypot(sx - mx, sy - my); if (dist < menorDist) { menorDist = dist; melhor = el; } }); if (melhor) { const comp = melhor.components['info-hotspot']; if (comp && typeof comp.toggle === 'function') comp.toggle(); } },
+      onPointerDown: function (e) { if (e.button !== 0) return; this.isDragging = true; this.prevMouse = { x: e.clientX, y: e.clientY }; if (this.canvas) this.canvas.style.cursor = 'grabbing'; },
+      onPointerMove: function (e) { if (!this.isDragging) return; const dx = e.clientX - this.prevMouse.x, dy = e.clientY - this.prevMouse.y; this.prevMouse = { x: e.clientX, y: e.clientY }; this.theta -= dx * 0.008 * this.data.rotateSpeed; this.phi -= dy * 0.008 * this.data.rotateSpeed; this.phi = Math.max(this.data.minPolar, Math.min(this.data.maxPolar, this.phi)); },
+      onPointerUp: function () { this.isDragging = false; if (this.canvas) this.canvas.style.cursor = 'grab'; },
+      onWheel: function (e) { e.preventDefault(); this.distance += e.deltaY * 0.005 * this.data.zoomSpeed; this.distance = Math.max(this.data.minDistance, Math.min(this.data.maxDistance, this.distance)); },
+      onTouchStart: function (e) { if (e.touches.length === 1) { this.isDragging = true; this.prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY }; } else if (e.touches.length === 2) { this.isDragging = false; const dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY; this._pinchStartDist = Math.hypot(dx, dy); this._pinchStartDistance = this.distance; } },
+      onTouchMove: function (e) { if (e.touches.length === 1 && this.isDragging) { const dx = e.touches[0].clientX - this.prevMouse.x, dy = e.touches[0].clientY - this.prevMouse.y; this.prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY }; this.theta -= dx * 0.012 * this.data.rotateSpeed; this.phi -= dy * 0.012 * this.data.rotateSpeed; this.phi = Math.max(this.data.minPolar, Math.min(this.data.maxPolar, this.phi)); } else if (e.touches.length === 2 && this._pinchStartDist > 0) { e.preventDefault(); const dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY; const dist = Math.hypot(dx, dy); if (dist > 0) { this.distance = this._pinchStartDistance * (this._pinchStartDist / dist); this.distance = Math.max(this.data.minDistance, Math.min(this.data.maxDistance, this.distance)); } } },
       onTouchEnd: function () { this.isDragging = false; this._pinchStartDist = 0; },
-      atualizarTeclasVisuais: function (code, ativa) {
-        const el = document.querySelector(`.tecla[data-key="${code}"]`);
-        if (el) el.classList.toggle('ativa', ativa);
-      },
-      reset: function () {
-        this.theta = Math.PI / 4;
-        this.phi = Math.PI / 2.4;
-        this.distance = this.data.distance;
-        this.target.set(0, this.data.targetY, 0);
-        this.updateCamera();
-      },
+      reset: function () { this.theta = Math.PI / 4; this.phi = Math.PI / 2.4; this.distance = this.data.distance; this.target.set(0, this.data.targetY, 0); this.updateCamera(); },
       setAutoRotate: function (on) { this.data.autoRotate = on; },
-      remove: function () {
-        const canvas = this.canvas;
-        if (canvas) {
-          canvas.removeEventListener('mousedown', this._onDown);
-          canvas.removeEventListener('wheel', this._onWheel);
-          canvas.removeEventListener('touchstart', this._onTouchStart);
-          canvas.removeEventListener('touchmove', this._onTouchMove);
-          canvas.removeEventListener('touchend', this._onTouchEnd);
-        }
-        window.removeEventListener('mousemove', this._onMove);
-        window.removeEventListener('mouseup', this._onUp);
-        window.removeEventListener('keydown', this._onKeyDown);
-        window.removeEventListener('keyup', this._onKeyUp);
-        document.removeEventListener('mousedown', this._docMouseDown, true);
-        document.removeEventListener('mouseup',   this._docMouseUp,   true);
-        document.removeEventListener('touchstart', this._docTouchStart, true);
-        document.removeEventListener('touchend',   this._docTouchEnd,   true);
-      }
+      remove: function () { const canvas = this.canvas; if (canvas) { canvas.removeEventListener('mousedown', this._onDown); canvas.removeEventListener('wheel', this._onWheel); canvas.removeEventListener('touchstart', this._onTouchStart); canvas.removeEventListener('touchmove', this._onTouchMove); canvas.removeEventListener('touchend', this._onTouchEnd); } window.removeEventListener('mousemove', this._onMove); window.removeEventListener('mouseup', this._onUp); window.removeEventListener('keydown', this._onKeyDown); window.removeEventListener('keyup', this._onKeyUp); document.removeEventListener('mousedown', this._docMouseDown, true); document.removeEventListener('mouseup', this._docMouseUp, true); document.removeEventListener('touchstart', this._docTouchStart, true); document.removeEventListener('touchend', this._docTouchEnd, true); }
     });
 
-    /* ============================================================
-       URL PARAMS + BOOT
-       ============================================================ */
     const params = new URLSearchParams(window.location.search);
     const faunaId = params.get('id') || '';
     const numeroIndex = parseInt(faunaId.replace('pe-', ''), 10);
@@ -905,25 +415,13 @@
     document.title = `Visualização 3D — ${faunaId.toUpperCase()} — Projeto Mew`;
 
     if (window.location.protocol === 'file:') {
-      document.getElementById('aviso-file').style.display = 'flex';
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('controles').style.display = 'none';
-      document.getElementById('instrucoes').style.display = 'none';
-      document.getElementById('teclas-wasd').style.display = 'none';
-      document.getElementById('gaze-reticle').style.display = 'none';
-      document.getElementById('gaze-reticle-progresso').style.display = 'none';
-      document.getElementById('modo-toggle').style.display = 'none';
-      document.getElementById('vr-toggle').style.display = 'none';
-      document.getElementById('qualidade-select').style.display = 'none';
+      document.getElementById('loading').textContent = '⚠️ Use um servidor local (http://).';
     } else if (!faunaId || isNaN(numeroIndex) || numeroIndex <= 0) {
       document.getElementById('loading').textContent = '⚠️ Animal não especificado na URL.';
     } else {
       iniciarFluxoFauna();
     }
 
-    /* ============================================================
-       FLUXO PRINCIPAL
-       ============================================================ */
     async function iniciarFluxoFauna() {
       const loading = document.getElementById('loading');
       try {
@@ -933,279 +431,147 @@
         const lista = Array.isArray(data.especies_ameacadas) ? data.especies_ameacadas : [];
         EstadoApp.animal = lista[numeroIndex - 1];
         if (!EstadoApp.animal) throw new Error('Animal não encontrado no índice ' + numeroIndex);
-      } catch (e) {
-        console.error('Erro ao buscar fauna:', e);
-        loading.textContent = '⚠️ Não foi possível carregar os dados do animal.';
-        return;
+      } catch (e) { 
+        console.error('Erro:', e); 
+        loading.textContent = '⚠️ Erro ao carregar.'; 
+        return; 
       }
 
       const animal = EstadoApp.animal;
-      document.getElementById('nome-popular').textContent =
-        `#${faunaId.toUpperCase()} — ${animal.nome_popular}`;
+      document.getElementById('nome-popular').textContent = `#${faunaId.toUpperCase()} — ${animal.nome_popular}`;
       document.getElementById('nome-cientifico').textContent = animal.nome_cientifico || '';
-
+      
       let nomeBioma = 'Genérico';
-      if (window.MewBiomas && typeof window.MewBiomas.detectarBioma === 'function') {
+      if (window.MewBiomas && window.MewBiomas.detectarBioma) {
         const chave = window.MewBiomas.detectarBioma(animal);
         nomeBioma = window.MewBiomas.BIOMAS[chave]?.nome || chave;
       }
       document.getElementById('nome-bioma').textContent = `🌿 Bioma: ${nomeBioma}`;
-      document.title = `${animal.nome_popular} — Projeto Mew (3D)`;
 
       const original = animal.modelo_gltf || 'assets/modelo/animais.glb';
       EstadoApp.modeloPesadoOriginal = original;
-      EstadoApp.modeloPesado = window.MewQualidade
-        ? window.MewQualidade.resolverModelo(original)
-        : original;
+      EstadoApp.modeloPesado = window.MewQualidade ? window.MewQualidade.resolverModelo(original) : original;
 
-      const ehMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-      if (ehMobile && 'xr' in navigator) {
+      if (isMobile && 'xr' in navigator) {
         document.getElementById('vr-toggle').classList.add('visivel');
       }
 
-      const modoInicial = params.get('modo') === 'ar' ? 'ar' : '3d';
-      trocarModo(modoInicial, true);
+      trocarModo(params.get('modo') === 'ar' ? 'ar' : '3d', true);
     }
 
-    /* ============================================================
-       TROCA DE MODO 3D ↔ AR
-       ============================================================ */
     function trocarModo(novoModo, primeiraVez) {
-      if (!EstadoApp.animal) return;
-      if (novoModo === 'vr') return;
+      if (!EstadoApp.animal || novoModo === 'vr') return;
       if (!primeiraVez && EstadoApp.modo === novoModo) return;
 
       pararTodosLoops();
       EstadoApp.modo = novoModo;
-      EstadoApp.gazeState.alvoAtual = null;
-      EstadoApp.gazeState.disparado = false;
-      EstadoApp.gazeState.ultimoDisparado = null;
-
-      const container = document.getElementById('scene-container');
-      container.innerHTML = '';
-
+      document.getElementById('scene-container').innerHTML = '';
       if (document.pointerLockElement) document.exitPointerLock();
-      resetarBotaoExplorar();
 
       const btn = document.getElementById('modo-toggle');
       if (novoModo === 'ar') {
-        btn.textContent = '🖥️ Modo 3D';
-        btn.classList.add('ar-ativo');
+        btn.textContent = '🖥️ Modo 3D'; btn.classList.add('ar-ativo');
         document.getElementById('controles').style.display = 'none';
         document.getElementById('teclas-wasd').style.display = 'none';
         document.getElementById('gaze-reticle').style.display = 'none';
         document.getElementById('gaze-reticle-progresso').style.display = 'none';
         document.getElementById('vr-toggle').style.display = 'none';
-        document.getElementById('instrucoes').innerHTML =
-          '<span class="instr-mobile"><span>📱 Mova o celular</span> · Aponte a linha do QR para as esferas · <span>👁️ 3s</span> para abrir</span>';
+        document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>📱 Aponte para o QR</span> · <span>👁️ 3s</span> nos hotspots</span>';
       } else {
-        btn.textContent = '🥽 Modo AR';
-        btn.classList.remove('ar-ativo');
-        document.getElementById('controles').style.display = 'flex';
-        document.getElementById('teclas-wasd').style.display = 'grid';
+        btn.textContent = '🥽 Modo AR'; btn.classList.remove('ar-ativo');
+        document.getElementById('controles').style.display = isMobile ? 'none' : 'flex';
+        document.getElementById('teclas-wasd').style.display = isMobile ? 'none' : 'grid';
         document.getElementById('gaze-reticle').style.display = 'block';
-        const ehMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-        if (ehMobile && 'xr' in navigator) {
-          document.getElementById('vr-toggle').classList.add('visivel');
+        if (isMobile && 'xr' in navigator) document.getElementById('vr-toggle').classList.add('visivel');
+        
+        if (isMobile) {
+          document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>👆 Arraste</span> pra olhar · <span>▲▼◀▶</span> pra andar</span>';
+        } else {
+          document.getElementById('instrucoes').innerHTML = '<span class="instr-desktop"><span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>👁️ Mire 3s</span></span>';
         }
-        document.getElementById('instrucoes').innerHTML =
-          '<span class="instr-desktop"><span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>💬 Clique</span> ou <span>👁️ Mire 3s</span> nas esferas</span>' +
-          '<span class="instr-mobile"><span>👆 Arraste</span> girar · <span>📱 Use VR Cardboard</span> ou <span>💬 Toque</span> nas esferas</span>';
       }
 
-      setTimeout(() => {
-        if (novoModo === 'ar') construirCenaAR();
-        else construirCena3D();
+      setTimeout(() => { 
+        if (novoModo === 'ar') construirCenaAR(); 
+        else construirCena3D(); 
       }, 150);
     }
 
-    document.getElementById('modo-toggle').addEventListener('click', () => {
-      trocarModo(EstadoApp.modo === 'ar' ? '3d' : 'ar');
-    });
+    document.getElementById('modo-toggle').addEventListener('click', () => trocarModo(EstadoApp.modo === 'ar' ? '3d' : 'ar'));
 
     document.getElementById('vr-toggle').addEventListener('click', async () => {
-      const cena = document.querySelector('a-scene');
-      if (!cena) return;
+      const cena = document.querySelector('a-scene'); if (!cena) return;
       try {
         if (cena.enterVR) await cena.enterVR();
         else if (cena.xrSession) await cena.xrSession.end();
-        else {
-          const btnVR = cena.querySelector('.a-enter-vr-button');
-          if (btnVR) btnVR.click();
-        }
-      } catch (e) {
-        console.warn('Não foi possível entrar em VR:', e);
-        alert('Seu dispositivo não suporta VR, ou falta HTTPS.');
-      }
+        else { const btnVR = cena.querySelector('.a-enter-vr-button'); if (btnVR) btnVR.click(); }
+      } catch (e) { alert('Seu dispositivo não suporta VR, ou falta HTTPS.'); }
     });
 
-    /* ============================================================
-       LISTENERS VR
-       ============================================================ */
     function configurarListenersVR(cena) {
       cena.addEventListener('enter-vr', () => {
-        console.log('🥽 Entrou em modo VR');
-        document.body.classList.add('em-vr');
-        EstadoApp.modo = 'vr';
-
+        document.body.classList.add('em-vr'); EstadoApp.modo = 'vr';
         const camEl = cena.querySelector('#camera, [camera]');
         if (camEl && camEl.hasAttribute('fps-walker')) {
-          // Se está no walker, NÃO remove; o walker sabe lidar com VR
-          // Mas ajusta look-controls
           camEl.setAttribute('look-controls', 'enabled: true');
-        } else {
-          if (camEl) {
-            camEl.removeAttribute('orbit-camera');
-            camEl.setAttribute('look-controls', 'enabled: true');
-            camEl.setAttribute('wasd-controls', 'enabled: false');
-            camEl.object3D.position.set(0, 0, 0);
-            camEl.object3D.rotation.set(0, 0, 0);
-            const threeCam = camEl.getObject3D('camera');
-            if (threeCam) { threeCam.position.set(0, 0, 0); threeCam.rotation.set(0, 0, 0); }
-          }
+        } else if (camEl) {
+          camEl.removeAttribute('orbit-camera'); camEl.setAttribute('look-controls', 'enabled: true'); camEl.setAttribute('wasd-controls', 'enabled: false');
+          camEl.object3D.position.set(0, 0, 0); camEl.object3D.rotation.set(0, 0, 0);
         }
       });
-
       cena.addEventListener('exit-vr', () => {
-        console.log('🥽 Saiu do modo VR');
-        document.body.classList.remove('em-vr');
-        EstadoApp.modo = '3d';
-
+        document.body.classList.remove('em-vr'); EstadoApp.modo = '3d';
         const camEl = cena.querySelector('#camera, [camera]');
-        if (camEl && camEl.hasAttribute('fps-walker')) {
-          // Mantém walker
-          return;
-        }
+        if (camEl && camEl.hasAttribute('fps-walker')) return;
         if (camEl) {
-          camEl.setAttribute('look-controls', 'enabled: false');
-          camEl.setAttribute('wasd-controls', 'enabled: false');
-          camEl.object3D.position.set(0, 0, 0);
-          camEl.object3D.rotation.set(0, 0, 0);
-          const threeCam = camEl.getObject3D('camera');
-          if (threeCam) { threeCam.position.set(0, 0, 0); threeCam.rotation.set(0, 0, 0); }
-          camEl.setAttribute('orbit-camera',
-            'distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;');
+          camEl.setAttribute('look-controls', 'enabled: false'); camEl.setAttribute('wasd-controls', 'enabled: false');
+          camEl.object3D.position.set(0, 0, 0); camEl.object3D.rotation.set(0, 0, 0);
+          camEl.setAttribute('orbit-camera', 'distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;');
         }
-
-        resetarBotaoExplorar();
-        const controles = document.getElementById('controles');
-        if (controles) controles.style.display = 'flex';
       });
     }
 
-    /* ============================================================
-       AMBIENTE
-       ============================================================ */
     function montarAmbienteHTML() {
-      const animal = EstadoApp.animal;
-      let ambienteHtml = '';
-      let bioma = null;
+      let ambienteHtml = ''; let bioma = null;
       const perfil = window.MewQualidade ? window.MewQualidade.perfil : { densidade: 'alta' };
-      const densidade = perfil.densidade === 'baixa' ? 'baixa' : 'alta';
-      if (window.MewBiomas && typeof window.MewBiomas.montarCena3D === 'function') {
-        const resultado = window.MewBiomas.montarCena3D(animal, { densidade });
-        ambienteHtml = resultado.html;
-        bioma = resultado.bioma;
-      } else {
-        ambienteHtml = `
-          <a-sky color="#87CEEB"></a-sky>
-          <a-circle position="0 0 0" rotation="-90 0 0" radius="80" color="#4a7a4a"></a-circle>
-          <a-entity light="type: ambient; color: #fff; intensity: 0.9"></a-entity>
-          <a-entity position="5 8 5" light="type: directional; color: #fff; intensity: 1.2"></a-entity>
-        `;
+      if (window.MewBiomas && window.MewBiomas.montarCena3D) {
+        const resultado = window.MewBiomas.montarCena3D(EstadoApp.animal, { densidade: perfil.densidade });
+        ambienteHtml = resultado.html; bioma = resultado.bioma;
       }
       return { ambienteHtml, bioma };
     }
 
-    /* ============================================================
-       CONSTRUÇÃO DO MODO 3D
-       ============================================================ */
     function construirCena3D() {
       const container = document.getElementById('scene-container');
       const { ambienteHtml, bioma } = montarAmbienteHTML();
       const perfil = window.MewQualidade.perfil;
-      const fogAttr = bioma
-        ? `fog="type: exponential; color: ${bioma.fog}; density: ${bioma.fogDensity}"`
-        : '';
-      const shadowAttr = perfil.sombras
-        ? `shadow="type: ${perfil.shadowMapSize >= 2048 ? 'pcfsoft' : 'pcf'}"`
-        : '';
+      const fogAttr = bioma ? `fog="type: exponential; color: ${bioma.fog}; density: ${bioma.fogDensity}"` : '';
+      const shadowAttr = perfil.sombras ? `shadow="type: ${perfil.shadowMapSize >= 2048 ? 'pcfsoft' : 'pcf'}"` : '';
       const rendererAttr = `renderer="antialias: ${perfil.antialias}; colorManagement: true;"`;
-      const fallbackAttr = (EstadoApp.modeloPesado !== EstadoApp.modeloPesadoOriginal)
-        ? ` data-fallback-src="url(${EstadoApp.modeloPesadoOriginal})"`
-        : '';
+      
+      const cameraAttr = isMobile 
+        ? `fps-walker="speed: 3.5; gazeMaxSpeed: 4.0; eyeHeight: 1.6;"` 
+        : `orbit-camera="distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;"`;
 
       container.innerHTML = `
-        <a-scene
-          id="cena-3d"
-          embedded
-          ${fogAttr}
-          ${shadowAttr}
-          ${rendererAttr}
-          vr-mode-ui="enabled: false"
-          style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
-        >
-          <a-assets timeout="30000">
-            <a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item>
-          </a-assets>
-
+        <a-scene id="cena-3d" embedded ${fogAttr} ${shadowAttr} ${rendererAttr} vr-mode-ui="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
+          <a-assets timeout="30000"><a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item></a-assets>
           ${ambienteHtml}
-
           <a-entity id="modelo-wrapper">
-            <a-box id="cubo-placeholder"
-                   position="0 0.5 0"
-                   width="1" height="1" depth="1"
-                   color="#888888"
-                   material="shader: standard; color: #888888; metalness: 0.15; roughness: 0.85"
-                   shadow="cast: true; receive: true"
-                   animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
-            </a-box>
+            <a-box id="cubo-placeholder" position="0 0.5 0" width="1" height="1" depth="1" color="#888888" material="shader: standard; color: #888888" shadow="cast: true" animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"></a-box>
           </a-entity>
-
-          <a-camera
-            id="camera"
-            look-controls="enabled: false"
-            wasd-controls="enabled: false"
-            fov="60"
-            orbit-camera="distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;"
-          ></a-camera>
+          <a-camera id="camera" look-controls="enabled: false" wasd-controls="enabled: false" fov="60" ${cameraAttr}></a-camera>
         </a-scene>
       `;
 
-      document.getElementById('controles').style.display = 'flex';
-      document.getElementById('instrucoes').style.display = 'block';
-      document.getElementById('teclas-wasd').style.display = 'grid';
-
       const cena = container.querySelector('a-scene');
-
-      const assetEl = document.getElementById('modelo-pesado-asset');
-      if (assetEl && fallbackAttr) {
-        assetEl.addEventListener('error', () => {
-          console.warn('[LOD] Asset principal sem variante. Usando original.');
-          assetEl.setAttribute('src', EstadoApp.modeloPesadoOriginal);
-          EstadoApp.modeloPesado = EstadoApp.modeloPesadoOriginal;
-        }, { once: true });
-      }
-
       cena.addEventListener('loaded', () => {
-        console.log('🎬 Cena 3D pronta — bioma:', bioma?.nome, '— qualidade:', perfil.densidade);
         document.getElementById('loading').style.display = 'none';
-
-        if (window.MewQualidade) {
-          window.MewQualidade.aplicarFallback(cena);
-          window.MewQualidade.ajustarLuzes(cena);
-        }
-
-        configurarListenersVR(cena);
-        iniciarGaze(cena);
-        configurarBotoesFauna();
-        agendarCarregamentoPesado();
+        if (window.MewQualidade) { window.MewQualidade.aplicarFallback(cena); window.MewQualidade.ajustarLuzes(cena); }
+        configurarListenersVR(cena); iniciarGaze(cena); configurarBotoesFauna(); agendarCarregamentoPesado();
       }, { once: true });
     }
 
-    /* ============================================================
-       MODO AR
-       ============================================================ */
     function construirCenaAR() {
       const container = document.getElementById('scene-container');
       const { ambienteHtml } = montarAmbienteHTML();
@@ -1213,589 +579,166 @@
       const rendererAttr = `renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: ${perfil.antialias};"`;
 
       container.innerHTML = `
-        <a-scene
-          id="cena-ar"
-          embedded
-          arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;"
-          ${rendererAttr}
-          vr-mode-ui="enabled: false"
-          style="position: fixed; inset: 0; width: 100vw; height: 100vh;"
-        >
-          <a-assets timeout="30000">
-            <a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item>
-          </a-assets>
-
-          <a-marker type="barcode" value="5"
-                    smooth="true" smoothCount="10"
-                    smoothTolerance="0.01" smoothThreshold="5"
-                    id="marcador-qr">
+        <a-scene id="cena-ar" embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;" ${rendererAttr} vr-mode-ui="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
+          <a-assets timeout="30000"><a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item></a-assets>
+          <a-marker type="barcode" value="5" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5" id="marcador-qr">
             ${ambienteHtml}
             <a-entity id="modelo-wrapper" position="0 0 0">
-              <a-box id="cubo-placeholder"
-                     position="0 0.25 0"
-                     width="0.5" height="0.5" depth="0.5"
-                     color="#888888"
-                     material="shader: standard; color: #888888; metalness: 0.15; roughness: 0.85"
-                     animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
-              </a-box>
+              <a-box id="cubo-placeholder" position="0 0.25 0" width="0.5" height="0.5" depth="0.5" color="#888888" animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"></a-box>
             </a-entity>
-
-            <a-entity id="linha-ar"
-                      geometry="primitive: cylinder; radius: 0.012; height: 1;"
-                      material="shader: standard; color: #7ee898; emissive: #7ee898; emissiveIntensity: 0.8; opacity: 0.9; transparent: true"
-                      position="0 0.05 0"
-                      visible="false"></a-entity>
-
+            <a-entity id="linha-ar" geometry="primitive: cylinder; radius: 0.012; height: 1;" material="shader: standard; color: #7ee898; emissive: #7ee898; emissiveIntensity: 0.8; opacity: 0.9; transparent: true" visible="false"></a-entity>
             <a-entity id="mao-grupo" visible="false">
-              <a-ring id="mao-halo" position="0 0 0" rotation="-90 0 0"
-                      radius-inner="0.08" radius-outer="0.13"
-                      color="#c084fc"
-                      material="shader: flat; opacity: 0.55; transparent: true; side: double"
-                      animation="property: scale; from: 1 1 1; to: 2.2 2.2 2.2; dur: 1600; dir: alternate; loop: true; easing: easeOutSine"
-                      animation__op="property: material.opacity; from: 0.6; to: 0; dur: 1600; dir: alternate; loop: true"></a-ring>
-
-              <a-sphere id="mao-esfera" position="0 0 0" radius="0.05"
-                        color="#c084fc"
-                        material="shader: standard; emissive: #c084fc; emissiveIntensity: 1.8; opacity: 0.9; transparent: true"
-                        animation="property: scale; from: 1 1 1; to: 1.35 1.35 1.35; dur: 800; dir: alternate; loop: true; easing: easeInOutSine"></a-sphere>
-
-              <a-entity id="mao-varinha"
-                        geometry="primitive: cylinder; radius: 0.008; height: 2;"
-                        material="shader: standard; color: #c084fc; emissive: #c084fc; emissiveIntensity: 0.9; opacity: 0.85; transparent: true"
-                        position="0 0 1"
-                        rotation="-90 0 0"></a-entity>
-
-              <a-sphere id="mao-ponta" position="0 0 2" radius="0.03"
-                        color="#ffcb05"
-                        material="shader: standard; emissive: #ffcb05; emissiveIntensity: 2"></a-sphere>
+              <a-ring id="mao-halo" position="0 0 0" rotation="-90 0 0" radius-inner="0.08" radius-outer="0.13" color="#c084fc" material="shader: flat; opacity: 0.55; transparent: true; side: double" animation="property: scale; from: 1 1 1; to: 2.2 2.2 2.2; dur: 1600; dir: alternate; loop: true; easing: easeOutSine"></a-ring>
+              <a-sphere id="mao-esfera" position="0 0 0" radius="0.05" color="#c084fc" material="shader: standard; emissive: #c084fc; emissiveIntensity: 1.8"></a-sphere>
+              <a-entity id="mao-varinha" geometry="primitive: cylinder; radius: 0.008; height: 2;" material="shader: standard; color: #c084fc; emissive: #c084fc; emissiveIntensity: 0.9; opacity: 0.85; transparent: true" position="0 0 1" rotation="-90 0 0"></a-entity>
+              <a-sphere id="mao-ponta" position="0 0 2" radius="0.03" color="#ffcb05" material="shader: standard; emissive: #ffcb05; emissiveIntensity: 2"></a-sphere>
             </a-entity>
           </a-marker>
-
           <a-entity id="ar-camera" camera></a-entity>
         </a-scene>
       `;
 
-      document.getElementById('controles').style.display = 'none';
-      document.getElementById('teclas-wasd').style.display = 'none';
-      document.getElementById('instrucoes').style.display = 'block';
       document.getElementById('vr-toggle').style.display = 'none';
 
       const cena = container.querySelector('a-scene');
       cena.addEventListener('loaded', () => {
-        console.log('🎬 Cena AR pronta');
         document.getElementById('loading').style.display = 'none';
-
-        setTimeout(() => {
-          const arCam = cena.querySelector('#ar-camera');
-          if (arCam && arCam.getObject3D('camera')) {
-            EstadoApp.cameraAR = arCam.getObject3D('camera');
-          } else if (cena.camera) {
-            EstadoApp.cameraAR = cena.camera;
-          }
-        }, 600);
-
-        if (window.MewQualidade) {
-          window.MewQualidade.aplicarFallback(cena);
-        }
-
-        iniciarGaze(cena);
-        iniciarLinhaAR(cena);
-        iniciarModoMao(cena);
-        agendarCarregamentoPesado();
+        setTimeout(() => { const arCam = cena.querySelector('#ar-camera'); if (arCam) EstadoApp.cameraAR = arCam.getObject3D('camera'); }, 600);
+        if (window.MewQualidade) window.MewQualidade.aplicarFallback(cena);
+        iniciarGaze(cena); iniciarLinhaAR(cena); iniciarModoMao(cena); agendarCarregamentoPesado();
       }, { once: true });
     }
 
-    /* ============================================================
-       CARREGAMENTO PESADO
-       ============================================================ */
     function agendarCarregamentoPesado() {
-      const start = () => {
-        console.log('⏳ Carregando modelo pesado');
-        const hdBadge = document.getElementById('hd-badge');
-        hdBadge.classList.add('ativo');
-        carregarModeloPesado();
-      };
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(start, { timeout: 2000 });
-      } else {
-        setTimeout(start, 1500);
-      }
+      const start = () => { document.getElementById('hd-badge').classList.add('ativo'); carregarModeloPesado(); };
+      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2000 }); else setTimeout(start, 1500);
     }
 
     function carregarModeloPesado() {
-      const wrapper = document.getElementById('modelo-wrapper');
-      const hdBadge = document.getElementById('hd-badge');
-      const hdBadgeTexto = document.getElementById('hd-badge-texto');
-      const cubo = document.getElementById('cubo-placeholder');
+      const wrapper = document.getElementById('modelo-wrapper'), hdBadge = document.getElementById('hd-badge'), cubo = document.getElementById('cubo-placeholder');
       if (!wrapper) return;
-
       const modeloPesado = document.createElement('a-entity');
-      modeloPesado.setAttribute('id', 'modelo-fauna-pesado');
-      modeloPesado.setAttribute('gltf-model', '#modelo-pesado-asset');
-      modeloPesado.setAttribute('rotation', '0 0 0');
-      modeloPesado.setAttribute('visible', 'false');
-      modeloPesado.setAttribute('animation',
-        'property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear');
+      modeloPesado.setAttribute('id', 'modelo-fauna-pesado'); modeloPesado.setAttribute('gltf-model', '#modelo-pesado-asset'); modeloPesado.setAttribute('rotation', '0 0 0'); modeloPesado.setAttribute('visible', 'false');
+      modeloPesado.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear');
       wrapper.appendChild(modeloPesado);
 
-      const timeoutMsg = setTimeout(() => {
-        if (hdBadgeTexto) hdBadgeTexto.textContent = 'Modelo HD demorando...';
-      }, 8000);
-
-      const timeoutFallback = setTimeout(() => {
-        hdBadge.classList.remove('ativo');
-      }, 30000);
-
       modeloPesado.addEventListener('model-loaded', () => {
-        clearTimeout(timeoutMsg);
-        clearTimeout(timeoutFallback);
-        ajustarModeloPesado(modeloPesado);
-        console.log('✅ Modelo PESADO carregado');
-        modeloPesado.setAttribute('visible', 'true');
-        if (cubo) {
-          cubo.setAttribute('visible', 'false');
-          setTimeout(() => {
-            if (cubo.parentNode) cubo.parentNode.removeChild(cubo);
-          }, 400);
-        }
+        ajustarModeloPesado(modeloPesado); modeloPesado.setAttribute('visible', 'true');
+        if (cubo) { cubo.setAttribute('visible', 'false'); setTimeout(() => { if (cubo.parentNode) cubo.parentNode.removeChild(cubo); }, 400); }
         hdBadge.classList.remove('ativo');
       }, { once: true });
-
-      modeloPesado.addEventListener('model-error', () => {
-        clearTimeout(timeoutMsg);
-        clearTimeout(timeoutFallback);
-        console.warn('❌ Modelo PESADO falhou — mantendo cubo cinza');
-        if (modeloPesado.parentNode) modeloPesado.parentNode.removeChild(modeloPesado);
-        hdBadge.classList.remove('ativo');
-      }, { once: true });
+      modeloPesado.addEventListener('model-error', () => { if (modeloPesado.parentNode) modeloPesado.parentNode.removeChild(modeloPesado); hdBadge.classList.remove('ativo'); }, { once: true });
     }
 
     function ajustarModeloPesado(modelo) {
       let tentativas = 0;
       const ajustar = () => {
         const mesh = modelo.getObject3D('mesh');
-        if (!mesh) {
-          if (tentativas++ < 40) { setTimeout(ajustar, 100); return; }
-          return;
-        }
-        mesh.position.set(0, 0, 0);
-        mesh.rotation.set(0, 0, 0);
-        mesh.scale.set(1, 1, 1);
-        mesh.updateMatrixWorld(true);
-        const box = new THREE.Box3().setFromObject(mesh);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
+        if (!mesh) { if (tentativas++ < 40) { setTimeout(ajustar, 100); return; } return; }
+        mesh.position.set(0, 0, 0); mesh.rotation.set(0, 0, 0); mesh.scale.set(1, 1, 1); mesh.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(mesh); const size = box.getSize(new THREE.Vector3()); const center = box.getCenter(new THREE.Vector3()); const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
-        const ALVO = EstadoApp.modo === 'ar' ? 0.8 : 2.0;
-        const escala = ALVO / maxDim;
-        mesh.scale.set(escala, escala, escala);
-        mesh.position.set(
-          -center.x * escala,
-          -center.y * escala + (size.y * escala / 2),
-          -center.z * escala
-        );
-        mesh.updateMatrixWorld(true);
+        const ALVO = EstadoApp.modo === 'ar' ? 0.8 : 2.0; const escala = ALVO / maxDim;
+        mesh.scale.set(escala, escala, escala); mesh.position.set(-center.x * escala, -center.y * escala + (size.y * escala / 2), -center.z * escala); mesh.updateMatrixWorld(true);
       };
       ajustar();
     }
 
-    /* ============================================================
-       GAZE
-       ============================================================ */
     function iniciarGaze(sceneEl) {
-      pararGaze();
-      const reticle = document.getElementById('gaze-reticle');
-      const progresso = document.getElementById('gaze-reticle-progresso');
-      const circle = document.getElementById('gaze-progress-circle');
+      pararGaze(); const reticle = document.getElementById('gaze-reticle'), progresso = document.getElementById('gaze-reticle-progresso'), circle = document.getElementById('gaze-progress-circle');
       if (!reticle) return;
-
       const perfil = window.MewQualidade ? window.MewQualidade.perfil : { gazeIntervalMs: 100, raycasterDistancia: 50 };
       const intervalMs = perfil.gazeIntervalMs;
+      const raycaster = new THREE.Raycaster(); raycaster.far = perfil.raycasterDistancia;
+      const centro = new THREE.Vector2(0, 0); const circ = 2 * Math.PI * 20;
+      circle.style.strokeDasharray = circ; circle.style.strokeDashoffset = circ;
 
-      const raycaster = new THREE.Raycaster();
-      raycaster.far = perfil.raycasterDistancia;
-      const centro = new THREE.Vector2(0, 0);
-      const circ = 2 * Math.PI * 20;
-      circle.style.strokeDasharray = circ;
-      circle.style.strokeDashoffset = circ;
+      function getCamera() { if (EstadoApp.modo === 'ar') { const arCam = sceneEl.querySelector('#ar-camera'); if (arCam && arCam.getObject3D('camera')) return arCam.getObject3D('camera'); if (sceneEl.camera) return sceneEl.camera; return EstadoApp.cameraAR; } else { const camEl = sceneEl.querySelector('#camera'); if (camEl) return camEl.getObject3D('camera'); } return null; }
+      function resetarGaze() { EstadoApp.gazeState.alvoAtual = null; EstadoApp.gazeState.disparado = false; EstadoApp.gazeState.tempoInicio = 0; reticle.classList.remove('ativo'); progresso.classList.remove('ativo'); circle.style.strokeDashoffset = circ; }
 
-      function getCamera() {
-        if (EstadoApp.modo === 'ar') {
-          const arCam = sceneEl.querySelector('#ar-camera');
-          if (arCam && arCam.getObject3D('camera')) return arCam.getObject3D('camera');
-          if (sceneEl.camera) return sceneEl.camera;
-          return EstadoApp.cameraAR;
-        } else {
-          const camEl = sceneEl.querySelector('#camera');
-          if (camEl) return camEl.getObject3D('camera');
-        }
-        return null;
-      }
-
-      function resetarGaze() {
-        EstadoApp.gazeState.alvoAtual = null;
-        EstadoApp.gazeState.disparado = false;
-        EstadoApp.gazeState.tempoInicio = 0;
-        reticle.classList.remove('ativo');
-        progresso.classList.remove('ativo');
-        circle.style.strokeDashoffset = circ;
-      }
-
-      let hotspotsCache = null;
-      let hotspotsFrame = 0;
-
+      let hotspotsCache = null; let hotspotsFrame = 0;
       function tick() {
-        hotspotsFrame++;
-        if (!hotspotsCache || hotspotsFrame > 30) {
-          hotspotsCache = Array.from(document.querySelectorAll('[info-hotspot]'));
-          hotspotsFrame = 0;
-        }
-
-        if (EstadoApp.modo === 'ar' || EstadoApp.modo === 'vr') {
-          reticle.style.display = 'none';
-          progresso.style.display = 'none';
-        } else {
-          reticle.style.display = 'block';
-          progresso.style.display = EstadoApp.gazeState.alvoAtual ? 'block' : 'none';
-        }
-
-        const cam = getCamera();
-        if (!cam) return;
-
+        hotspotsFrame++; if (!hotspotsCache || hotspotsFrame > 30) { hotspotsCache = Array.from(document.querySelectorAll('[info-hotspot]')); hotspotsFrame = 0; }
+        if (EstadoApp.modo === 'ar' || EstadoApp.modo === 'vr') { reticle.style.display = 'none'; progresso.style.display = 'none'; } else { reticle.style.display = 'block'; progresso.style.display = EstadoApp.gazeState.alvoAtual ? 'block' : 'none'; }
+        const cam = getCamera(); if (!cam) return;
         raycaster.setFromCamera(centro, cam);
-
-        let alvo = null;
-        let menorDist = Infinity;
-
-        hotspotsCache.forEach((el) => {
-          if (!el.object3D || !el.components['info-hotspot']) return;
-          const hits = raycaster.intersectObject(el.object3D, true);
-          if (hits.length > 0 && hits[0].distance < menorDist) {
-            menorDist = hits[0].distance;
-            alvo = el;
-          }
-        });
-
-        if (!alvo) {
-          if (EstadoApp.gazeState.alvoAtual || EstadoApp.gazeState.disparado) resetarGaze();
-          return;
-        }
-
-        if (EstadoApp.gazeState.alvoAtual !== alvo) {
-          EstadoApp.gazeState.alvoAtual = alvo;
-          EstadoApp.gazeState.tempoInicio = performance.now();
-          EstadoApp.gazeState.disparado = false;
-          if (EstadoApp.gazeState.ultimoDisparado === alvo) return;
-          reticle.classList.add('ativo');
-          progresso.classList.add('ativo');
-          circle.style.strokeDashoffset = circ;
-          return;
-        }
-
+        let alvo = null, menorDist = Infinity;
+        hotspotsCache.forEach((el) => { if (!el.object3D || !el.components['info-hotspot']) return; const hits = raycaster.intersectObject(el.object3D, true); if (hits.length > 0 && hits[0].distance < menorDist) { menorDist = hits[0].distance; alvo = el; } });
+        if (!alvo) { if (EstadoApp.gazeState.alvoAtual || EstadoApp.gazeState.disparado) resetarGaze(); return; }
+        if (EstadoApp.gazeState.alvoAtual !== alvo) { EstadoApp.gazeState.alvoAtual = alvo; EstadoApp.gazeState.tempoInicio = performance.now(); EstadoApp.gazeState.disparado = false; if (EstadoApp.gazeState.ultimoDisparado === alvo) return; reticle.classList.add('ativo'); progresso.classList.add('ativo'); circle.style.strokeDashoffset = circ; return; }
         const decorrido = performance.now() - EstadoApp.gazeState.tempoInicio;
         const pct = Math.min(decorrido / EstadoApp.gazeState.dwellMs, 1);
         circle.style.strokeDashoffset = (circ * (1 - pct)).toFixed(2);
-
         if (pct >= 1 && !EstadoApp.gazeState.disparado) {
-          EstadoApp.gazeState.disparado = true;
-          EstadoApp.gazeState.ultimoDisparado = alvo;
-          const comp = alvo.components['info-hotspot'];
+          EstadoApp.gazeState.disparado = true; EstadoApp.gazeState.ultimoDisparado = alvo; const comp = alvo.components['info-hotspot'];
           if (comp && typeof comp.toggle === 'function') comp.toggle();
-          setTimeout(() => {
-            resetarGaze();
-            setTimeout(() => {
-              if (EstadoApp.gazeState.ultimoDisparado === alvo) {
-                EstadoApp.gazeState.ultimoDisparado = null;
-              }
-            }, 2000);
-          }, 700);
+          setTimeout(() => { resetarGaze(); setTimeout(() => { if (EstadoApp.gazeState.ultimoDisparado === alvo) EstadoApp.gazeState.ultimoDisparado = null; }, 2000); }, 700);
         }
       }
-
-      EstadoApp.gazeIntervalId = setInterval(tick, intervalMs);
-      tick();
+      EstadoApp.gazeIntervalId = setInterval(tick, intervalMs); tick();
     }
+    function pararGaze() { if (EstadoApp.gazeIntervalId) { clearInterval(EstadoApp.gazeIntervalId); EstadoApp.gazeIntervalId = null; } }
 
-    function pararGaze() {
-      if (EstadoApp.gazeIntervalId) {
-        clearInterval(EstadoApp.gazeIntervalId);
-        EstadoApp.gazeIntervalId = null;
-      }
-    }
-
-    /* ============================================================
-       MODO MÃO
-       ============================================================ */
-    const EstadoMao = {
-      alvoAtual: null, tempoInicio: 0, disparado: false, ultimoDisparado: null,
-      dwellMs: 3000, raycaster: null, fromV: null, dirV: null, localZ: null
-    };
-
+    const EstadoMao = { alvoAtual: null, tempoInicio: 0, disparado: false, ultimoDisparado: null, dwellMs: 3000, raycaster: null, fromV: null, dirV: null, localZ: null };
     function iniciarModoMao(sceneEl) {
-      pararMao();
-      const maoGrupo   = sceneEl.querySelector('#mao-grupo');
-      const maoVarinha = sceneEl.querySelector('#mao-varinha');
-      const maoPonta   = sceneEl.querySelector('#mao-ponta');
-      const marcador   = sceneEl.querySelector('#marcador-qr');
-      const btnMao     = document.getElementById('mao-toggle');
+      pararMao(); const maoGrupo = sceneEl.querySelector('#mao-grupo'), maoVarinha = sceneEl.querySelector('#mao-varinha'), maoPonta = sceneEl.querySelector('#mao-ponta'), marcador = sceneEl.querySelector('#marcador-qr'), btnMao = document.getElementById('mao-toggle');
       if (!maoGrupo || !marcador || !btnMao) return;
-
-      EstadoMao.raycaster = new THREE.Raycaster();
-      EstadoMao.fromV     = new THREE.Vector3();
-      EstadoMao.dirV      = new THREE.Vector3();
-      EstadoMao.localZ    = new THREE.Vector3(0, 0, 1);
-      EstadoApp.maoAtiva = false;
-
-      btnMao.addEventListener('click', () => {
-        EstadoApp.maoAtiva = !EstadoApp.maoAtiva;
-        maoGrupo.setAttribute('visible', EstadoApp.maoAtiva);
-        btnMao.classList.toggle('ativo', EstadoApp.maoAtiva);
-        EstadoApp.gazeState.alvoAtual = null;
-        EstadoApp.gazeState.disparado = false;
-        EstadoApp.gazeState.ultimoDisparado = null;
-      });
-
+      EstadoMao.raycaster = new THREE.Raycaster(); EstadoMao.fromV = new THREE.Vector3(); EstadoMao.dirV = new THREE.Vector3(); EstadoMao.localZ = new THREE.Vector3(0, 0, 1); EstadoApp.maoAtiva = false;
+      btnMao.addEventListener('click', () => { EstadoApp.maoAtiva = !EstadoApp.maoAtiva; maoGrupo.setAttribute('visible', EstadoApp.maoAtiva); btnMao.classList.toggle('ativo', EstadoApp.maoAtiva); EstadoApp.gazeState.alvoAtual = null; EstadoApp.gazeState.disparado = false; EstadoApp.gazeState.ultimoDisparado = null; });
       let marcadorVisivel = false;
-      marcador.addEventListener('markerFound', () => {
-        marcadorVisivel = true;
-        btnMao.classList.add('visivel');
-      });
-      marcador.addEventListener('markerLost', () => {
-        marcadorVisivel = false;
-        if (EstadoApp.maoAtiva) maoGrupo.setAttribute('visible', false);
-        EstadoMao.alvoAtual = null;
-        EstadoMao.disparado = false;
-      });
-
-      function resetarMao() {
-        EstadoMao.alvoAtual = null;
-        EstadoMao.disparado = false;
-        EstadoMao.tempoInicio = 0;
-        if (maoVarinha) {
-          maoVarinha.setAttribute('material', 'color', '#c084fc');
-          maoVarinha.setAttribute('material', 'emissive', '#c084fc');
-        }
-        if (maoPonta) {
-          maoPonta.setAttribute('material', 'color', '#ffcb05');
-          maoPonta.setAttribute('material', 'emissive', '#ffcb05');
-          maoPonta.setAttribute('material', 'emissiveIntensity', 2);
-        }
-      }
-
+      marcador.addEventListener('markerFound', () => { marcadorVisivel = true; btnMao.classList.add('visivel'); });
+      marcador.addEventListener('markerLost', () => { marcadorVisivel = false; if (EstadoApp.maoAtiva) maoGrupo.setAttribute('visible', false); EstadoMao.alvoAtual = null; EstadoMao.disparado = false; });
+      function resetarMao() { EstadoMao.alvoAtual = null; EstadoMao.disparado = false; EstadoMao.tempoInicio = 0; if (maoVarinha) { maoVarinha.setAttribute('material', 'color', '#c084fc'); maoVarinha.setAttribute('material', 'emissive', '#c084fc'); } if (maoPonta) { maoPonta.setAttribute('material', 'color', '#ffcb05'); maoPonta.setAttribute('material', 'emissive', '#ffcb05'); maoPonta.setAttribute('material', 'emissiveIntensity', 2); } }
       function loop() {
         if (EstadoApp.modo !== 'ar') { EstadoApp.maoFrameId = null; return; }
-        EstadoApp.maoFrameId = requestAnimationFrame(loop);
-        if (!EstadoApp.maoAtiva || !marcadorVisivel) return;
-
-        marcador.object3D.getWorldPosition(EstadoMao.fromV);
-        EstadoMao.dirV.copy(EstadoMao.localZ).applyQuaternion(marcador.object3D.quaternion).normalize();
-        EstadoMao.raycaster.set(EstadoMao.fromV, EstadoMao.dirV);
-        EstadoMao.raycaster.far = 10;
-
-        const hotspots = document.querySelectorAll('[info-hotspot]');
-        let alvo = null, menorDist = Infinity, corAlvo = '#c084fc', hitPoint = null;
-        hotspots.forEach((el) => {
-          if (!el.object3D) return;
-          const hits = EstadoMao.raycaster.intersectObject(el.object3D, true);
-          if (hits.length > 0 && hits[0].distance < menorDist) {
-            menorDist = hits[0].distance;
-            alvo = el;
-            corAlvo = (el.getAttribute('info-hotspot') || {}).cor || '#c084fc';
-            hitPoint = hits[0].point;
-          }
-        });
-
-        let comprimentoVarinha = 2;
-        if (hitPoint) {
-          const toHit = new THREE.Vector3().subVectors(hitPoint, EstadoMao.fromV);
-          const proj = toHit.dot(EstadoMao.dirV);
-          if (proj > 0.3) comprimentoVarinha = proj;
-        }
-
-        if (maoVarinha) {
-          maoVarinha.setAttribute('geometry', 'primitive: cylinder; radius: 0.008; height: ' + comprimentoVarinha.toFixed(3) + ';');
-          maoVarinha.setAttribute('position', '0 0 ' + (comprimentoVarinha / 2).toFixed(3));
-          maoVarinha.setAttribute('material', 'color', corAlvo);
-          maoVarinha.setAttribute('material', 'emissive', corAlvo);
-        }
-        if (maoPonta) {
-          maoPonta.setAttribute('position', '0 0 ' + comprimentoVarinha.toFixed(3));
-          maoPonta.setAttribute('material', 'color', corAlvo);
-          maoPonta.setAttribute('material', 'emissive', corAlvo);
-        }
-
-        if (!alvo) {
-          if (EstadoMao.alvoAtual || EstadoMao.disparado) resetarMao();
-          return;
-        }
-        if (EstadoMao.alvoAtual !== alvo) {
-          EstadoMao.alvoAtual = alvo;
-          EstadoMao.tempoInicio = performance.now();
-          EstadoMao.disparado = false;
-          if (EstadoMao.ultimoDisparado === alvo) return;
-          return;
-        }
-
-        const decorrido = performance.now() - EstadoMao.tempoInicio;
-        const pct = Math.min(decorrido / EstadoMao.dwellMs, 1);
+        EstadoApp.maoFrameId = requestAnimationFrame(loop); if (!EstadoApp.maoAtiva || !marcadorVisivel) return;
+        marcador.object3D.getWorldPosition(EstadoMao.fromV); EstadoMao.dirV.copy(EstadoMao.localZ).applyQuaternion(marcador.object3D.quaternion).normalize(); EstadoMao.raycaster.set(EstadoMao.fromV, EstadoMao.dirV); EstadoMao.raycaster.far = 10;
+        const hotspots = document.querySelectorAll('[info-hotspot]'); let alvo = null, menorDist = Infinity, corAlvo = '#c084fc', hitPoint = null;
+        hotspots.forEach((el) => { if (!el.object3D) return; const hits = EstadoMao.raycaster.intersectObject(el.object3D, true); if (hits.length > 0 && hits[0].distance < menorDist) { menorDist = hits[0].distance; alvo = el; corAlvo = (el.getAttribute('info-hotspot') || {}).cor || '#c084fc'; hitPoint = hits[0].point; } });
+        let comprimentoVarinha = 2; if (hitPoint) { const toHit = new THREE.Vector3().subVectors(hitPoint, EstadoMao.fromV); const proj = toHit.dot(EstadoMao.dirV); if (proj > 0.3) comprimentoVarinha = proj; }
+        if (maoVarinha) { maoVarinha.setAttribute('geometry', 'primitive: cylinder; radius: 0.008; height: ' + comprimentoVarinha.toFixed(3) + ';'); maoVarinha.setAttribute('position', '0 0 ' + (comprimentoVarinha / 2).toFixed(3)); maoVarinha.setAttribute('material', 'color', corAlvo); maoVarinha.setAttribute('material', 'emissive', corAlvo); }
+        if (maoPonta) { maoPonta.setAttribute('position', '0 0 ' + comprimentoVarinha.toFixed(3)); maoPonta.setAttribute('material', 'color', corAlvo); maoPonta.setAttribute('material', 'emissive', corAlvo); }
+        if (!alvo) { if (EstadoMao.alvoAtual || EstadoMao.disparado) resetarMao(); return; }
+        if (EstadoMao.alvoAtual !== alvo) { EstadoMao.alvoAtual = alvo; EstadoMao.tempoInicio = performance.now(); EstadoMao.disparado = false; if (EstadoMao.ultimoDisparado === alvo) return; return; }
+        const decorrido = performance.now() - EstadoMao.tempoInicio; const pct = Math.min(decorrido / EstadoMao.dwellMs, 1);
         if (maoPonta) maoPonta.setAttribute('material', 'emissiveIntensity', (1.5 + pct * 2.5).toFixed(2));
-
-        if (pct >= 1 && !EstadoMao.disparado) {
-          EstadoMao.disparado = true;
-          EstadoMao.ultimoDisparado = alvo;
-          const comp = alvo.components['info-hotspot'];
-          if (comp && typeof comp.toggle === 'function') comp.toggle();
-          setTimeout(() => {
-            resetarMao();
-            setTimeout(() => {
-              if (EstadoMao.ultimoDisparado === alvo) EstadoMao.ultimoDisparado = null;
-            }, 2000);
-          }, 700);
-        }
+        if (pct >= 1 && !EstadoMao.disparado) { EstadoMao.disparado = true; EstadoMao.ultimoDisparado = alvo; const comp = alvo.components['info-hotspot']; if (comp && typeof comp.toggle === 'function') comp.toggle(); setTimeout(() => { resetarMao(); setTimeout(() => { if (EstadoMao.ultimoDisparado === alvo) EstadoMao.ultimoDisparado = null; }, 2000); }, 700); }
       }
       loop();
     }
+    function pararMao() { if (EstadoApp.maoFrameId) { cancelAnimationFrame(EstadoApp.maoFrameId); EstadoApp.maoFrameId = null; } }
 
-    function pararMao() {
-      if (EstadoApp.maoFrameId) { cancelAnimationFrame(EstadoApp.maoFrameId); EstadoApp.maoFrameId = null; }
-    }
-
-    /* ============================================================
-       LINHA AR
-       ============================================================ */
     function iniciarLinhaAR(sceneEl) {
-      pararLinhaAR();
-      const linha = sceneEl.querySelector('#linha-ar');
-      const marcador = sceneEl.querySelector('#marcador-qr');
-      if (!linha || !marcador) return;
-
-      const raycaster = new THREE.Raycaster();
-      const centro = new THREE.Vector2(0, 0);
-      const fromV = new THREE.Vector3();
-      const toV = new THREE.Vector3();
-      const upV = new THREE.Vector3(0, 1, 0);
-      const quat = new THREE.Quaternion();
-      const localMid = new THREE.Vector3();
-      const localDir = new THREE.Vector3();
-      const localFrom = new THREE.Vector3();
-      const localTo = new THREE.Vector3();
-
-      let marcadorVisivel = false;
-      EstadoApp.linhaARAtiva = true;
-
-      marcador.addEventListener('markerFound', () => {
-        marcadorVisivel = true;
-        linha.setAttribute('visible', 'true');
-      });
-      marcador.addEventListener('markerLost', () => {
-        marcadorVisivel = false;
-        linha.setAttribute('visible', 'false');
-      });
-
+      pararLinhaAR(); const linha = sceneEl.querySelector('#linha-ar'), marcador = sceneEl.querySelector('#marcador-qr'); if (!linha || !marcador) return;
+      const raycaster = new THREE.Raycaster(), centro = new THREE.Vector2(0, 0), fromV = new THREE.Vector3(), toV = new THREE.Vector3(), upV = new THREE.Vector3(0, 1, 0), quat = new THREE.Quaternion(), localMid = new THREE.Vector3(), localDir = new THREE.Vector3(), localFrom = new THREE.Vector3(), localTo = new THREE.Vector3();
+      let marcadorVisivel = false; EstadoApp.linhaARAtiva = true;
+      marcador.addEventListener('markerFound', () => { marcadorVisivel = true; linha.setAttribute('visible', 'true'); });
+      marcador.addEventListener('markerLost', () => { marcadorVisivel = false; linha.setAttribute('visible', 'false'); });
       function loop() {
         if (!EstadoApp.linhaARAtiva) { EstadoApp.linhaARFrameId = null; return; }
-        EstadoApp.linhaARFrameId = requestAnimationFrame(loop);
-        if (EstadoApp.modo !== 'ar' || !marcadorVisivel) return;
-
-        const cam = EstadoApp.cameraAR || sceneEl.camera;
-        if (!cam) return;
-
-        fromV.set(0, 0, 0);
-        marcador.object3D.localToWorld(fromV);
-
-        raycaster.setFromCamera(centro, cam);
-        const hotspots = document.querySelectorAll('[info-hotspot]');
-        let alvoPos = null, alvoCor = '#7ee898', menorDist = Infinity;
-        hotspots.forEach((el) => {
-          if (!el.object3D) return;
-          const hits = raycaster.intersectObject(el.object3D, true);
-          if (hits.length > 0 && hits[0].distance < menorDist) {
-            menorDist = hits[0].distance;
-            alvoPos = hits[0].point.clone();
-            const cor = (el.getAttribute('info-hotspot') || {}).cor;
-            if (cor) alvoCor = cor;
-          }
-        });
-
-        if (alvoPos) toV.copy(alvoPos);
-        else {
-          const camDir = new THREE.Vector3();
-          cam.getWorldDirection(camDir);
-          cam.getWorldPosition(toV);
-          toV.add(camDir.multiplyScalar(1.5));
-        }
-
-        localFrom.copy(fromV); marcador.object3D.worldToLocal(localFrom);
-        localTo.copy(toV);   marcador.object3D.worldToLocal(localTo);
-        localDir.subVectors(localTo, localFrom);
-        const len = localDir.length();
-        if (len < 0.001) return;
-        localDir.normalize();
-
-        localMid.addVectors(localFrom, localTo).multiplyScalar(0.5);
-        quat.setFromUnitVectors(upV, localDir);
-
-        linha.object3D.position.copy(localMid);
-        linha.object3D.quaternion.copy(quat);
-        linha.object3D.scale.set(1, len, 1);
-        linha.object3D.updateMatrixWorld(true);
-
-        const mat = linha.getAttribute('material');
-        if (mat && mat.color !== alvoCor) {
-          linha.setAttribute('material', 'color', alvoCor);
-          linha.setAttribute('material', 'emissive', alvoCor);
-        }
+        EstadoApp.linhaARFrameId = requestAnimationFrame(loop); if (EstadoApp.modo !== 'ar' || !marcadorVisivel) return;
+        const cam = EstadoApp.cameraAR || sceneEl.camera; if (!cam) return;
+        fromV.set(0, 0, 0); marcador.object3D.localToWorld(fromV); raycaster.setFromCamera(centro, cam);
+        const hotspots = document.querySelectorAll('[info-hotspot]'); let alvoPos = null, alvoCor = '#7ee898', menorDist = Infinity;
+        hotspots.forEach((el) => { if (!el.object3D) return; const hits = raycaster.intersectObject(el.object3D, true); if (hits.length > 0 && hits[0].distance < menorDist) { menorDist = hits[0].distance; alvoPos = hits[0].point.clone(); const cor = (el.getAttribute('info-hotspot') || {}).cor; if (cor) alvoCor = cor; } });
+        if (alvoPos) toV.copy(alvoPos); else { const camDir = new THREE.Vector3(); cam.getWorldDirection(camDir); cam.getWorldPosition(toV); toV.add(camDir.multiplyScalar(1.5)); }
+        localFrom.copy(fromV); marcador.object3D.worldToLocal(localFrom); localTo.copy(toV); marcador.object3D.worldToLocal(localTo);
+        localDir.subVectors(localTo, localFrom); const len = localDir.length(); if (len < 0.001) return; localDir.normalize();
+        localMid.addVectors(localFrom, localTo).multiplyScalar(0.5); quat.setFromUnitVectors(upV, localDir);
+        linha.object3D.position.copy(localMid); linha.object3D.quaternion.copy(quat); linha.object3D.scale.set(1, len, 1); linha.object3D.updateMatrixWorld(true);
+        const mat = linha.getAttribute('material'); if (mat && mat.color !== alvoCor) { linha.setAttribute('material', 'color', alvoCor); linha.setAttribute('material', 'emissive', alvoCor); }
       }
       loop();
     }
+    function pararLinhaAR() { EstadoApp.linhaARAtiva = false; if (EstadoApp.linhaARFrameId) { cancelAnimationFrame(EstadoApp.linhaARFrameId); EstadoApp.linhaARFrameId = null; } }
 
-    function pararLinhaAR() {
-      EstadoApp.linhaARAtiva = false;
-      if (EstadoApp.linhaARFrameId) { cancelAnimationFrame(EstadoApp.linhaARFrameId); EstadoApp.linhaARFrameId = null; }
-    }
-
-    /* ============================================================
-       BOTÕES DE CONTROLE
-       ============================================================ */
     function configurarBotoesFauna() {
-      const btnAnim  = document.getElementById('btn-anim');
-      const btnRot   = document.getElementById('btn-rotacao');
-      const btnReset = document.getElementById('btn-reset');
-      if (!btnAnim || btnAnim.dataset.configurado) return;
-      btnAnim.dataset.configurado = 'true';
-
-      let rotacaoPausada = false;
-      let rotacaoAuto = false;
-
-      btnAnim.addEventListener('click', () => {
-        const modelos = document.querySelectorAll('#modelo-wrapper > *');
-        if (!modelos.length) return;
-        rotacaoPausada = !rotacaoPausada;
-        modelos.forEach(m => {
-          if (rotacaoPausada) m.removeAttribute('animation');
-          else m.setAttribute('animation',
-            'property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear');
-        });
-        btnAnim.textContent = rotacaoPausada ? '▶ Retomar' : '⏸ Pausar';
-        btnAnim.classList.toggle('ativo', rotacaoPausada);
-      });
-
-      btnRot.addEventListener('click', () => {
-        const cam = document.getElementById('camera');
-        if (!cam) return;
-        rotacaoAuto = !rotacaoAuto;
-        const comp = cam.components['orbit-camera'];
-        if (comp) comp.setAutoRotate(rotacaoAuto);
-        btnRot.classList.toggle('ativo', rotacaoAuto);
-      });
-
-      btnReset.addEventListener('click', () => {
-        const cam = document.getElementById('camera');
-        if (!cam) return;
-        const comp = cam.components['orbit-camera'];
-        if (comp) comp.reset();
-      });
+      const btnAnim = document.getElementById('btn-anim'), btnRot = document.getElementById('btn-rotacao'), btnReset = document.getElementById('btn-reset');
+      if (!btnAnim || btnAnim.dataset.configurado) return; btnAnim.dataset.configurado = 'true';
+      let rotacaoPausada = false, rotacaoAuto = false;
+      btnAnim.addEventListener('click', () => { const modelos = document.querySelectorAll('#modelo-wrapper > *'); if (!modelos.length) return; rotacaoPausada = !rotacaoPausada; modelos.forEach(m => { if (rotacaoPausada) m.removeAttribute('animation'); else m.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear'); }); btnAnim.textContent = rotacaoPausada ? '▶ Retomar' : '⏸ Pausar'; btnAnim.classList.toggle('ativo', rotacaoPausada); });
+      btnRot.addEventListener('click', () => { const cam = document.getElementById('camera'); if (!cam) return; rotacaoAuto = !rotacaoAuto; const comp = cam.components['orbit-camera']; if (comp) comp.setAutoRotate(rotacaoAuto); btnRot.classList.toggle('ativo', rotacaoAuto); });
+      btnReset.addEventListener('click', () => { const cam = document.getElementById('camera'); if (!cam) return; const comp = cam.components['orbit-camera']; if (comp) comp.reset(); });
     }
   </script>
 </body>
