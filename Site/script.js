@@ -704,7 +704,7 @@ let cartasLoadPromise = null;
 /* =========================================================
    MEWDEX — FAUNA PERNAMBUCANA (fauna_pe.json)
    ========================================================= */
-const FAUNA_URL = 'fauna_pe.json';
+const FAUNA_URL = '/api/especies';
 let faunaMewdex = [];
 let faunaCarregada = false;
 
@@ -1640,7 +1640,8 @@ async function carregarMewdex() {
     renderizarMewdex(faunaMewdex);
   } catch (e) {
     console.error('Erro ao carregar Mewdex:', e);
-    if (loading) loading.textContent = 'Erro ao carregar a fauna (abra via servidor local — file:// é bloqueado).';
+    faunaCarregada = false;
+    if (loading) loading.textContent = 'Não foi possível carregar a fauna. Confira se o servidor MEW está iniciado e recarregue a página.';
   }
 }
 
@@ -1689,7 +1690,7 @@ function aplicarFiltrosMewdex() {
     }
     if (classe && a.classe !== classe) return false;
     if (status && a.situacao !== status) return false;
-    if (numero && String(i + 1) !== numero) return false;
+    if (numero && a.id.replace('pe-', '') !== String(Number(numero))) return false;
     return true;
   });
 
@@ -1705,7 +1706,7 @@ function renderizarMewdex(lista) {
     return;
   }
   lista.forEach(animal => {
-    const indice = faunaMewdex.indexOf(animal) + 1;
+    const indice = Number(animal.id.replace('pe-', ''));
     grid.appendChild(criarCardMewdex(animal, indice));
   });
 }
@@ -1717,7 +1718,7 @@ function criarCardMewdex(animal, indice) {
   const statusCurto = statusCurtoMewdex(animal.situacao);
 
   const card = document.createElement('a');
-  card.href = `detalhes.html?id=pe-${indice}`;
+  card.href = `detalhes.html?id=${encodeURIComponent(animal.id)}`;
   card.className = 'mewdex-card';
   card.innerHTML = `
     <div class="mewdex-card-emoji">${emoji}</div>

@@ -753,13 +753,8 @@ async function carregarDetalhes() {
    ========================================================= */
 async function carregarAnimalFauna(id, container, loading) {
   try {
-    const resposta = await fetch('fauna_pe.json');
-    if (!resposta.ok) throw new Error('Ficheiro fauna_pe.json não encontrado');
-
-    const baseDados = await resposta.json();
-
-    const numeroIndex = parseInt(id.replace('pe-', ''), 10) - 1;
-    const animal = baseDados.especies_ameacadas[numeroIndex];
+    const animal = await MewAPI.request(`/api/especies/${encodeURIComponent(id)}`);
+    MewAPI.track(id);
 
     if (!animal) {
       throw new Error('Animal não encontrado na lista do banco de dados.');
