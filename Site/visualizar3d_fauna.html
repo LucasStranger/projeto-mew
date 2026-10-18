@@ -207,8 +207,7 @@
     body.em-vr .info, body.em-vr .nome-animal, body.em-vr .qualidade-select, 
     body.em-vr .controles, body.em-vr .teclas-wasd, body.em-vr .instrucoes, 
     body.em-vr .modo-toggle, body.em-vr .vr-toggle, body.em-vr .mao-toggle, 
-    body.em-vr .hd-badge, body.em-vr .gaze-reticle, body.em-vr .gaze-reticle-progresso, 
-    body.em-vr #fps-toggle { 
+    body.em-vr .hd-badge, body.em-vr #fps-toggle { 
       display: none !important; 
     }
 
@@ -309,6 +308,8 @@
 
   <div id="scene-container"></div>
 
+  <!-- Aqui está a inclusão do api.js que o Dhavi adicionou -->
+  <script src="api.js"></script>
   <script src="biomas_fauna.js"></script>
   <script src="bioma_componentes.js"></script>
   <script src="bioma_costeiro.js"></script>
@@ -425,15 +426,17 @@
     async function iniciarFluxoFauna() {
       const loading = document.getElementById('loading');
       try {
-        const res = await fetch('fauna_pe.json');
-        if (!res.ok) throw new Error('fauna_pe.json não encontrado');
-        const data = await res.json();
-        const lista = Array.isArray(data.especies_ameacadas) ? data.especies_ameacadas : [];
-        EstadoApp.animal = lista[numeroIndex - 1];
-        if (!EstadoApp.animal) throw new Error('Animal não encontrado no índice ' + numeroIndex);
+        // =========================================================
+        // MUDANÇA PARA O BACKEND: Puxa o animal pela API em vez do JSON local
+        // =========================================================
+        EstadoApp.animal = await MewAPI.request(`/api/especies/${encodeURIComponent(faunaId)}`);
+        
+        if (!EstadoApp.animal) {
+          throw new Error('Animal não encontrado no banco de dados.');
+        }
       } catch (e) { 
         console.error('Erro:', e); 
-        loading.textContent = '⚠️ Erro ao carregar.'; 
+        loading.textContent = '⚠️ Erro ao carregar os dados do animal.'; 
         return; 
       }
 
@@ -659,7 +662,10 @@
       let hotspotsCache = null; let hotspotsFrame = 0;
       function tick() {
         hotspotsFrame++; if (!hotspotsCache || hotspotsFrame > 30) { hotspotsCache = Array.from(document.querySelectorAll('[info-hotspot]')); hotspotsFrame = 0; }
-        if (EstadoApp.modo === 'ar' || EstadoApp.modo === 'vr') { reticle.style.display = 'none'; progresso.style.display = 'none'; } else { reticle.style.display = 'block'; progresso.style.display = EstadoApp.gazeState.alvoAtual ? 'block' : 'none'; }
+        
+        // AR esconde o retículo DOM. 3D e VR mantêm visível (VR tem também um retículo 3D).
+        if (EstadoApp.modo === 'ar') { reticle.style.display = 'none'; progresso.style.display = 'none'; } else { reticle.style.display = 'block'; progresso.style.display = EstadoApp.gazeState.alvoAtual ? 'block' : 'none'; }
+        
         const cam = getCamera(); if (!cam) return;
         raycaster.setFromCamera(centro, cam);
         let alvo = null, menorDist = Infinity;

@@ -1,0 +1,18 @@
+.mew-pagina { margin: 0; padding: 24px; background: #0d1117; color: #e6edf3; font: 17px/1.6 system-ui, sans-serif; }
+.mew-painel { max-width: 720px; margin: 5vh auto; padding: 28px; border: 1px solid #3fb950; border-radius: 16px; background: #161b22; }
+.mew-painel a, .mew-recomendacoes a { color: #7ee898; }
+.mew-painel form { display: grid; gap: 12px; }
+.mew-painel input, .mew-painel select, .mew-painel button { box-sizing: border-box; padding: 12px; border: 1px solid #536278; border-radius: 8px; font: inherit; }
+.mew-painel button { margin-top: 12px; background: #238636; color: white; cursor: pointer; }
+.mew-painel button:disabled { opacity: .6; }
+.mew-recomendacoes { margin-top: 20px; padding: 18px; border: 1px solid #3fb950; border-radius: 12px; text-align: left; line-height: 1.6; }
+.mew-recomendacoes h2 { margin: 0 0 12px; font-size: 1.1rem; color: #7ee898; }
+.mew-recomendacoes a { display: block; margin: 12px 0; }
+.mew-integracao-erro { color: #ffb4a9; padding: 12px; line-height: 1.5; }
+.selo-data { overflow-wrap: anywhere; }
+@media print {
+  body * { visibility: hidden; }
+  .selo-credencial, .selo-credencial * { visibility: visible; color: black !important; text-shadow: none !important; }
+  .selo-credencial { position: absolute; top: 40px; left: 5%; width: 80%; background: white !important; box-shadow: none !important; border: 2px solid black !important; break-inside: avoid; }
+  .selo-data { overflow-wrap: anywhere; }
+}
