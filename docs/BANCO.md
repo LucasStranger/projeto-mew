@@ -1,72 +1,107 @@
-# Integração do banco definitivo
+# Banco PostgreSQL Neon
 
-A persistência JSON é temporária. O front usa somente HTTP e não precisa conhecer
-a tecnologia do banco escolhido pela equipe.
+O backend usa o banco criado pela equipe quando `DATABASE_URL` está configurada.
+A conexão real fica somente em `.env`, ignorado pelo Git. O arquivo
+`.env.example` mostra o formato com placeholders. O front nunca recebe a conexão.
 
-## Ponto de substituição
+## Configuração
 
-`backend/storage.py` define `Repository` com dois métodos:
+1. Criar um ambiente virtual Python e instalar `requirements.txt`.
+2. Preencher `DATABASE_URL` no `.env`, mantendo `sslmode=require` e os parâmetros
+   de segurança fornecidos pelo Neon.
+3. Executar `python -m backend.migrate`.
+4. Iniciar com `python -m backend.server` ou `iniciar.bat`.
 
-- `transaction()`: context manager que fornece um estado mutável; confirma todas
-  as mudanças ao sair sem exceção e desfaz todas ao sair com erro.
-- `snapshot()`: devolve uma cópia consistente do estado, sem permitir alteração
-  indireta do armazenamento.
+O servidor imprime `Armazenamento: postgresql`. `GET /api/health` verifica a conexão
+e retorna esse tipo de armazenamento. Sem conexão, a API devolve 503 com mensagem
+genérica. Não há fallback silencioso para JSON. Variáveis definidas pela hospedagem
+têm prioridade sobre o `.env`.
 
-`create_server()` em `backend/server.py` instancia o repositório. Substitua ali
-`JsonRepository` pelo adaptador do banco. A implementação SQL pode inicialmente
-hidratar o estado e aplicar o delta dentro de uma transação real, preservando o
-contrato. Para grandes volumes, evolua a interface para consultas específicas por
-participante e tentativa, mantendo o contrato HTTP de `docs/API.md`.
+## Tabelas existentes da equipe
 
-O estado tem `schema_version: 1`, `participants` e `attempts` indexados por UUID,
-e uma lista `events`. Veja os campos exatos em `backend/service.py`; o JSON real
-de desenvolvimento também pode ser usado como exemplo, sem publicar seus tokens.
-
-## Relações sugeridas
-
-| Relação | Chave e campos |
+| Tabela | Uso implementado |
 |---|---|
-| participantes | UUID, hash SHA-256 do token aleatório, criado_em |
-| especies | ID textual estável, nome e metadados do catálogo |
-| perguntas | ID atual do JSON, espécie, dificuldade, tópico, enunciado, opções, gabarito, explicação, versão |
-| tentativas | UUID, participante, request_id, espécie, dificuldade, status, início, fim |
-| tentativa_perguntas | tentativa, posição, ID da pergunta, snapshot completo da pergunta usada |
-| respostas | tentativa, ID da pergunta, escolha, acerto, tópico, horário |
-| eventos | participante, espécie, tipo e horário |
+| `topico` | Nome do tópico associado a cada questão |
+| `questao` | Fonte das 300 questões, quatro alternativas, gabarito e explicação |
+| `usuario` | Nome, e-mail, senha protegida e pontuação acumulada |
+| `partida` | Cada tentativa, nível e data de início |
+| `resposta_usuario` | Escolha, gabarito apresentado, acerto, tempo e data de cada resposta |
 
-Catálogo inicial: `Site/fauna_pe.json`. Banco inicial de perguntas:
-`Site/quiz_perguntas.json`. O segundo arquivo é uma fonte privada do servidor;
-o servidor bloqueia seu download pelo navegador. Use esses arquivos como seeds
-e mantenha IDs e associação das espécies. Os arquivos GLB e imagens continuam
-como arquivos estáticos, não precisam ser inseridos como binários no banco.
+A API não altera nem reimporta as questões. O catálogo descritivo e os caminhos
+dos modelos 3D continuam em `Site/fauna_pe.json`, porque não há tabela de espécies
+no schema enviado. O conteúdo das questões é carregado do SQL ao iniciar a API;
+reinicie-a depois de editar questões no painel do banco.
 
-O backend atual carrega catálogo e perguntas desses seeds ao iniciar. Quando
-forem migrados para tabelas, substitua também a leitura em `Service.__init__`
-por consultas do adaptador. Preservar apenas as tentativas no banco já é uma
-primeira integração válida; conteúdo editorial pode continuar versionado em JSON.
+As alternativas no PostgreSQL são **1 a 4**. No contrato HTTP continuam **0 a 3**,
+preservando o front existente. A conversão é feita pelo adaptador. Os níveis
+`Fácil`, `Intermediário`, `Difícil` são mapeados para `facil`, `intermediario`,
+`dificil`. Nomes de animais e tópicos são normalizados para reconhecer acentos,
+maiúsculas e hífens. Espécies, níveis ou tópicos desconhecidos causam erro de
+configuração, em vez de associar uma pergunta ao animal errado.
 
-## Garantias necessárias
+## Complementos aditivos
 
-- Constraint única `(participante_id, request_id)` para criação idempotente.
-- Constraint única `(tentativa_id, pergunta_id)` para cada resposta.
-- Bloqueio da tentativa ou transação serializável para resposta e finalização.
-- Verificação de que a tentativa pertence ao participante autenticado.
-- Verificação de que a pergunta pertence ao snapshot da tentativa.
-- Reenvio da mesma escolha retorna a resposta anterior; outra escolha retorna 409.
-- Gabarito, acerto, pontuação e selo calculados no servidor.
-- Finalização somente com cinco respostas; nova finalização mantém data e selo.
-- Snapshot das perguntas imutável: editar o seed não muda uma prova já iniciada.
-- Não armazenar o token do participante em texto puro; o navegador recebe um token
-  aleatório de 256 bits e o armazenamento guarda somente seu hash.
-- Consultas e exportações devem continuar isoladas por participante; relatório
-  geral exige a chave da equipe.
+A migração cria somente complementos no schema `mew_api`:
 
-## Migração dos dados da demonstração
+| Objeto | Finalidade |
+|---|---|
+| `migration` | Versões já aplicadas |
+| `participante` | UUID público, hash do token e vínculo com `usuario` |
+| `tentativa` | UUID, vínculo com `partida`, request_id, espécie, snapshots, status e finalização |
+| `evento` | Visitas aos detalhes, exploração 3D e interações |
+| `sessao` | Hash do token de login, participante e expiração |
 
-Pare a API, faça backup de `backend/data`, importe os UUIDs originais e mantenha
-`token_hash`, `request_id`, snapshots e datas. Use uma transação para a migração.
-Preservar os hashes permite que os participantes continuem usando suas sessões.
-Execute a suíte de testes contra o novo adaptador antes de trocar o armazenamento.
+As definições originais das tabelas `public` não são alteradas. Os inserts usam
+os IDs automáticos já definidos no banco, sem sobrescrever os geradores da equipe.
 
-Não há conexão fictícia nem credenciais de banco no projeto. URL de conexão,
-driver, migrations e deploy ficam para a integração com o banco escolhido.
+## Participação e pontuação
+
+O cadastro é obrigatório antes de iniciar o quiz. `usuario` recebe nome, e-mail
+normalizado e hash scrypt com salt aleatório; a senha nunca é armazenada em texto
+puro. `mew_api.participante.registered_at` identifica uma conta cadastrada, e
+`mew_api.sessao` permite logins independentes com expiração de sete dias e logout.
+Um índice único em `lower(btrim(email))` impede e-mails duplicados por diferença
+de maiúsculas ou espaços. Nenhuma questão ou resposta existente é apagada.
+
+Visitantes ainda podem navegar no catálogo e registrar visitas. Seus registros
+usam identificadores no domínio reservado `mew.invalid` e um marcador de conta
+sem senha. Esses endereços não são contatos reais. Ao cadastrar usando o token
+visitante, a API converte o mesmo usuário em conta e invalida o token anterior.
+
+Dados de usuários inseridos por outros clientes não ganham acesso automático à
+API sem credencial compatível e vínculo de participante. A pontuação SQL aumenta
+em uma unidade por resposta correta salva, inclusive antes de finalizar a partida;
+reenviar ou finalizar novamente não duplica pontuação.
+
+O tempo de resposta é medido no servidor desde a resposta anterior ou o início
+da tentativa. Ele inclui pausas e retomadas, portanto não representa tempo de
+interação contínua com a tela. Datas sem fuso nas tabelas originais são gravadas
+e interpretadas como UTC; as datas dos complementos usam `timestamptz`.
+
+## Consistência e sigilo
+
+- Operações são confirmadas em transações PostgreSQL. Falhas desfazem a operação.
+- Advisory lock transacional coordena as instâncias da API que usam este adaptador.
+- A estrutura atual hidrata o estado e aplica deltas; para grandes volumes,
+  deve evoluir para consultas específicas, sem carregar todo o histórico.
+- Constraints impedem duas respostas para a mesma questão da partida e dois
+  request_ids iguais por participante.
+- Snapshots preservam o enunciado, as opções e o gabarito de uma tentativa iniciada.
+- O cliente recebe apenas os campos públicos das perguntas. Gabarito e explicação
+  são liberados exclusivamente nas respostas já enviadas pelo próprio participante.
+- O CSV individual contém somente respostas já registradas, nunca questões ainda
+  não respondidas. O relatório geral exige a chave da equipe.
+- O arquivo `Site/quiz_perguntas.json` é apenas a fonte do modo local JSON e seu
+  download continua bloqueado pelo servidor da aplicação.
+
+## Dados anteriores e testes
+
+O JSON local não é importado automaticamente. Preserve `backend/data/mew.json`
+se houver participações anteriores que precisem de migração. O backend não apaga
+esse arquivo nem os dados existentes no Neon.
+
+A suíte padrão usa arquivos temporários. Para verificar o banco real, defina
+`MEW_TEST_NEON=1` e execute os testes. Inserts de teste ficam em uma transação
+externa desfeita no final; os números das sequências podem avançar, sem deixar
+usuários ou respostas de teste. `python -m tests.run_browser --neon` faz o mesmo
+para o teste de navegador. A migração precisa estar aplicada antes desses testes.

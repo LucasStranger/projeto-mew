@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pokédex — Todas as Gerações</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="autenticacao.css">
 </head>
 <body>
   <div class="pokedex-frame">
@@ -18,6 +19,11 @@
     </div>
 
     <h1 class="pokedex-title">Pokédex</h1>
+
+    <nav id="mew-account" class="mew-account" aria-label="Minha conta">
+      <a href="login.html">Entrar</a>
+      <a href="cadastro.html">Criar conta</a>
+    </nav>
 
     <div class="pokedex-main">
       <div class="abas">
@@ -210,6 +216,7 @@
   <div id="modal-item-container"></div>
 
   <script src="api.js"></script>
+  <script src="autenticacao.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

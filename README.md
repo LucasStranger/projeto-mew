@@ -5,11 +5,29 @@ credenciais, exportação CSV e recomendação por conteúdo com similaridade de
 
 ## Executar
 
-Requer Python 3.10 ou superior. A API usa apenas a biblioteca padrão, sem pacotes a instalar.
-No Windows, dê dois cliques em **iniciar.bat**, ou execute na raiz:
+Requer Python 3.10 ou superior. Na primeira configuração, execute na raiz:
 
 ```powershell
-python -m backend.server
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Copie `.env.example` para `.env` e preencha `DATABASE_URL` com a conexão Neon
+fornecida pela equipe. Esse arquivo é privado, ignorado pelo Git e nunca servido
+ao navegador. Em seguida, prepare os complementos do banco:
+
+```powershell
+.\.venv\Scripts\python.exe -m backend.migrate
+```
+
+A migração é idempotente e aditiva: preserva `usuario`, `partida`, `questao`,
+`topico` e `resposta_usuario`, criando os metadados da API em `mew_api`.
+Não importa nem substitui as 300 questões que já estão no Neon.
+
+No Windows, dê dois cliques em **iniciar.bat**, ou execute:
+
+```powershell
+.\.venv\Scripts\python.exe -m backend.server
 ```
 
 Abra [o site](http://127.0.0.1:8000/). Use esse endereço para todas as páginas,
@@ -23,8 +41,8 @@ superior, ou configure `MEW_PYTHON` com o caminho do executável.
 ## O que está integrado
 
 - Catálogo de 10 espécies com IDs estáveis `pe-1` a `pe-10`.
-- Participação anônima por navegador, sem pedir nome, e-mail ou senha.
-- Tentativas de cinco perguntas sorteadas entre as 300 perguntas existentes.
+- Cadastro com nome, e-mail e senha obrigatório antes do quiz, com login e logout.
+- Tentativas de cinco perguntas sorteadas entre as 300 perguntas do Neon.
 - Correção no servidor, com gabarito e explicação liberados apenas após responder.
 - Gravação de cada resposta, retomada após recarregar e proteção contra duplicação.
 - Resultado por tópico e selo persistente a partir de 70% (quatro de cinco acertos).
@@ -33,24 +51,37 @@ superior, ou configure `MEW_PYTHON` com o caminho do executável.
 - Três sugestões personalizadas de próximos desafios e ajuste de dificuldade.
 - Relatório CSV da equipe com filtro por espécie e dificuldade.
 
-Em uma oficina com computador compartilhado, abra **Meu histórico → Novo participante**
-antes de passar o computador à próxima pessoa. A exportação mantém os registros
-anteriores; o navegador deixa de ter acesso à participação anterior.
+As páginas `login.html` e `cadastro.html` usam o visual da Pokédex e estão ligadas
+à API. O catálogo oferece os links de acesso e o botão de saída. Quem abre um
+quiz sem cadastro vai para o login e retorna ao mesmo desafio após entrar ou
+criar a conta. O histórico também exige login e permite sair da conta.
+Consulte o [contrato de autenticação](docs/AUTENTICACAO.md).
+O teste de navegador usa as próprias telas para cadastrar, entrar e sair.
 
-## Armazenamento temporário e banco futuro
+## Banco Neon e modo local
 
-O banco definitivo será integrado pela pessoa responsável. Por enquanto, os dados
-são persistidos em `backend/data/mew.json`, com transações protegidas por lock e
-substituição atômica do arquivo. Parar e iniciar o servidor preserva os dados.
+Com `DATABASE_URL` configurada, o backend usa PostgreSQL: as questões vêm de
+`questao` e `topico`, e os participantes, partidas e respostas são gravados nas
+tabelas da equipe. As sessões anônimas, snapshots das perguntas, finalizações e
+eventos ficam em `mew_api`. Contas e sessões autenticadas também usam esse schema.
+As telas devem enviar o token de cadastro/login para liberar o quiz.
 
-Não apague esse arquivo para atualizar o código. Faça backup da pasta `backend/data`
-com o servidor parado. Ela contém também a chave da equipe e fica fora do Git.
-Use apenas **um processo da API por arquivo**, sem múltiplas instâncias ou workers.
-O armazenamento é adequado para desenvolvimento e demonstração; todas as operações
-passam pelo contrato em `backend/storage.py`.
+A API usa escolhas de 0 a 3; o banco usa 1 a 4. O adaptador converte ambos os
+sentidos e devolve `letraCorreta` de A a D apenas depois de responder. Reiniciar
+a API preserva respostas e histórico. Uma falha no Neon retorna 503; a API não
+passa silenciosamente a gravar em arquivo local.
 
-O [guia de integração do banco](docs/BANCO.md) descreve o contrato, as relações,
-os snapshots das perguntas e as regras que devem ser preservadas.
+Sem `DATABASE_URL`, o modo local persiste em `backend/data/mew.json`. Para usar
+JSON explicitamente mesmo com `.env` preenchido, execute
+`python -m backend.server --data-file backend/data/mew.json`.
+
+No modo JSON, faça backup da pasta `backend/data` com o servidor parado e use
+somente um processo por arquivo. Ela contém também a chave da equipe. No modo
+Neon, os dados persistem no PostgreSQL; `.env` e a chave de exportação devem ser
+configurados separadamente em cada hospedagem. Dados antigos em JSON não são
+importados automaticamente para o banco.
+
+O [guia do banco](docs/BANCO.md) descreve as relações e as conversões implementadas.
 
 ## Exportar respostas
 
@@ -95,6 +126,7 @@ Fórmula, limitações e critérios estão em [RECOMENDADOR.md](docs/RECOMENDADO
 
 | Variável | Padrão | Uso |
 |---|---|---|
+| `DATABASE_URL` | Ausente | Conexão PostgreSQL com SSL; quando preenchida ativa Neon |
 | `MEW_HOST` | `127.0.0.1` | Endereço de escuta |
 | `MEW_PORT` | `8000` | Porta |
 | `MEW_DATA_FILE` | `backend/data/mew.json` | Arquivo de persistência |
@@ -102,12 +134,14 @@ Fórmula, limitações e critérios estão em [RECOMENDADOR.md](docs/RECOMENDADO
 | `MEW_RECOMMENDER_BIN` | Binário em `backend/recommender/build` | Executável do recomendador |
 | `MEW_PYTHON` | Detecção pelo iniciador Windows | Python usado por `iniciar.bat` |
 
-Também existem os argumentos `--host`, `--port` e `--data-file`. As variáveis são
-lidas do ambiente; não há carregamento automático de `.env`.
+Também existem os argumentos `--host`, `--port` e `--data-file`. O arquivo `.env`
+é carregado automaticamente ao iniciar o servidor ou executar a migração.
+Variáveis já definidas pelo ambiente de hospedagem têm prioridade. Nunca coloque
+a conexão real em arquivos do front, mensagens de erro, logs ou exemplos públicos.
 
 Para uma demonstração em rede local, `python -m backend.server --host 0.0.0.0`
 permite acesso pelo IP do computador, sujeito ao firewall. Para publicação pública,
-use servidor de aplicação/reverse proxy com HTTPS e integre o banco definitivo.
+use servidor de aplicação/reverse proxy com HTTPS e configure o `.env` no servidor.
 Recursos de câmera e AR em celulares precisam de contexto seguro compatível com
 o navegador. As bibliotecas 3D e APIs públicas de Pokémon continuam dependendo
 da internet; não foram reimplementadas pelo backend.
@@ -115,15 +149,20 @@ da internet; não foram reimplementadas pelo backend.
 ## Documentação e testes
 
 - [Contrato HTTP e exemplos](docs/API.md)
+- [Cadastro e login para o frontend](docs/AUTENTICACAO.md)
 - [Contrato para o banco definitivo](docs/BANCO.md)
 - [Algoritmo de recomendação](docs/RECOMENDADOR.md)
 
 ```powershell
-python -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
 Os testes usam diretórios temporários e não alteram os dados reais da oficina.
+O teste opcional `MEW_TEST_NEON=1` verifica o Neon dentro de uma transação desfeita
+no final, sem deixar participantes ou respostas de teste no banco.
 Para os testes de navegador, disponibilize Playwright e Chromium no ambiente de
 desenvolvimento e execute `python -m tests.run_browser`. É possível fornecer
 `--node CAMINHO` e `--modules PASTA_NODE_MODULES`; `MEW_BROWSER_CHANNEL=chrome`
 usa o Chrome instalado. Os resultados temporários ficam em `test-results/`.
+Use `python -m tests.run_browser --neon` para testar o fluxo de navegador contra
+o PostgreSQL real com rollback ao terminar.

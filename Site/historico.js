@@ -1,20 +1,15 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const area = document.getElementById('historico');
   const labels = {facil: 'Fácil', intermediario: 'Intermediário', dificil: 'Difícil'};
-  document.getElementById('novo-participante').addEventListener('click', () => {
-    // O histórico anterior permanece no servidor e na exportação da equipe.
-    if (confirm('Iniciar a participação de outra pessoa neste navegador? O acesso ao histórico atual será encerrado.')) {
-      MewAPI.remove('mew_session_v1');
-      for (let i = 1; i <= 10; i++) {
-        MewAPI.remove(`mew_attempt:pe-${i}`);
-        for (const level of Object.keys(labels)) MewAPI.remove(`mew_pending:pe-${i}:${level}`);
-      }
-      location.reload();
-    }
+  document.getElementById('sair-conta').addEventListener('click', async event => {
+    event.currentTarget.disabled = true;
+    try { await MewAPI.logout(); location.assign('login.html'); }
+    catch (error) { area.textContent = error.message; document.getElementById('sair-conta').disabled = false; }
   });
   try {
-    const session = await MewAPI.ensureSession();
-    document.getElementById('identificacao').textContent = `Participação: ${session.id}`;
+    const session = await MewAPI.requireAccount();
+    if (!session) return;
+    document.getElementById('identificacao').textContent = `${session.usuario.nome} · ${session.usuario.pontuacao} pontos`;
     const [history, fauna] = await Promise.all([
       MewAPI.authenticated('/api/participantes/me/historico'), MewAPI.request('/api/especies')
     ]);

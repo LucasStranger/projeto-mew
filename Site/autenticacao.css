@@ -1,0 +1,36 @@
+.auth-page { display: grid; align-items: center; }
+.auth-frame { width: 100%; max-width: 580px; }
+.auth-frame .aba { text-decoration: none; }
+.auth-screen { padding: clamp(1rem, 4vw, 1.8rem); }
+.auth-screen > * { position: relative; z-index: 2; }
+.auth-eyebrow { font: bold .7rem 'Courier New', monospace; letter-spacing: 1.5px; text-transform: uppercase; color: #00e0ff; margin-bottom: .8rem; }
+.auth-screen h1 { color: #e0f4ff; font-size: clamp(1.35rem, 4.5vw, 1.8rem); line-height: 1.2; }
+.auth-description { color: #a0b9ce; font-size: .9rem; line-height: 1.6; margin: .75rem 0 1.5rem; }
+#auth-form { display: grid; gap: 1.1rem; }
+.auth-screen .filtro-grupo { gap: .45rem; min-width: 0; }
+.auth-screen input { width: 100%; min-width: 0; min-height: 46px; font-size: 1rem; }
+.auth-screen input::placeholder { color: #88a4b9; }
+.auth-password { display: flex; gap: .5rem; }
+.auth-password input { flex: 1; }
+.auth-toggle { flex-shrink: 0; padding: .5rem .65rem; color: #a9f5ff; background: #0d2338; border: 1px solid #38718b; border-radius: 8px; font: inherit; font-size: .75rem; cursor: pointer; }
+.auth-help { color: #a0b9ce; font-size: .78rem; line-height: 1.5; }
+.auth-submit { width: 100%; min-height: 48px; padding: .8rem 1rem; border: 2px solid #ff6a7f; border-radius: 10px; background: linear-gradient(180deg, #dc0a2d, #a3081f); color: white; font: bold .9rem 'Courier New', monospace; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; box-shadow: inset 0 -3px 0 #0003, 0 5px 15px #dc0a2d40; }
+.auth-submit:hover:not(:disabled) { border-color: white; }
+.auth-submit:disabled { opacity: .65; cursor: wait; }
+.auth-screen a, .mew-account a { color: #8aeeff; text-underline-offset: 3px; }
+.auth-switch { text-align: center; color: #a0b9ce; font-size: .85rem; line-height: 1.6; margin-top: 1.25rem; }
+.auth-error { color: #ffc3be; background: #ef535018; border: 1px solid #ef535080; padding: .75rem; border-radius: 8px; font-size: .85rem; line-height: 1.5; overflow-wrap: anywhere; }
+.auth-status { color: #a0b9ce; font-size: .85rem; }
+.auth-status:empty { display: none; }
+.auth-current { color: #b7f6c5; background: #3fb95015; border: 1px solid #3fb95080; border-radius: 8px; padding: .75rem; margin-bottom: 1rem; font-size: .85rem; line-height: 1.6; overflow-wrap: anywhere; }
+.mew-account { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; flex-wrap: wrap; padding: 0 0 1rem; font-size: .85rem; }
+.mew-account span { overflow-wrap: anywhere; }
+.mew-account button { font: inherit; color: white; background: #0003; border: 1px solid #ffffff80; border-radius: 8px; padding: .45rem .8rem; cursor: pointer; }
+.mew-account button:disabled { opacity: .6; cursor: wait; }
+.mew-account .auth-error { flex-basis: 100%; }
+.auth-frame :focus-visible, .mew-account :focus-visible { outline: 3px solid #ffcb05; outline-offset: 3px; }
+@media (max-width: 400px) {
+  .auth-frame .pokedex-main { padding: .65rem; }
+  .auth-frame .aba { padding: .65rem .35rem; font-size: .75rem; letter-spacing: 1px; }
+  .auth-frame .pokedex-title { font-size: 1.3rem; }
+}

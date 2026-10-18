@@ -1,4 +1,4 @@
-"""Servidor local sem dependências. Execute na raiz: python -m backend.server."""
+"""Execute na raiz: python -m backend.server. Configuração privada no .env."""
 import argparse
 import json
 import logging
@@ -9,7 +9,8 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlsplit
 
 from .service import ApiError, Service
-from .storage import JsonRepository
+from .storage import AccountConflict, JsonRepository, StorageUnavailable
+from .config import ConfigurationError, database_url as configured_database_url, load_environment
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "Site"
@@ -61,7 +62,8 @@ class Handler(SimpleHTTPRequestHandler):
             authorization = self.headers.get("Authorization", "")
             token = authorization[7:] if authorization.startswith("Bearer ") else ""
             parsed = urlsplit(self.path)
-            status, value = self.server.service.dispatch(self.command, parsed.path, body, token, parse_qs(parsed.query, keep_blank_values=True))
+            status, value = self.server.service.dispatch(self.command, parsed.path, body, token,
+                parse_qs(parsed.query, keep_blank_values=True), client_ip=self.client_address[0])
             if isinstance(value, bytes):
                 self.send_response(status)
                 self.send_header("Content-Type", "text/csv; charset=utf-8")
@@ -73,6 +75,11 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_json(status, value)
         except ApiError as error:
             self.send_json(error.status, {"erro": {"codigo": error.code, "mensagem": error.message}})
+        except AccountConflict as error:
+            self.send_json(409, {'erro': {'codigo': 'registration_conflict', 'mensagem': str(error)}})
+        except StorageUnavailable as error:
+            logging.warning('Solicitação não concluída: banco indisponível.')
+            self.send_json(503, {'erro': {'codigo': 'database_unavailable', 'mensagem': str(error)}})
         except (BrokenPipeError, ConnectionResetError):
             pass
         except Exception:
@@ -105,13 +112,24 @@ class Handler(SimpleHTTPRequestHandler):
             super().do_HEAD()
 
     def do_POST(self):
-        if urlsplit(self.path).path.startswith("/api/"):
+        if urlsplit(self.path).path.startswith("/api/") or urlsplit(self.path).path == '/resposta':
             self.api()
         else:
             self.send_error(404)
 
 
-def create_server(host="127.0.0.1", port=8000, data_file=None, admin_token=None):
+class MewServer(ThreadingHTTPServer):
+    daemon_threads = True
+
+    def server_close(self):
+        super().server_close()
+        if hasattr(self, 'service'):
+            self.service.repository.close()
+
+
+def create_server(host="127.0.0.1", port=8000, data_file=None, admin_token=None, database_url=None, repository=None):
+    # data_file explícito isola os testes/demonstrações locais do banco real.
+    use_database = database_url or (configured_database_url() if data_file is None and repository is None else None)
     data_file = Path(data_file or os.getenv("MEW_DATA_FILE", ROOT / "backend" / "data" / "mew.json"))
     if not admin_token:
         admin_token = os.getenv("MEW_ADMIN_TOKEN")
@@ -123,21 +141,39 @@ def create_server(host="127.0.0.1", port=8000, data_file=None, admin_token=None)
         admin_token = token_file.read_text(encoding="utf-8").strip()
     if len(admin_token) < 24:
         raise ValueError("A chave da equipe deve ter pelo menos 24 caracteres.")
-    server = ThreadingHTTPServer((host, port), Handler)
-    server.daemon_threads = True
-    server.service = Service(JsonRepository(data_file), SITE, admin_token)
+    if repository is None:
+        if use_database:
+            from .postgres import PostgresRepository
+            repository = PostgresRepository(use_database)
+        else:
+            repository = JsonRepository(data_file)
+    server = None
+    try:
+        service = Service(repository, SITE, admin_token)
+        server = MewServer((host, port), Handler)
+        server.service = service
+    except Exception:
+        repository.close()
+        if server:
+            server.server_close()
+        raise
     return server
 
 
 def main():
+    load_environment()
     parser = argparse.ArgumentParser(description="Projeto MEW — front e API no mesmo endereço")
     parser.add_argument("--host", default=os.getenv("MEW_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.getenv("MEW_PORT", "8000")))
     parser.add_argument("--data-file", type=Path)
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    server = create_server(args.host, args.port, args.data_file)
+    try:
+        server = create_server(args.host, args.port, args.data_file)
+    except (ConfigurationError, StorageUnavailable) as error:
+        raise SystemExit(str(error)) from None
     print(f"MEW disponível em http://{args.host}:{args.port}/", flush=True)
+    print(f"Armazenamento: {server.service.repository.kind}", flush=True)
     print("Relatório da equipe: /relatorios.html. Chave em backend/data/admin-token.txt (ou MEW_ADMIN_TOKEN).", flush=True)
     try:
         server.serve_forever()

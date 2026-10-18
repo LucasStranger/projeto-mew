@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnVoltar').href = `detalhes.html?id=${state.animalId}`;
 
   try {
-    await MewAPI.ensureSession();
+    if (!await MewAPI.requireAccount()) return;
     state.animalInfo = await MewAPI.request(`/api/especies/${encodeURIComponent(state.animalId)}`);
     document.getElementById('animalNome').textContent = state.animalInfo.nome;
     document.getElementById('animalCientifico').textContent = state.animalInfo.nome_cientifico;

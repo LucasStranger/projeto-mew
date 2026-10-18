@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar conta — Projeto MEW</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="autenticacao.css">
+  <script src="api.js" defer></script>
+  <script src="autenticacao.js" defer></script>
+</head>
+<body class="auth-page">
+  <main class="pokedex-frame auth-frame">
+    <div class="pokedex-top" aria-hidden="true">
+      <div class="light-big"></div>
+      <div class="lights-small"><span class="light-small red"></span><span class="light-small yellow"></span><span class="light-small green"></span></div>
+    </div>
+    <p class="pokedex-title">Projeto MEW</p>
+    <div class="pokedex-main">
+      <nav class="abas" aria-label="Acesso à conta">
+        <a class="aba" href="login.html" data-auth-link>Entrar</a>
+        <a class="aba ativa" href="cadastro.html" data-auth-link aria-current="page">Criar conta</a>
+      </nav>
+      <section class="screen auth-screen" aria-labelledby="auth-title">
+        <p class="auth-eyebrow">▸ Comece sua missão ecológica</p>
+        <h1 id="auth-title">Sua jornada começa aqui</h1>
+        <p class="auth-description">Crie sua conta para jogar os quizzes, guardar sua pontuação e conquistar credenciais.</p>
+        <p id="conta-atual" class="auth-current" hidden></p>
+        <form id="auth-form" data-mode="cadastro" action="cadastro.html" method="post">
+          <div class="filtro-grupo">
+            <label for="nome">Nome</label>
+            <input id="nome" name="nome" type="text" autocomplete="name" minlength="2" maxlength="50" placeholder="Como podemos chamar você?" required>
+          </div>
+          <div class="filtro-grupo">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" autocomplete="username" maxlength="100" placeholder="seuemail@exemplo.com" required>
+          </div>
+          <div class="filtro-grupo">
+            <label for="senha">Senha</label>
+            <div class="auth-password">
+              <input id="senha" name="senha" type="password" autocomplete="new-password" minlength="15" maxlength="128" aria-describedby="senha-ajuda" required>
+              <button type="button" class="auth-toggle" aria-controls="senha" aria-pressed="false">Mostrar</button>
+            </div>
+            <p id="senha-ajuda" class="auth-help">Use de 15 a 128 caracteres. Pode ser uma frase com espaços.</p>
+          </div>
+          <div class="filtro-grupo">
+            <label for="confirmar-senha">Confirmar senha</label>
+            <input id="confirmar-senha" name="confirmar-senha" type="password" autocomplete="new-password" minlength="15" maxlength="128" required>
+          </div>
+          <p id="auth-error" class="auth-error" role="alert" tabindex="-1" hidden></p>
+          <button class="auth-submit" type="submit">Criar minha conta</button>
+          <p id="auth-status" class="auth-status" role="status"></p>
+        </form>
+        <p class="auth-switch">Já tem uma conta? <a href="login.html" data-auth-link>Entre aqui</a></p>
+      </section>
+    </div>
+    <div class="rodape"><a href="index.html">← Voltar à Pokédex</a></div>
+    <noscript><p class="auth-error">Ative o JavaScript para criar sua conta.</p></noscript>
+  </main>
+</body>
+</html>
