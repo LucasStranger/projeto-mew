@@ -6,12 +6,14 @@ from pathlib import Path
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from backend.server import SITE, create_server
 from backend.service import Service
 from backend.storage import JsonRepository
+from backend.storage import StorageUnavailable
 from backend.recommendations import score
 
 ADMIN = "test-admin-key-with-at-least-24-characters"
@@ -25,7 +27,7 @@ class ApiTests(unittest.TestCase):
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
-        self.session = self.call("POST", "/api/participantes", {})[1]
+        self.session = self.call('POST', '/api/cadastro', {'nome': 'Participante de teste', 'email': 'api-test@example.com', 'senha': 'Senha longa para teste 123!'})[1]
         self.token = self.session["token"]
 
     def tearDown(self):
@@ -74,7 +76,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(len(catalog["especies_ameacadas"]), 10)
         self.assertEqual(len({a["id"] for a in catalog["especies_ameacadas"]}), 10)
-        for path in ("/quiz_perguntas.json", "/quiz_perguntas%2ejson", "/backend/data/mew.json", "/assets/", "/../README.md"):
+        for path in ("/quiz_perguntas.json", "/quiz_perguntas%2ejson", "/backend/data/mew.json", "/assets/", "/../README.md", '/.env', '/.env.production', '/.git/config'):
             self.assertEqual(self.call("GET", path)[0], 404, path)
         self.assertEqual(self.call("GET", "/api/especies/pe-999")[0], 404)
         self.assertEqual(self.call("GET", "/")[0], 200)
@@ -95,9 +97,22 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.call("POST", "/api/participantes", raw=b"{}", content_type="text/plain")[0], 415)
         self.assertEqual(self.call("POST", "/api/participantes", raw=b"x"*17000)[0], 413)
 
+    def test_feedback_route_and_database_unavailable(self):
+        attempt = self.attempt()
+        question = attempt['perguntas'][0]
+        body = {'tentativa_id': attempt['id'], 'Id_Questao': question['Id_Questao'], 'alternativa_escolhida': 0}
+        status, answer = self.call('POST', '/resposta', body, self.token)
+        self.assertEqual(status, 201)
+        self.assertIn(answer['letraCorreta'], 'ABCD')
+        self.assertEqual(self.call('POST', '/api/resposta', body, self.token), (200, answer))
+        with patch.object(self.server.service.repository, 'check_health', create=True, side_effect=StorageUnavailable()):
+            status, error = self.call('GET', '/api/health')
+            self.assertEqual(status, 503)
+            self.assertEqual(error['erro']['codigo'], 'database_unavailable')
+
     def test_participant_isolation(self):
         attempt = self.attempt()
-        other = self.call("POST", "/api/participantes", {})[1]["token"]
+        other = self.call('POST', '/api/cadastro', {'nome': 'Outra pessoa', 'email': 'outra@example.com', 'senha': 'Outra senha longa de teste!'})[1]['token']
         for method, action, body in (("GET", "", None), ("POST", "/respostas", {"pergunta_id": attempt["perguntas"][0]["id"], "alternativa_escolhida": 0}),
                                      ("GET", "/respostas.csv", None), ("POST", "/finalizar", {})):
             self.assertEqual(self.call(method, f'/api/tentativas/{attempt["id"]}{action}', body, other)[0], 404)

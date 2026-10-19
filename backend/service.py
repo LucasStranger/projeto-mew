@@ -5,11 +5,12 @@ import hmac
 import io
 import json
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from uuid import uuid4
 
 from .recommendations import LEVELS, recommend
+from .auth import AuthLimiter, dummy_password, hash_password, normalize_email, validate_signup, verify_password
 
 
 def now():
@@ -35,9 +36,13 @@ class Service:
     def __init__(self, repository, site, admin_token):
         self.repository = repository
         self.admin_token = admin_token
+        self.auth_limiter = AuthLimiter()
         fauna = json.loads((Path(site) / "fauna_pe.json").read_text(encoding="utf-8"))
         self.catalog = {a["id"]: a for a in fauna["especies_ameacadas"]}
-        self.quizzes = json.loads((Path(site) / "quiz_perguntas.json").read_text(encoding="utf-8"))
+        if repository is not None and hasattr(repository, 'load_quizzes'):
+            self.quizzes = repository.load_quizzes(self.catalog)
+        else:
+            self.quizzes = json.loads((Path(site) / "quiz_perguntas.json").read_text(encoding="utf-8"))
         for species_id, quiz in self.quizzes.items():
             if species_id not in self.catalog:
                 raise ValueError("Quiz sem espécie cadastrada")
@@ -51,10 +56,77 @@ class Service:
     def participant(self, data, token):
         require(isinstance(token, str) and 0 < len(token) <= 200, 401, "unauthorized", "Identificação ausente ou inválida.")
         hashed = digest(token)
+        for session in data.get('sessions', {}).values():
+            if hmac.compare_digest(session['token_hash'], hashed) and datetime.fromisoformat(session['expires_at']) > datetime.now(timezone.utc):
+                account = data['participants'].get(session['participant_id'])
+                if account and account.get('registered_at'):
+                    return account
         for participant in data["participants"].values():
-            if hmac.compare_digest(participant["token_hash"], hashed):
+            if not participant.get('registered_at') and hmac.compare_digest(participant["token_hash"], hashed):
                 return participant
         raise ApiError(401, "unauthorized", "Identificação expirada ou inválida. Inicie uma nova sessão.")
+
+    def profile(self, data, account):
+        score = account.get('_db_score')
+        if score is None:
+            score = sum(int(answer['acertou']) for attempt in data['attempts'].values()
+                        if attempt['participant_id'] == account['id'] for answer in attempt['answers'].values())
+        return {'id': account['id'], 'nome': account.get('nome'), 'email': account.get('email'),
+                'cadastrado': bool(account.get('registered_at')), 'pontuacao': score,
+                'criado_em': account['created_at']}
+
+    def new_session(self, data, account):
+        current = datetime.now(timezone.utc)
+        sessions = data.setdefault('sessions', {})
+        for sid in list(sessions):
+            if datetime.fromisoformat(sessions[sid]['expires_at']) <= current:
+                del sessions[sid]
+        personal = sorted((s for s in sessions.values() if s['participant_id'] == account['id']), key=lambda s: s['created_at'])
+        for old in personal[:-9]:
+            del sessions[old['id']]
+        token = secrets.token_urlsafe(32)
+        session = {'id': str(uuid4()), 'participant_id': account['id'], 'token_hash': digest(token),
+                   'created_at': current.isoformat(), 'expires_at': (current + timedelta(days=7)).isoformat()}
+        sessions[session['id']] = session
+        return {'id': account['id'], 'token': token, 'cadastrado': True, 'expira_em': session['expires_at'],
+                'usuario': self.profile(data, account)}
+
+    def signup(self, body, token, client_ip):
+        require(self.auth_limiter.allow(client_ip, signup=True), 429, 'auth_rate_limit', 'Muitas tentativas. Aguarde antes de tentar novamente.')
+        try:
+            name, email, password = validate_signup(body)
+        except ValueError as error:
+            raise ApiError(400, 'invalid_registration', str(error)) from None
+        encoded = hash_password(password)
+        with self.repository.transaction() as data:
+            require(not any(p.get('registered_at') and p.get('email') == email for p in data['participants'].values()),
+                    409, 'registration_conflict', 'Não foi possível cadastrar com os dados informados.')
+            if token:
+                account = self.participant(data, token)
+                require(not account.get('registered_at'), 409, 'already_registered', 'Esta participação já possui cadastro.')
+            else:
+                account = {'id': str(uuid4()), 'token_hash': digest(secrets.token_urlsafe(32)), 'created_at': now()}
+                data['participants'][account['id']] = account
+            account.update({'nome': name, 'email': email, 'password_hash': encoded, 'registered_at': now(),
+                            'token_hash': digest(secrets.token_urlsafe(32))})
+            return 201, self.new_session(data, account)
+
+    def login(self, body, client_ip):
+        email, password = body.get('email'), body.get('senha')
+        try:
+            email = normalize_email(email)
+        except ValueError:
+            email = ''
+        require(self.auth_limiter.allow(client_ip, email), 429, 'auth_rate_limit', 'Muitas tentativas. Aguarde antes de tentar novamente.')
+        data = self.repository.snapshot()
+        account = next((p for p in data['participants'].values() if p.get('registered_at') and p.get('email') == email), None)
+        encoded = account.get('password_hash') if account else dummy_password()
+        valid = verify_password(password, encoded)
+        require(account is not None and valid, 401, 'invalid_credentials', 'E-mail ou senha inválidos.')
+        with self.repository.transaction() as data:
+            current = data['participants'].get(account['id'])
+            require(current is not None and current.get('password_hash') == encoded, 401, 'invalid_credentials', 'E-mail ou senha inválidos.')
+            return 200, self.new_session(data, current)
 
     def own_attempt(self, data, attempt_id, participant):
         attempt = data["attempts"].get(attempt_id)
@@ -64,7 +136,8 @@ class Service:
     def public_attempt(self, attempt):
         return {"id": attempt["id"], "especie_id": attempt["especie_id"], "dificuldade": attempt["dificuldade"],
                 "status": attempt["status"], "iniciada_em": attempt["started_at"], "finalizada_em": attempt["finished_at"],
-                "perguntas": [{k: q[k] for k in ("id", "pergunta", "opcoes", "topico")} for q in attempt["questions"]],
+                "perguntas": [{**{k: q[k] for k in ("id", "pergunta", "opcoes", "topico")},
+                               "Id_Questao": q.get('Id_Questao', q['id'])} for q in attempt["questions"]],
                 "respostas": list(attempt["answers"].values()), "resultado": self.result(attempt) if attempt["status"] == "concluida" else None}
 
     def result(self, attempt):
@@ -81,10 +154,23 @@ class Service:
                 "topicos": topics, "selo": {"conquistado": awarded, "nome": "Analista Ambiental",
                 "id": "MEW-" + attempt["id"] if awarded else None, "emitido_em": attempt["finished_at"] if awarded else None}}
 
-    def dispatch(self, method, path, body, token, query):
+    def dispatch(self, method, path, body, token, query, client_ip='local'):
+        if method == 'POST' and path == '/api/cadastro':
+            return self.signup(body, token, client_ip)
+        if method == 'POST' and path == '/api/login':
+            return self.login(body, client_ip)
+        if method == 'POST' and path in ('/api/resposta', '/resposta'):
+            attempt_id = body.get('tentativa_id')
+            question_id = body.get('Id_Questao')
+            require(isinstance(attempt_id, str) and '/' not in attempt_id, 400, 'invalid_attempt', 'Informe tentativa_id.')
+            require(type(question_id) in (int, str), 400, 'invalid_question', 'Informe Id_Questao.')
+            path = f'/api/tentativas/{attempt_id}/respostas'
+            body = {'pergunta_id': str(question_id), 'alternativa_escolhida': body.get('alternativa_escolhida')}
         parts = path.strip("/").split("/")
         if method == "GET" and path == "/api/health":
-            return 200, {"status": "ok", "armazenamento": "json"}
+            if hasattr(self.repository, 'check_health'):
+                self.repository.check_health()
+            return 200, {"status": "ok", "armazenamento": getattr(self.repository, 'kind', 'json')}
         if method == "GET" and path == "/api/especies":
             return 200, {"estado": "Pernambuco", "pais": "Brasil", "especies_ameacadas": list(self.catalog.values())}
         if method == "GET" and len(parts) == 3 and parts[:2] == ["api", "especies"]:
@@ -96,7 +182,7 @@ class Service:
             participant = {"id": str(uuid4()), "token_hash": digest(token_value), "created_at": now()}
             with self.repository.transaction() as data:
                 data["participants"][participant["id"]] = participant
-            return 201, {"id": participant["id"], "token": token_value}
+            return 201, {"id": participant["id"], "token": token_value, 'cadastrado': False, 'cadastro_obrigatorio': True}
 
         if method == "GET" and path == "/api/exportacoes/respostas.csv":
             require(bool(token) and hmac.compare_digest(digest(token), digest(self.admin_token)), 401, "unauthorized", "Chave da equipe ausente ou inválida.")
@@ -115,7 +201,17 @@ class Service:
             participant = self.participant(data, token)
             pid = participant["id"]
             if method == "GET" and path == "/api/participantes/me":
-                return 200, {"id": pid, "criado_em": participant["created_at"]}
+                return 200, self.profile(data, participant)
+            if method == 'POST' and path == '/api/logout':
+                hashed = digest(token)
+                for sid, session in list(data.get('sessions', {}).items()):
+                    if hmac.compare_digest(session['token_hash'], hashed):
+                        del data['sessions'][sid]
+                if not participant.get('registered_at'):
+                    participant['token_hash'] = digest(secrets.token_urlsafe(32))
+                return 200, {'encerrado': True}
+            if method == 'POST' and (path == '/api/tentativas' or (len(parts) == 4 and parts[:2] == ['api', 'tentativas'] and parts[3] in ('respostas', 'finalizar'))):
+                require(bool(participant.get('registered_at')), 403, 'registration_required', 'Faça seu cadastro ou entre na sua conta antes de iniciar o quiz.')
             if method == "GET" and path == "/api/participantes/me/historico":
                 attempts = sorted((a for a in data["attempts"].values() if a["participant_id"] == pid), key=lambda a: a["started_at"], reverse=True)
                 return 200, {"tentativas": [{"id": a["id"], "especie_id": a["especie_id"], "dificuldade": a["dificuldade"], "status": a["status"],
@@ -163,9 +259,15 @@ class Service:
                         require(previous["escolha"] == choice, 409, "already_answered", "Esta pergunta já foi respondida com outra alternativa.")
                         return 200, previous
                     require(attempt["status"] == "em_andamento", 409, "finished", "Tentativa já finalizada.")
-                    answer = {"id": question_id, "topico": question["topico"], "escolha": choice,
+                    answered_at = now()
+                    previous_time = max((a['respondida_em'] for a in attempt['answers'].values()), default=attempt['started_at'])
+                    elapsed = max(0, int((datetime.fromisoformat(answered_at) - datetime.fromisoformat(previous_time)).total_seconds()))
+                    answer = {"id": question_id, "Id_Questao": question.get('Id_Questao', question_id),
+                              "topico": question["topico"], "escolha": choice,
                               "acertou": choice == question["correta"], "correta": question["correta"],
-                              "explicacao": question["explicacao"], "respondida_em": now()}
+                              "letraCorreta": chr(65 + question['correta']),
+                              "explicacao": question["explicacao"], "respondida_em": answered_at,
+                              "tempo_resposta_segundos": min(elapsed, 2147483647)}
                     attempt["answers"][question_id] = answer
                     return 201, answer
                 if method == "POST" and action == "finalizar":

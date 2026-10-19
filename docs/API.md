@@ -6,16 +6,22 @@ Sem CORS: front e API usam a mesma origem. Corpos POST são objetos JSON com
 
 ## Identificação
 
-`POST /participantes` com `{}` cria um participante anônimo e retorna HTTP 201:
+O quiz exige cadastro e login. `POST /cadastro` recebe `nome`, `email`, `senha` e
+retorna ID, token e perfil; `POST /login` recebe e-mail e senha e recupera a mesma
+conta em outros dispositivos. `POST /logout` revoga a sessão atual. O contrato
+completo está em [AUTENTICACAO.md](AUTENTICACAO.md).
+
+`POST /participantes` com `{}` cria apenas um visitante para navegação, sem
+permissão para iniciar ou responder quizzes, e retorna HTTP 201:
 
 ```json
 {"id":"UUID", "token":"TOKEN_ALEATORIO"}
 ```
 
 Enviar `Authorization: Bearer TOKEN_ALEATORIO` nas rotas privadas. A identificação
-fica no navegador; não existe login por nome ou e-mail. Uma chave de participante
-não autoriza acesso aos dados de outro participante. Guarde o token, pois a API
-não oferece recuperação. O armazenamento persiste somente seu hash.
+fica no navegador. Uma chave de participante não autoriza acesso aos dados de
+outro participante. Sessões de contas expiram em sete dias e podem ser recuperadas
+com um novo login. O armazenamento persiste somente hashes dos tokens.
 
 ## Rotas
 
@@ -25,19 +31,24 @@ não oferece recuperação. O armazenamento persiste somente seu hash.
 | GET | `/especies` | Pública | Objeto com `especies_ameacadas` |
 | GET | `/especies/:id` | Pública | Dados do animal e `niveis` disponíveis |
 | POST | `/participantes` | Pública | Novo ID e token |
-| GET | `/participantes/me` | Participante | ID e data de criação |
+| POST | `/cadastro` | Pública; token visitante opcional | Cria conta e devolve sessão autenticada |
+| POST | `/login` | Pública | Autentica e recupera conta e pontuação |
+| POST | `/logout` | Sessão atual | Revoga o token atual |
+| GET | `/participantes/me` | Participante | Perfil, estado de cadastro e pontuação |
 | GET | `/participantes/me/historico` | Participante | `tentativas`, da mais recente para a mais antiga |
 | GET | `/participantes/me/recomendacoes` | Participante | Motor, método, perfil por tópico e três sugestões |
 | POST | `/eventos` | Participante | Registro de navegação |
 | POST | `/tentativas` | Participante | Tentativa com cinco perguntas sem gabarito |
 | GET | `/tentativas/:id` | Dono | Estado, perguntas, respostas já enviadas e resultado se concluída |
 | POST | `/tentativas/:id/respostas` | Dono | Correção e explicação da resposta enviada |
+| POST | `/resposta` | Dono | Mesmo envio usando `tentativa_id` e `Id_Questao` no corpo |
 | POST | `/tentativas/:id/finalizar` | Dono | Nota, tópicos e selo persistente |
 | GET | `/tentativas/:id/respostas.csv` | Dono | CSV das respostas desta tentativa |
 | GET | `/exportacoes/respostas.csv` | Chave da equipe | CSV geral, com filtros opcionais |
 
 IDs de espécie são `pe-1` a `pe-10`. Dificuldades são `facil`, `intermediario`,
-`dificil`. IDs de perguntas são os IDs originais, por exemplo `pe1-f1`.
+`dificil`. No Neon, `Id_Questao` é o inteiro da tabela `questao`, e `id` é sua
+representação textual. No modo JSON local, IDs como `pe1-f1` são preservados.
 
 ## Iniciar tentativa
 
@@ -90,6 +101,7 @@ Booleanos e números fora desse intervalo são rejeitados. Retorno HTTP 201:
   "escolha":1,
   "acertou":true,
   "correta":1,
+  "letraCorreta":"B",
   "explicacao":"Explicação do conteúdo",
   "respondida_em":"2026-10-16T23:01:00+00:00"
 }
@@ -99,6 +111,13 @@ Reenviar a mesma escolha retorna o mesmo registro com 200. Tentar mudar a escolh
 retorna 409. Perguntas fora da tentativa retornam 400. Campos extras de pontuação
 ou gabarito enviados pelo cliente não influenciam a correção. Cada resposta é
 persistida antes da confirmação; não é preciso esperar o final para salvar.
+
+O endpoint alternativo `POST /api/resposta` (também disponível em `/resposta` na
+raiz) aceita `{"tentativa_id":"UUID", "Id_Questao":123, "alternativa_escolhida":1}`
+e devolve a mesma correção, incluindo `acertou`, `letraCorreta` de A a D e
+`explicacao`. O campo `correta` de 0 a 3 continua disponível após responder para
+compatibilidade com o front. Nenhum desses campos é incluído nas perguntas
+ainda não respondidas, nem é possível obtê-los antecipadamente pelo CSV individual.
 
 `GET /tentativas/:id` permite reconstituir a tela e continuar nas perguntas não
 respondidas. O gabarito e a explicação aparecem apenas nas respostas já enviadas.
@@ -178,11 +197,14 @@ ficam vazias. `acertou` é 0 ou 1. Nenhuma resposta significa apenas o cabeçalh
 |---|---|
 | 400 | JSON, campos, pergunta ou filtro inválido |
 | 401 | Token ausente ou inválido |
+| 403 | Cadastro/login obrigatório para iniciar, responder ou finalizar quiz |
 | 404 | Espécie, tentativa ou rota inexistente; também tentativa de outra pessoa |
 | 409 | Resposta já enviada com outra escolha, tentativa incompleta ou request_id conflitante |
 | 413 | Corpo ausente ou maior que 16 KB |
 | 415 | Content-Type diferente de application/json |
+| 429 | Limite de tentativas de autenticação atingido |
 | 500 | Falha interna; cliente pode reenviar uma operação idempotente |
+| 503 | Neon temporariamente indisponível; nenhuma troca automática para JSON |
 
 O servidor nunca retorna stack traces ou caminhos internos nos erros JSON.
 Os arquivos de persistência ficam fora da pasta servida. O JSON de perguntas

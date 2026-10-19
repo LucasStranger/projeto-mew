@@ -96,7 +96,9 @@ window.MewAPI = (() => {
       try { session = JSON.parse(read('mew_session_v1') || 'null'); } catch (_) {}
       if (session?.token) {
         try {
-          await request('/api/participantes/me', { token: session.token });
+          const profile = await request('/api/participantes/me', { token: session.token });
+          session = { ...session, cadastrado: profile.cadastrado, usuario: profile };
+          write('mew_session_v1', JSON.stringify(session));
           return session;
         } catch (error) {
           if (!(error instanceof ApiHttpError) || error.status !== 401) throw error;
@@ -111,7 +113,52 @@ window.MewAPI = (() => {
 
   async function authenticated(path, options = {}) {
     const session = await ensureSession();
-    return request(path, { ...options, token: session.token });
+    try {
+      return await request(path, { ...options, token: session.token });
+    } catch (error) {
+      if ((error.status === 401 && session.cadastrado) || error.code === 'registration_required') {
+        goToLogin();
+      }
+      throw error;
+    }
+  }
+
+  function goToLogin() {
+    location.assign(`login.html?next=${encodeURIComponent(location.pathname + location.search)}`);
+  }
+
+  async function requireAccount() {
+    const session = await ensureSession();
+    if (!session.cadastrado) { goToLogin(); return null; }
+    return session;
+  }
+
+  function clearProgress() {
+    const keys = new Set(memory.keys());
+    try { for (let i = 0; i < localStorage.length; i++) keys.add(localStorage.key(i)); } catch (_) {}
+    for (const key of keys) {
+      if (key?.startsWith('mew_attempt:') || key?.startsWith('mew_pending:')) remove(key);
+    }
+  }
+
+  function setSession(session) {
+    let previous;
+    try { previous = JSON.parse(read('mew_session_v1') || 'null'); } catch (_) {}
+    if (previous?.id !== session.id) clearProgress();
+    write('mew_session_v1', JSON.stringify(session));
+    sessionPromise = Promise.resolve(session);
+  }
+
+  async function logout() {
+    let session;
+    try { session = JSON.parse(read('mew_session_v1') || 'null'); } catch (_) {}
+    if (session?.token) {
+      try { await request('/api/logout', { method: 'POST', body: {}, token: session.token }); }
+      catch (error) { if (error.status !== 401) throw error; }
+    }
+    clearProgress();
+    remove('mew_session_v1');
+    sessionPromise = null;
   }
 
   async function createAttempt(speciesId, level) {
@@ -145,5 +192,5 @@ window.MewAPI = (() => {
     }
   }
 
-  return { request, authenticated, ensureSession, createAttempt, download, track, escape, read, write, remove, ApiHttpError };
+  return { request, authenticated, ensureSession, requireAccount, setSession, logout, createAttempt, download, track, escape, read, write, remove, ApiHttpError };
 })();
