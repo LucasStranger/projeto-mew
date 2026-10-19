@@ -91,7 +91,26 @@ class AccountTests(unittest.TestCase):
         for _ in range(5):
             self.assert_error(401, 'POST', '/api/login', body)
         self.assert_error(429, 'POST', '/api/login', body)
+        self.signup(email='outro-aluno@example.com')
+        self.assertEqual(self.call('POST', '/api/login', {'email': 'outro-aluno@example.com', 'senha': PASSWORD})[0], 200)
         self.assertEqual(self.call('POST', '/api/login', {'email': body['email'], 'senha': PASSWORD}, ip='outro-dispositivo')[0], 200)
+
+    def test_many_students_can_signup_and_login_from_the_same_ip(self):
+        # Ultrapassa tanto o antigo teto de 10 cadastros quanto o de 30 logins.
+        # Usa contas e hashes reais, sem dispensar validações ou autenticação.
+        def student(index):
+            email = f'aluno-{index}@example.com'
+            body = {'nome': f'Aluno {index}', 'email': email, 'senha': PASSWORD}
+            status, account = self.call('POST', '/api/cadastro', body, ip='ip-da-faculdade')
+            self.assertEqual(status, 201)
+            status, session = self.call('POST', '/api/login', {'email': email, 'senha': PASSWORD}, ip='ip-da-faculdade')
+            self.assertEqual(status, 200)
+            self.assertEqual(session['id'], account['id'])
+            return account['id']
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            ids = list(pool.map(student, range(40)))
+        self.assertEqual(len(set(ids)), 40)
+        self.assertEqual(len(self.repository.snapshot()['participants']), 40)
 
     def test_parallel_duplicate_signup_creates_only_one_account(self):
         def create(index):

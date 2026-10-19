@@ -20,7 +20,7 @@ const questions = JSON.parse(fs.readFileSync(process.env.MEW_TEST_QUESTIONS_PATH
     await page.goto(`${base}/quiz.html?animal=pe-1`);
     await page.waitForURL('**/login.html?next=*');
     await page.screenshot({path: 'test-results/login-desktop.png', fullPage: true});
-    const guest = JSON.parse(await page.evaluate(() => localStorage.getItem('mew_session_v1')));
+    const guest = await page.evaluate(() => MewAPI.currentSession());
     await page.setViewportSize({width: 390, height: 844});
     await page.screenshot({path: 'test-results/login-mobile.png', fullPage: true});
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
@@ -41,15 +41,23 @@ const questions = JSON.parse(fs.readFileSync(process.env.MEW_TEST_QUESTIONS_PATH
     await page.getByLabel('Confirmar senha', {exact: true}).fill(password);
     await page.getByRole('button', {name: 'Criar minha conta', exact: true}).click();
     await page.waitForURL('**/quiz.html?animal=pe-1');
-    assert.equal(JSON.parse(await page.evaluate(() => localStorage.getItem('mew_session_v1'))).id, guest.id);
+    assert.equal((await page.evaluate(() => MewAPI.ensureSession())).id, guest.id);
     await page.getByRole('button', {name: /Fácil/}).click();
     await page.locator('.pergunta-texto p').waitFor();
-    const session = JSON.parse(await page.evaluate(() => localStorage.getItem('mew_session_v1')));
+    const session = await page.evaluate(() => MewAPI.ensureSession());
+    const sessionCookie = (await context.cookies()).find(cookie => cookie.name === 'mew_session');
+    assert.ok(sessionCookie.httpOnly);
+    assert.equal(sessionCookie.sameSite, 'Strict');
+    assert.equal(await page.evaluate(() => document.cookie.includes('mew_session=')), false);
+    assert.equal(await page.evaluate(() => localStorage.getItem('mew_session_v1')), null);
+    assert.ok(!('token' in session), 'O JavaScript não recebe o token de autenticação');
     const attemptId = await page.evaluate(() => localStorage.getItem('mew_attempt:pe-1'));
-    const auth = {Authorization: `Bearer ${session.token}`};
+    // Somente o driver do teste pode ler o cookie HttpOnly, para testar revogação.
+    const auth = {Authorization: `Bearer ${sessionCookie.value}`};
     const initial = await (await context.request.get(`${base}/api/tentativas/${attemptId}`, {headers: auth})).json();
     assert.equal(initial.perguntas.length, 5);
     assert.ok(!JSON.stringify(initial).includes('"correta"'));
+    await require('./events.cjs')(context, base);
 
     // Servidor grava, mas a primeira resposta da rede se perde: retry não duplica.
     let loseResponse = true;
@@ -112,7 +120,12 @@ const questions = JSON.parse(fs.readFileSync(process.env.MEW_TEST_QUESTIONS_PATH
     const adminDownload = page.waitForEvent('download');
     await page.getByRole('button', {name: 'Baixar respostas em CSV'}).click();
     await (await adminDownload).saveAs('test-results/respostas-equipe.csv');
-    assert.equal(fs.readFileSync('test-results/respostas-equipe.csv', 'utf8'), csv);
+    const teamCsv = fs.readFileSync('test-results/respostas-equipe.csv', 'utf8');
+    const header = csv.slice(0, csv.indexOf('\n') + 1);
+    assert.ok(teamCsv.startsWith(header), 'Relatórios usam as mesmas colunas');
+    // O Neon compartilhado pode conter respostas reais anteriores ao teste.
+    // A tentativa de teste deve aparecer completa, sem excluir outras pessoas.
+    assert.ok(teamCsv.includes(csv.slice(header.length)), 'Relatório da equipe inclui todas as respostas desta tentativa');
 
     await page.goto(`${base}/index.html`);
     await page.locator('[data-aba="mewdex"]').click();
@@ -144,9 +157,10 @@ const questions = JSON.parse(fs.readFileSync(process.env.MEW_TEST_QUESTIONS_PATH
     await page.getByRole('button', {name: 'Entrar na conta', exact: true}).click();
     await page.waitForURL('**/index.html');
     await page.getByText('Olá, Teste navegador · 4 pontos', {exact: true}).waitFor();
-    const restored = JSON.parse(await page.evaluate(() => localStorage.getItem('mew_session_v1')));
+    const restored = await page.evaluate(() => MewAPI.ensureSession());
+    const restoredCookie = (await context.cookies()).find(cookie => cookie.name === 'mew_session');
     assert.equal(restored.id, session.id);
-    assert.notEqual(restored.token, session.token);
+    assert.notEqual(restoredCookie.value, sessionCookie.value);
     await page.locator('#mew-account').getByRole('link', {name: 'Meu histórico', exact: true}).click();
     await page.getByRole('link', {name: 'Ver resultado e baixar respostas'}).click();
     await page.locator('.selo-credencial').waitFor();
@@ -156,7 +170,11 @@ const questions = JSON.parse(fs.readFileSync(process.env.MEW_TEST_QUESTIONS_PATH
     await page.getByText('Você está conectado como Teste navegador.', {exact: false}).waitFor();
     assert.equal(await page.getByRole('link', {name: 'Continuar com esta conta'}).getAttribute('href'), 'index.html');
 
-    // Trocar de conta limpa os atalhos locais da pessoa anterior.
+    const secondTab = await context.newPage();
+    secondTab.on('pageerror', error => errors.push(error.message));
+    await secondTab.goto(`${base}/index.html`);
+    await secondTab.getByText('Olá, Teste navegador · 4 pontos', {exact: true}).waitFor();
+    // Trocar de conta limpa os atalhos e atualiza também a outra aba aberta.
     await page.evaluate(() => localStorage.setItem('mew_attempt:pe-1', 'tentativa-da-conta-anterior'));
     await page.goto(`${base}/cadastro.html`);
     await page.getByLabel('Nome', {exact: true}).fill('Outra pessoa');
@@ -166,9 +184,23 @@ const questions = JSON.parse(fs.readFileSync(process.env.MEW_TEST_QUESTIONS_PATH
     await page.getByRole('button', {name: 'Criar minha conta', exact: true}).click();
     await page.waitForURL('**/index.html');
     await page.getByText('Olá, Outra pessoa · 0 pontos', {exact: true}).waitFor();
+    await secondTab.getByText('Olá, Outra pessoa · 0 pontos', {exact: true}).waitFor();
     assert.equal(await page.evaluate(() => localStorage.getItem('mew_attempt:pe-1')), null);
+    assert.equal((await secondTab.evaluate(() => MewAPI.currentSession())).id,
+      (await page.evaluate(() => MewAPI.currentSession())).id);
+    const recommendations = await page.evaluate(() => MewAPI.authenticated('/api/participantes/me/recomendacoes'));
+    // Mesmo sem o evento de storage, o servidor impede uma aba antiga de sair da conta nova.
+    const current = await page.evaluate(() => MewAPI.currentSession());
+    const stale = await context.request.post(`${base}/api/logout`, {
+      headers: {'X-MEW-Client': 'browser', 'X-CSRF-Token': current.csrf_token, 'X-MEW-Participant': restored.id}, data: {}
+    });
+    assert.equal(stale.status(), 409);
+    assert.equal((await page.evaluate(() => MewAPI.authenticated('/api/participantes/me'))).id, current.id);
+    await page.getByRole('button', {name: 'Sair da conta', exact: true}).click();
+    await secondTab.locator('#mew-account').getByRole('link', {name: 'Entrar', exact: true}).waitFor();
+    await secondTab.close();
     assert.deepEqual(errors, []);
-    console.log('E2E OK: cadastro e login pelas telas, validações, logout, retorno ao quiz, recuperação de pontos, troca de conta, quiz, retry, retomada, selo, recomendação, histórico, CSV, catálogo e celular.');
-    console.log(`Motor de recomendação: ${(await (await context.request.get(`${base}/api/participantes/me/recomendacoes`, {headers: {Authorization: `Bearer ${restored.token}`}})).json()).motor}`);
+    console.log('E2E OK: cookie HttpOnly, troca de conta e logout entre abas, bloqueio de aba antiga, cadastro, login, quiz, retry, retomada, selo, recomendação, histórico, CSV, catálogo e celular.');
+    console.log(`Motor de recomendação: ${recommendations.motor}`);
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

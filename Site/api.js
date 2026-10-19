@@ -1,11 +1,21 @@
-/* API no mesmo endereço do site. Tokens não são colocados em URLs. */
+/* Sessão HttpOnly no mesmo endereço. O JavaScript recebe apenas perfil e CSRF. */
 window.MewAPI = (() => {
   let sessionPromise;
+  let bootstrapPromise;
+  let csrf = null;
+  let identity;
+  let revision = 0;
+  let changed = false;
+  const ACCOUNT_KEY = 'mew_account_v2';
   const memory = new Map();
   const read = key => { try { return localStorage.getItem(key) ?? memory.get(key) ?? null; } catch (_) { return memory.get(key) || null; } };
   const write = (key, value) => { memory.set(key, value); try { localStorage.setItem(key, value); } catch (_) {} };
   const remove = key => { memory.delete(key); try { localStorage.removeItem(key); } catch (_) {} };
   const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  // A versão antiga guardava o token no navegador. Exige novo login uma vez,
+  // em vez de continuar mantendo essa credencial acessível ao JavaScript.
+  remove('mew_session_v1');
+  let marker = read(ACCOUNT_KEY);
 
   class ApiHttpError extends Error {
     constructor(status, code, message) {
@@ -17,15 +27,20 @@ window.MewAPI = (() => {
     }
   }
 
-  async function request(path, { method = 'GET', body, token, binary = false } = {}) {
+  async function request(path, { method = 'GET', body, token, binary = false, participantId } = {}) {
+    if (method === 'POST' && !token) await currentSession();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
     try {
       const response = await fetch(path, {
         method,
+        credentials: 'same-origin',
         signal: controller.signal,
         headers: {
           ...(body ? { 'Content-Type': 'application/json' } : {}),
+          'X-MEW-Client': 'browser',
+          ...(method === 'POST' && csrf && !token ? { 'X-CSRF-Token': csrf } : {}),
+          ...(participantId ? { 'X-MEW-Participant': participantId } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         ...(body ? { body: JSON.stringify(body) } : {})
@@ -37,11 +52,13 @@ window.MewAPI = (() => {
       if (!response.ok) {
         let payload = null;
         if (isJson) { try { payload = await response.json(); } catch (_) {} }
-        throw new ApiHttpError(
+        const error = new ApiHttpError(
           response.status,
           payload?.erro?.codigo || payload?.code,
           payload?.erro?.mensagem || payload?.message
         );
+        if (!token && (error.code === 'session_changed' || error.code === 'csrf_failed')) accountChanged();
+        throw error;
       }
 
       if (binary) return await response.blob();
@@ -90,31 +107,68 @@ window.MewAPI = (() => {
     return undefined;
   }
 
-  async function ensureSession() {
-    if (!sessionPromise) sessionPromise = (async () => {
-      let session;
-      try { session = JSON.parse(read('mew_session_v1') || 'null'); } catch (_) {}
-      if (session?.token) {
-        try {
-          const profile = await request('/api/participantes/me', { token: session.token });
-          session = { ...session, cadastrado: profile.cadastrado, usuario: profile };
-          write('mew_session_v1', JSON.stringify(session));
-          return session;
-        } catch (error) {
-          if (!(error instanceof ApiHttpError) || error.status !== 401) throw error;
+  function accountChanged() {
+    if (changed) return;
+    changed = true;
+    revision++;
+    csrf = null;
+    sessionPromise = null;
+    location.reload();
+  }
+
+  function assertCurrent(version = revision) {
+    if (changed || version !== revision || read(ACCOUNT_KEY) !== marker) {
+      accountChanged();
+      throw new ApiHttpError(409, 'session_changed', 'A conta foi alterada. Aguarde a atualização da página.');
+    }
+  }
+
+  function publishAccount(id) {
+    marker = JSON.stringify({ id, revision: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}` });
+    write(ACCOUNT_KEY, marker);
+  }
+
+  async function currentSession(refresh = false) {
+    if (refresh) bootstrapPromise = null;
+    if (!bootstrapPromise) {
+      const version = revision;
+      bootstrapPromise = request('/api/sessao').then(session => {
+        assertCurrent(version);
+        if (identity !== undefined && (identity !== session.id || (csrf && csrf !== session.csrf_token))) {
+          accountChanged();
+          throw new ApiHttpError(409, 'session_changed', 'A sessão foi atualizada.');
         }
-      }
-      session = await request('/api/participantes', { method: 'POST', body: {} });
-      write('mew_session_v1', JSON.stringify(session));
-      return session;
+        identity = session.id;
+        csrf = session.csrf_token;
+        let previous;
+        try { previous = JSON.parse(marker || 'null'); } catch (_) {}
+        if (!previous || previous.id !== session.id) publishAccount(session.id);
+        return session;
+      }).catch(error => { bootstrapPromise = null; throw error; });
+    }
+    return bootstrapPromise;
+  }
+
+  async function ensureSession() {
+    assertCurrent();
+    if (!sessionPromise) sessionPromise = (async () => {
+      const session = await currentSession();
+      if (session.id) return session;
+      const guest = await request('/api/participantes', { method: 'POST', body: {} });
+      setSession(guest);
+      return guest;
     })().catch(error => { sessionPromise = null; throw error; });
     return sessionPromise;
   }
 
   async function authenticated(path, options = {}) {
     const session = await ensureSession();
+    const version = revision;
+    assertCurrent(version);
     try {
-      return await request(path, { ...options, token: session.token });
+      const result = await request(path, { ...options, participantId: session.id });
+      assertCurrent(version);
+      return result;
     } catch (error) {
       if ((error.status === 401 && session.cadastrado) || error.code === 'registration_required') {
         goToLogin();
@@ -143,23 +197,40 @@ window.MewAPI = (() => {
 
   function setSession(session) {
     let previous;
-    try { previous = JSON.parse(read('mew_session_v1') || 'null'); } catch (_) {}
+    try { previous = JSON.parse(marker || 'null'); } catch (_) {}
     if (previous?.id !== session.id) clearProgress();
-    write('mew_session_v1', JSON.stringify(session));
+    identity = session.id;
+    csrf = session.csrf_token;
+    changed = false;
+    revision++;
+    publishAccount(session.id);
+    bootstrapPromise = Promise.resolve(session);
     sessionPromise = Promise.resolve(session);
   }
 
   async function logout() {
-    let session;
-    try { session = JSON.parse(read('mew_session_v1') || 'null'); } catch (_) {}
-    if (session?.token) {
-      try { await request('/api/logout', { method: 'POST', body: {}, token: session.token }); }
+    assertCurrent();
+    const session = await ensureSession();
+    if (session?.id) {
+      try { await request('/api/logout', { method: 'POST', body: {}, participantId: session.id }); }
       catch (error) { if (error.status !== 401) throw error; }
     }
     clearProgress();
-    remove('mew_session_v1');
+    revision++;
+    identity = null;
+    csrf = null;
+    publishAccount(null);
+    bootstrapPromise = null;
     sessionPromise = null;
   }
+
+  window.addEventListener('storage', event => {
+    if ((event.key === ACCOUNT_KEY && event.newValue !== marker) || event.key === null) accountChanged();
+  });
+  window.addEventListener('pageshow', event => { if (event.persisted) accountChanged(); });
+  window.addEventListener('focus', () => {
+    if (identity !== undefined && !changed) currentSession(true).catch(() => {});
+  });
 
   async function createAttempt(speciesId, level) {
     const key = `mew_pending:${speciesId}:${level}`;
@@ -187,10 +258,10 @@ window.MewAPI = (() => {
 
   function track(speciesId, type = 'visualizacao_especie') {
     if (/^pe-\d+$/.test(speciesId || '')) {
-      authenticated('/api/eventos', { method: 'POST', body: { especie_id: speciesId, tipo: type } })
+      return authenticated('/api/eventos', { method: 'POST', body: { especie_id: speciesId, tipo: type } })
         .catch(error => console.warn('[MewAPI] Falha ao registrar evento:', error.message));
     }
   }
 
-  return { request, authenticated, ensureSession, requireAccount, setSession, logout, createAttempt, download, track, escape, read, write, remove, ApiHttpError };
+  return { request, authenticated, currentSession, ensureSession, requireAccount, setSession, logout, createAttempt, download, track, escape, read, write, remove, ApiHttpError };
 })();

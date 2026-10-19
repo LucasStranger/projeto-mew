@@ -430,6 +430,7 @@
         // MUDANÇA PARA O BACKEND: Puxa o animal pela API em vez do JSON local
         // =========================================================
         EstadoApp.animal = await MewAPI.request(`/api/especies/${encodeURIComponent(faunaId)}`);
+        MewAPI.track(faunaId, 'exploracao_3d');
         
         if (!EstadoApp.animal) {
           throw new Error('Animal não encontrado no banco de dados.');

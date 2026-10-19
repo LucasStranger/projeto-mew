@@ -18,24 +18,24 @@ Nome: 2 a 50 caracteres. E-mail: até 100 caracteres, normalizado para minúscul
 e sem espaços nas extremidades. Senha: 15 a 128 caracteres; espaços e Unicode
 são aceitos, sem regras artificiais de símbolos obrigatórios.
 
-Retorno 201, com token já autenticado:
+As telas enviam `X-MEW-Client: browser`. Retorno 201, com cookie HttpOnly e
+metadados da sessão (o valor abaixo é apenas ilustrativo):
 
 ```json
 {
   "id":"UUID_DO_PARTICIPANTE",
-  "token":"TOKEN_ALEATORIO",
+  "csrf_token":"CODIGO_CSRF_DE_64_CARACTERES",
   "cadastrado":true,
   "expira_em":"2026-10-25T20:00:00+00:00",
   "usuario":{"id":"UUID_DO_PARTICIPANTE","nome":"Nome do aluno","email":"aluno@example.com","cadastrado":true,"pontuacao":0,"criado_em":"2026-10-18T20:00:00+00:00"}
 }
 ```
 
-Se o navegador já possui uma participação visitante válida, o cadastro pode
-enviar seu token no cabeçalho `Authorization: Bearer TOKEN_VISITANTE`. Isso
-converte a participação existente em conta, preservando os vínculos anteriores.
-O token de visitante é invalidado e deve ser substituído pelo token novo.
-Sem token, o cadastro cria uma conta nova. Um token de conta já cadastrada não
-pode ser usado para sobrescrever seu nome, e-mail ou senha por essa rota.
+Se o navegador já possui uma participação visitante válida, seu cookie permite
+converter a participação em conta, preservando os vínculos anteriores. O token
+de visitante é invalidado e substituído por um novo cookie. Sem visitante, cria
+uma conta nova. Cadastrar outra pessoa enquanto há uma conta conectada cria uma
+nova conta e troca a sessão do navegador, sem sobrescrever o cadastro anterior.
 
 ## Login
 
@@ -53,7 +53,7 @@ incorreta retornam a mesma mensagem: `E-mail ou senha inválidos.`
 
 ## Integração com MewAPI
 
-Depois do cadastro ou login, substitua a sessão local com `setSession()` e
+Depois do cadastro ou login, atualize os metadados em memória com `setSession()` e
 carregue o destino desejado. O método também atualiza o cache em memória e limpa
 atalhos de tentativas quando a conta é diferente da anterior:
 
@@ -69,6 +69,21 @@ Use o mesmo fluxo para `/api/cadastro`, acrescentando `nome` ao corpo. Não use
 `ensureSession()` para simular cadastro: ele cria somente um visitante quando não
 há sessão. O quiz exige uma conta autenticada.
 
+`MewAPI.currentSession()` consulta `GET /api/sessao`, que recupera o perfil e o
+código CSRF a partir do cookie. O token de autenticação nunca é devolvido por
+essas chamadas do navegador. `MewAPI.authenticated()` usa o cookie e envia o ID
+da conta em `X-MEW-Participant`; em POST também envia `X-CSRF-Token`. O código CSRF
+fica apenas em memória. O cookie usa `HttpOnly`, `SameSite=Strict` e `Path=/`.
+Em HTTPS, configure `MEW_COOKIE_SECURE=true` para acrescentar `Secure`; em HTTP
+local use `false`. `MEW_ENV=production` ou `VERCEL_ENV=production` ativa Secure
+por padrão quando não há configuração explícita.
+
+No localStorage fica somente um marcador com ID público e revisão aleatória
+para avisar outras abas. Ao trocar de conta ou sair, elas recarregam seus dados.
+A API também impede gravações e logout com ID/CSRF de uma sessão anterior,
+mesmo se a aba perder o aviso. O retorno do navegador ao histórico em cache e
+o foco da aba também verificam a sessão. Dados sensíveis não ficam no marcador.
+
 `GET /api/participantes/me`, autenticado, retorna o perfil atualizado. Verifique
 `cadastrado === true` antes de oferecer o início do quiz. A API também impõe essa
 regra: visitantes recebem HTTP 403 e código `registration_required` ao iniciar,
@@ -78,14 +93,26 @@ histórico. Token ausente, expirado ou revogado retorna 401.
 
 ## Sair da conta
 
-`POST /api/logout`, corpo `{}`, com o token atual no cabeçalho Bearer. Depois do
-retorno 200, remova `mew_session_v1` e as chaves locais `mew_attempt:*` e
-`mew_pending:*`, e carregue uma nova página. A saída revoga somente a sessão
+`POST /api/logout`, corpo `{}`, com cookie, CSRF e ID da conta atual. O retorno
+200 expira o cookie. O helper limpa os atalhos `mew_attempt:*` e `mew_pending:*`
+e avisa as outras abas. A saída revoga somente a sessão
 atual; o histórico permanece no banco e outras sessões continuam válidas.
 
 `MewAPI.logout()` faz a revogação e limpeza local, inclusive se a sessão já
 expirou. Os botões “Sair da conta” do catálogo e histórico usam esse método.
 Se o servidor falhar, a interface informa o erro e permite tentar novamente.
+
+Instalações antigas exigem um novo login após esta atualização: `mew_session_v1`
+é removido do localStorage e não é usado para autenticar as novas telas.
+
+## Clientes externos à interface
+
+Scripts podem continuar usando `Authorization: Bearer TOKEN`. Cadastro/login
+sem cookie e sem `X-MEW-Client: browser` mantêm o retorno `token` para esse caso.
+Um visitante pode enviar seu Bearer ao cadastrar para converter a participação.
+Um Bearer de conta já cadastrada não permite sobrescrevê-la. O logout Bearer
+revoga a sessão correspondente. Esse contrato não deve ser usado nas telas
+para voltar a armazenar credenciais no localStorage.
 
 ## Sessões e proteção de senha
 
@@ -94,10 +121,11 @@ Se o servidor falhar, a interface informa o erro e permite tentar novamente.
 - A senha usa scrypt com salt aleatório, N=32768, r=8, p=3, uma configuração
   documentada pela [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
   A API nunca devolve a senha ou seu hash. O campo `usuario.senha` armazena o hash.
-- Login permite cinco tentativas por combinação de IP e conta e trinta por IP
-  em quinze minutos. Cadastro permite dez tentativas por IP por hora. Exceder o
-  limite retorna 429. Os limites são por processo; em múltiplas réplicas devem
-  ser complementados por limitação compartilhada na hospedagem.
+- Login permite cinco tentativas por combinação de IP e conta em quinze minutos.
+  Exceder esse limite retorna 429 somente para essa combinação. Não há teto geral
+  de cadastros ou logins por IP: alunos na mesma rede podem criar suas próprias
+  contas e entrar sem consumir um limite compartilhado pela turma. A proteção
+  do login é por processo; em múltiplas réplicas precisa de estado compartilhado.
 - Para publicação, use HTTPS. Senhas e tokens não devem ser colocados em URLs,
   logs, arquivos públicos ou mensagens de erro.
 

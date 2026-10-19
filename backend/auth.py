@@ -64,18 +64,16 @@ def dummy_password():
 
 
 class AuthLimiter:
-    """Limites por processo: 5 logins por conta/IP e 30 por IP em 15 minutos."""
+    """Até 5 tentativas por conta/IP em 15 minutos, sem teto por IP da turma."""
 
     def __init__(self):
         self.lock = threading.Lock()
         self.buckets = {}
 
-    def allow(self, ip, email='', signup=False):
+    def allow(self, ip, email=''):
         current = time.monotonic()
-        window = 3600 if signup else 900
-        keys = [(('signup' if signup else 'login-ip', ip), 10 if signup else 30)]
-        if not signup:
-            keys.append((('login-account', hashlib.sha256((ip + '\0' + email).encode()).hexdigest()), 5))
+        window = 900
+        keys = [(('login-account', hashlib.sha256((ip + '\0' + email).encode()).hexdigest()), 5)]
         with self.lock:
             self.buckets = {key: item for key, item in self.buckets.items() if item[0] > current}
             if len(self.buckets) > 10000:

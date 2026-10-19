@@ -91,14 +91,14 @@ class Service:
         return {'id': account['id'], 'token': token, 'cadastrado': True, 'expira_em': session['expires_at'],
                 'usuario': self.profile(data, account)}
 
-    def signup(self, body, token, client_ip):
-        require(self.auth_limiter.allow(client_ip, signup=True), 429, 'auth_rate_limit', 'Muitas tentativas. Aguarde antes de tentar novamente.')
+    def signup(self, body, token):
         try:
             name, email, password = validate_signup(body)
         except ValueError as error:
             raise ApiError(400, 'invalid_registration', str(error)) from None
         encoded = hash_password(password)
-        with self.repository.transaction() as data:
+        with self.repository.transaction(token=token if token else None, email=email,
+                                         sections=('sessions',), empty=not bool(token)) as data:
             require(not any(p.get('registered_at') and p.get('email') == email for p in data['participants'].values()),
                     409, 'registration_conflict', 'Não foi possível cadastrar com os dados informados.')
             if token:
@@ -118,12 +118,12 @@ class Service:
         except ValueError:
             email = ''
         require(self.auth_limiter.allow(client_ip, email), 429, 'auth_rate_limit', 'Muitas tentativas. Aguarde antes de tentar novamente.')
-        data = self.repository.snapshot()
+        data = self.repository.snapshot(email=email, sections=())
         account = next((p for p in data['participants'].values() if p.get('registered_at') and p.get('email') == email), None)
         encoded = account.get('password_hash') if account else dummy_password()
         valid = verify_password(password, encoded)
         require(account is not None and valid, 401, 'invalid_credentials', 'E-mail ou senha inválidos.')
-        with self.repository.transaction() as data:
+        with self.repository.transaction(participant_id=account['id'], sections=('sessions',)) as data:
             current = data['participants'].get(account['id'])
             require(current is not None and current.get('password_hash') == encoded, 401, 'invalid_credentials', 'E-mail ou senha inválidos.')
             return 200, self.new_session(data, current)
@@ -154,9 +154,9 @@ class Service:
                 "topicos": topics, "selo": {"conquistado": awarded, "nome": "Analista Ambiental",
                 "id": "MEW-" + attempt["id"] if awarded else None, "emitido_em": attempt["finished_at"] if awarded else None}}
 
-    def dispatch(self, method, path, body, token, query, client_ip='local'):
+    def dispatch(self, method, path, body, token, query, client_ip='local', expected_participant=None):
         if method == 'POST' and path == '/api/cadastro':
-            return self.signup(body, token, client_ip)
+            return self.signup(body, token)
         if method == 'POST' and path == '/api/login':
             return self.login(body, client_ip)
         if method == 'POST' and path in ('/api/resposta', '/resposta'):
@@ -180,26 +180,37 @@ class Service:
         if method == "POST" and path == "/api/participantes":
             token_value = secrets.token_urlsafe(32)
             participant = {"id": str(uuid4()), "token_hash": digest(token_value), "created_at": now()}
-            with self.repository.transaction() as data:
+            with self.repository.transaction(participant_id=participant['id'], sections=()) as data:
                 data["participants"][participant["id"]] = participant
             return 201, {"id": participant["id"], "token": token_value, 'cadastrado': False, 'cadastro_obrigatorio': True}
 
         if method == "GET" and path == "/api/exportacoes/respostas.csv":
             require(bool(token) and hmac.compare_digest(digest(token), digest(self.admin_token)), 401, "unauthorized", "Chave da equipe ausente ou inválida.")
-            data = self.repository.snapshot()
-            attempts = list(data["attempts"].values())
+            filters = {}
             for key in query:
                 require(key in ("especie_id", "dificuldade"), 400, "invalid_filter", "Filtro desconhecido.")
             for key in ("especie_id", "dificuldade"):
                 if key in query:
                     value = query[key][0]
                     require(value in (self.catalog if key == "especie_id" else LEVELS), 400, "invalid_filter", "Filtro inválido.")
-                    attempts = [a for a in attempts if a[key] == value]
+                    filters[key] = value
+            data = self.repository.snapshot(sections=('attempts',), filters=filters, include_participants=False)
+            attempts = [a for a in data['attempts'].values() if all(a[key] == value for key, value in filters.items())]
             return 200, self.csv(attempts)
 
-        with self.repository.transaction() as data:
+        sections = ['sessions']
+        if path in ('/api/participantes/me/historico', '/api/participantes/me/recomendacoes') or parts[:2] == ['api', 'tentativas']:
+            sections.append('attempts')
+        if path in ('/api/eventos', '/api/participantes/me/recomendacoes'):
+            sections.append('events')
+        attempt_id = parts[2] if len(parts) >= 3 and parts[:2] == ['api', 'tentativas'] else None
+        request_id = body.get('request_id') if method == 'POST' and path == '/api/tentativas' else None
+        with self.repository.transaction(token=token, sections=sections, attempt_id=attempt_id,
+                                         request_id=request_id, readonly=method == 'GET') as data:
             participant = self.participant(data, token)
             pid = participant["id"]
+            require(expected_participant is None or expected_participant == pid, 409, 'session_changed',
+                    'A conta foi alterada em outra aba. Atualize a página antes de continuar.')
             if method == "GET" and path == "/api/participantes/me":
                 return 200, self.profile(data, participant)
             if method == 'POST' and path == '/api/logout':

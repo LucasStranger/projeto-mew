@@ -78,6 +78,50 @@ class ConfigAndCatalogTests(unittest.TestCase):
 
 @unittest.skipUnless(os.getenv('MEW_TEST_NEON') == '1', 'Teste remoto opcional: MEW_TEST_NEON=1.')
 class LiveNeonTests(unittest.TestCase):
+    def test_queries_are_scoped_to_participant_and_attempt(self):
+        from dotenv import dotenv_values
+        from tests.neon_support import RollbackPostgresRepository
+        from uuid import uuid4
+        repo = RollbackPostgresRepository(dotenv_values(Path(__file__).resolve().parent.parent / '.env')['DATABASE_URL'])
+        try:
+            service = Service(repo, SITE, 'test-admin-key-with-24-characters')
+            sessions = []
+            attempts = []
+            for index in range(2):
+                _, session = service.dispatch('POST', '/api/cadastro', {
+                    'nome': 'Teste de isolamento', 'email': f'scoped-{uuid4().hex}@example.com',
+                    'senha': 'Senha longa de teste de isolamento!'}, '', {})
+                sessions.append(session)
+                for number in range(2):
+                    _, attempt = service.dispatch('POST', '/api/tentativas', {
+                        'especie_id': f'pe-{number+1}', 'dificuldade': 'facil',
+                        'request_id': f'isolated-{number}'}, session['token'], {})
+                    attempts.append(attempt)
+                for kind in ('exploracao_3d', 'hotspot'):
+                    service.dispatch('POST', '/api/eventos', {'especie_id': 'pe-1', 'tipo': kind}, session['token'], {})
+            first, second = sessions
+            state = repo.snapshot(token=first['token'])
+            self.assertEqual(set(state['participants']), {first['id']})
+            self.assertEqual(set(state['attempts']), {a['id'] for a in attempts[:2]})
+            self.assertTrue(all(s['participant_id'] == first['id'] for s in state['sessions'].values()))
+            self.assertEqual([e['tipo'] for e in state['events']], ['exploracao_3d', 'hotspot'])
+            only = repo.snapshot(token=first['token'], sections=('sessions', 'attempts'), attempt_id=attempts[0]['id'])
+            self.assertEqual(set(only['attempts']), {attempts[0]['id']})
+            self.assertFalse(only['events'])
+            other = repo.snapshot(token=first['token'], attempt_id=attempts[2]['id'])
+            self.assertFalse(other['attempts'])
+            profile = repo.snapshot(token=first['token'], sections=('sessions',))
+            self.assertFalse(profile['attempts'])
+            self.assertFalse(profile['events'])
+            self.assertFalse(repo.snapshot(token='invalid-session')['participants'])
+            filtered = repo.snapshot(sections=('attempts',), filters={'especie_id': 'pe-2'}, include_participants=False)
+            self.assertFalse(filtered['participants'])
+            self.assertFalse(filtered['sessions'])
+            self.assertFalse(filtered['events'])
+            self.assertTrue(all(a['especie_id'] == 'pe-2' for a in filtered['attempts'].values()))
+        finally:
+            repo.close()
+
     def test_real_connection_pool_and_health(self):
         from dotenv import dotenv_values
         from backend.postgres import PostgresRepository

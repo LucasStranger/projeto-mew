@@ -7,10 +7,20 @@ Sem CORS: front e API usam a mesma origem. Corpos POST são objetos JSON com
 ## Identificação
 
 O quiz exige cadastro e login. `POST /cadastro` recebe `nome`, `email`, `senha` e
-retorna ID, token e perfil; `POST /login` recebe e-mail e senha e recupera a mesma
+retorna a sessão e o perfil; `POST /login` recebe e-mail e senha e recupera a mesma
 conta em outros dispositivos. `POST /logout` revoga a sessão atual. O contrato
 completo está em [AUTENTICACAO.md](AUTENTICACAO.md).
 
+As páginas usam `MewAPI`, cookie `mew_session` HttpOnly e `credentials: same-origin`.
+`GET /sessao` retorna ID, perfil e `csrf_token`, sem o token de autenticação.
+Sem sessão válida retorna `id: null`, `usuario: null`, `cadastrado: false` e
+`csrf_token: null`, removendo cookies expirados/revogados quando presentes.
+POSTs do navegador enviam `X-MEW-Client: browser` e `X-CSRF-Token`; ações privadas
+também enviam `X-MEW-Participant` com o ID da conta exibida. A origem é verificada.
+O helper faz isso automaticamente. Uma conta alterada em outra aba exige recarga.
+
+Para scripts e clientes fora do navegador, o contrato Bearer continua disponível:
+cadastro/login sem `X-MEW-Client: browser` e sem cookie retornam um token aleatório.
 `POST /participantes` com `{}` cria apenas um visitante para navegação, sem
 permissão para iniciar ou responder quizzes, e retorna HTTP 201:
 
@@ -18,8 +28,9 @@ permissão para iniciar ou responder quizzes, e retorna HTTP 201:
 {"id":"UUID", "token":"TOKEN_ALEATORIO"}
 ```
 
-Enviar `Authorization: Bearer TOKEN_ALEATORIO` nas rotas privadas. A identificação
-fica no navegador. Uma chave de participante não autoriza acesso aos dados de
+Nesses clientes, enviar `Authorization: Bearer TOKEN_ALEATORIO` nas rotas privadas.
+Não copie esse contrato para guardar tokens no localStorage das telas.
+Uma chave de participante não autoriza acesso aos dados de
 outro participante. Sessões de contas expiram em sete dias e podem ser recuperadas
 com um novo login. O armazenamento persiste somente hashes dos tokens.
 
@@ -30,6 +41,7 @@ com um novo login. O armazenamento persiste somente hashes dos tokens.
 | GET | `/health` | Pública | Status e armazenamento |
 | GET | `/especies` | Pública | Objeto com `especies_ameacadas` |
 | GET | `/especies/:id` | Pública | Dados do animal e `niveis` disponíveis |
+| GET | `/sessao` | Cookie opcional | Perfil e CSRF da sessão do navegador, ou sessão vazia |
 | POST | `/participantes` | Pública | Novo ID e token |
 | POST | `/cadastro` | Pública; token visitante opcional | Cria conta e devolve sessão autenticada |
 | POST | `/login` | Pública | Autentica e recupera conta e pontuação |
@@ -197,9 +209,9 @@ ficam vazias. `acertou` é 0 ou 1. Nenhuma resposta significa apenas o cabeçalh
 |---|---|
 | 400 | JSON, campos, pergunta ou filtro inválido |
 | 401 | Token ausente ou inválido |
-| 403 | Cadastro/login obrigatório para iniciar, responder ou finalizar quiz |
+| 403 | Cadastro obrigatório (`registration_required`) ou proteção de origem/CSRF (`csrf_failed`) |
 | 404 | Espécie, tentativa ou rota inexistente; também tentativa de outra pessoa |
-| 409 | Resposta já enviada com outra escolha, tentativa incompleta ou request_id conflitante |
+| 409 | Conflito de resposta/tentativa/request_id ou conta alterada (`session_changed`) |
 | 413 | Corpo ausente ou maior que 16 KB |
 | 415 | Content-Type diferente de application/json |
 | 429 | Limite de tentativas de autenticação atingido |

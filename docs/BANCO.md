@@ -81,9 +81,16 @@ e interpretadas como UTC; as datas dos complementos usam `timestamptz`.
 ## Consistência e sigilo
 
 - Operações são confirmadas em transações PostgreSQL. Falhas desfazem a operação.
-- Advisory lock transacional coordena as instâncias da API que usam este adaptador.
-- A estrutura atual hidrata o estado e aplica deltas; para grandes volumes,
-  deve evoluir para consultas específicas, sem carregar todo o histórico.
+- Gravações usam `SELECT ... FOR UPDATE` na linha do participante. Operações da
+  mesma conta são serializadas; participantes diferentes não usam um lock global.
+- A sessão é localizada pelo hash indexado do token. Consultas de perfil e login
+  não carregam respostas, partidas ou eventos. Rotas de tentativa filtram pelo
+  participante e pelo ID da tentativa ou request_id; as respostas são buscadas
+  somente para as partidas selecionadas. Consultas GET não pedem bloqueio de escrita.
+- Histórico e recomendação carregam apenas tentativas/eventos do participante.
+  O CSV da equipe lê tentativas e respostas com filtros SQL, sem carregar contas,
+  hashes de senha, sessões ou eventos. Para grandes históricos, pode-se acrescentar
+  paginação e processamento incremental. Esta alteração não exige nova migração.
 - Constraints impedem duas respostas para a mesma questão da partida e dois
   request_ids iguais por participante.
 - Snapshots preservam o enunciado, as opções e o gabarito de uma tentativa iniciada.

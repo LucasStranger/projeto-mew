@@ -10,8 +10,8 @@ from typing import Protocol, ContextManager
 
 class Repository(Protocol):
     kind: str
-    def transaction(self) -> ContextManager[dict]: ...
-    def snapshot(self) -> dict: ...
+    def transaction(self, **scope) -> ContextManager[dict]: ...
+    def snapshot(self, **scope) -> dict: ...
 
 
 class JsonRepository:
@@ -36,7 +36,7 @@ class JsonRepository:
             self.state.setdefault('sessions', {})
 
     @contextmanager
-    def transaction(self):
+    def transaction(self, **scope):
         with self.lock:
             draft = copy.deepcopy(self.state)
             yield draft
@@ -52,7 +52,7 @@ class JsonRepository:
                     tmp.unlink(missing_ok=True)
                 self.state = draft
 
-    def snapshot(self):
+    def snapshot(self, **scope):
         with self.lock:
             return copy.deepcopy(self.state)
 

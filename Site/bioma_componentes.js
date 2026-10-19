@@ -353,6 +353,10 @@
 
     toggle: function () {
       this.aberto = !this.aberto;
+      if (this.aberto && window.MewAPI) {
+        const speciesId = new URLSearchParams(window.location.search).get('id');
+        MewAPI.track(speciesId, 'hotspot');
+      }
       if (this.popupHTML) {
         this.popupHTML.style.display = this.aberto ? 'block' : 'none';
         if (this.aberto) this.tick();

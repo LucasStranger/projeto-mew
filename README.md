@@ -47,7 +47,8 @@ superior, ou configure `MEW_PYTHON` com o caminho do executável.
 - Gravação de cada resposta, retomada após recarregar e proteção contra duplicação.
 - Resultado por tópico e selo persistente a partir de 70% (quatro de cinco acertos).
 - Histórico, exportação individual e impressão da credencial.
-- Registro de visitas aos detalhes das espécies e ao ambiente 3D.
+- Registro de visitas aos detalhes, entrada no ambiente 3D e abertura de hotspots.
+- Sessão em cookie HttpOnly e atualização das abas ao entrar, trocar de conta ou sair.
 - Três sugestões personalizadas de próximos desafios e ajuste de dificuldade.
 - Relatório CSV da equipe com filtro por espécie e dificuldade.
 
@@ -55,6 +56,9 @@ As páginas `login.html` e `cadastro.html` usam o visual da Pokédex e estão li
 à API. O catálogo oferece os links de acesso e o botão de saída. Quem abre um
 quiz sem cadastro vai para o login e retorna ao mesmo desafio após entrar ou
 criar a conta. O histórico também exige login e permite sair da conta.
+Cadastro e login não possuem um teto geral por IP da rede, permitindo que a turma
+acesse pela mesma conexão. A proteção do login considera cada conta e IP, com
+cinco tentativas em quinze minutos, sem bloquear os outros alunos.
 Consulte o [contrato de autenticação](docs/AUTENTICACAO.md).
 O teste de navegador usa as próprias telas para cadastrar, entrar e sair.
 
@@ -64,7 +68,15 @@ Com `DATABASE_URL` configurada, o backend usa PostgreSQL: as questões vêm de
 `questao` e `topico`, e os participantes, partidas e respostas são gravados nas
 tabelas da equipe. As sessões anônimas, snapshots das perguntas, finalizações e
 eventos ficam em `mew_api`. Contas e sessões autenticadas também usam esse schema.
-As telas devem enviar o token de cadastro/login para liberar o quiz.
+As telas usam o cookie da sessão, enviado automaticamente pelo navegador. O token
+de autenticação não é devolvido ao JavaScript nem guardado no localStorage.
+Um código CSRF e o ID da conta protegem as ações enviadas pelas páginas.
+
+As consultas normais carregam somente o participante autenticado e os dados
+necessários à rota. Responder ou retomar um quiz consulta apenas sua tentativa;
+perfil e login não carregam históricos de respostas. Gravações usam bloqueio por
+participante, sem um bloqueio global que faça alunos diferentes esperarem entre si.
+Histórico e recomendações ainda leem todas as tentativas do próprio participante.
 
 A API usa escolhas de 0 a 3; o banco usa 1 a 4. O adaptador converte ambos os
 sentidos e devolve `letraCorreta` de A a D apenas depois de responder. Reiniciar
@@ -133,6 +145,7 @@ Fórmula, limitações e critérios estão em [RECOMENDADOR.md](docs/RECOMENDADO
 | `MEW_ADMIN_TOKEN` | Chave gerada em arquivo | Chave da exportação geral, mínimo 24 caracteres |
 | `MEW_RECOMMENDER_BIN` | Binário em `backend/recommender/build` | Executável do recomendador |
 | `MEW_PYTHON` | Detecção pelo iniciador Windows | Python usado por `iniciar.bat` |
+| `MEW_COOKIE_SECURE` | `true` em produção (`MEW_ENV` ou `VERCEL_ENV`); `false` localmente | Defina `true` ao usar HTTPS; `false` somente para desenvolvimento HTTP |
 
 Também existem os argumentos `--host`, `--port` e `--data-file`. O arquivo `.env`
 é carregado automaticamente ao iniciar o servidor ou executar a migração.
@@ -145,6 +158,10 @@ use servidor de aplicação/reverse proxy com HTTPS e configure o `.env` no serv
 Recursos de câmera e AR em celulares precisam de contexto seguro compatível com
 o navegador. As bibliotecas 3D e APIs públicas de Pokémon continuam dependendo
 da internet; não foram reimplementadas pelo backend.
+
+Após atualizar uma instalação que usava `mew_session_v1`, será necessário entrar
+novamente uma vez. A credencial antiga é removida do localStorage. A validade da
+sessão continua sendo de sete dias, e o logout revoga a sessão atual no banco.
 
 ## Documentação e testes
 
@@ -164,5 +181,8 @@ Para os testes de navegador, disponibilize Playwright e Chromium no ambiente de
 desenvolvimento e execute `python -m tests.run_browser`. É possível fornecer
 `--node CAMINHO` e `--modules PASTA_NODE_MODULES`; `MEW_BROWSER_CHANNEL=chrome`
 usa o Chrome instalado. Os resultados temporários ficam em `test-results/`.
+O teste inclui troca de conta/logout entre abas, cookie HttpOnly, proteção contra
+ações de uma aba antiga e envio de eventos 3D/hotspots. A integração dos eventos
+isola o renderizador; ela não mede FPS nem valida um headset VR.
 Use `python -m tests.run_browser --neon` para testar o fluxo de navegador contra
 o PostgreSQL real com rollback ao terminar.

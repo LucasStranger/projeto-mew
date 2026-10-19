@@ -45,11 +45,9 @@ function setupForm(form) {
   }
 
   // Informa sobre a conta atual sem impedir a troca de usuário.
-  let saved;
-  try { saved = JSON.parse(MewAPI.read('mew_session_v1') || 'null'); } catch (_) {}
-  if (saved?.token) {
-    MewAPI.request('/api/participantes/me', { token: saved.token }).then(profile => {
-      if (!profile.cadastrado) return;
+  MewAPI.currentSession().then(session => {
+      if (!session.cadastrado) return;
+      const profile = session.usuario;
       const notice = document.getElementById('conta-atual');
       notice.textContent = `Você está conectado como ${profile.nome}. `;
       const link = document.createElement('a');
@@ -58,7 +56,6 @@ function setupForm(form) {
       notice.append(link);
       notice.hidden = false;
     }).catch(() => {});
-  }
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -69,20 +66,10 @@ function setupForm(form) {
     status.textContent = mode === 'cadastro' ? 'Criando sua conta…' : 'Entrando na sua conta…';
     try {
       const body = { email: form.elements.email.value.trim(), senha: password.value };
-      let token;
       if (mode === 'cadastro') {
         body.nome = form.elements.nome.value.trim();
-        // Aproveita a participação visitante, sem tentar sobrescrever outra conta.
-        let current;
-        try { current = JSON.parse(MewAPI.read('mew_session_v1') || 'null'); } catch (_) {}
-        if (current?.token) {
-          try {
-            const profile = await MewAPI.request('/api/participantes/me', { token: current.token });
-            if (!profile.cadastrado) token = current.token;
-          } catch (error) { if (error.status !== 401) throw error; }
-        }
       }
-      const session = await MewAPI.request(`/api/${mode}`, { method: 'POST', body, token });
+      const session = await MewAPI.request(`/api/${mode}`, { method: 'POST', body });
       MewAPI.setSession(session);
       form.reset();
       status.textContent = 'Tudo pronto! Abrindo sua jornada…';
