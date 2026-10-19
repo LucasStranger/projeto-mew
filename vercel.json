@@ -1,0 +1,10 @@
+{
+  "buildCommand": "echo 'Sem etapa de build'",
+  "outputDirectory": "Site",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    }
+  ]
+}
