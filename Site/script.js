@@ -21,6 +21,9 @@ const HP_MULT = 2;
 const MAX_CANDIDATOS_MOVES = 16;
 const MAX_UNICOS_POR_CARTA = 2;
 
+// ==== PAGINAÇÃO DE CARTAS ====
+const CARDS_PAGINA = 60;
+
 const CATEGORIAS_PT = {
   'species-specific': 'Específico de Espécie', 'standard-balls': 'Bolas Padrão',
   'special-balls': 'Bolas Especiais', 'apricorn-balls': 'Bolas de Apricorn',
@@ -2539,6 +2542,10 @@ let cartasPorId = {};
 let evoChainCache = {};
 let moveDetCache = {};
 
+// ==== Novas vars de paginação ====
+let cardsPaginaAtual = 0;
+let cardsListaFiltrada = [];
+
 const EFETIVIDADE_TIPOS = {
   normal:   { rock: 0.5, ghost: 0, steel: 0.5 },
   fire:     { fire: 0.5, water: 0.5, grass: 2, ice: 2, bug: 2, rock: 0.5, dragon: 0.5, steel: 2 },
@@ -2943,39 +2950,49 @@ async function carregarCartas() {
   loading.textContent = `🎴 Carregando cartas... 0/${TOTAL_POKEMON}`;
 
   const ids = Array.from({ length: TOTAL_POKEMON }, (_, i) => i + 1);
-  let completos = 0;
-  let nextIdx = 0;
-  let contadorSalvar = 0;
-  const CONC = 40;
+  const BATCH = 30;
+  const CONC = 6;
+  let carregados = 0;
 
-  async function worker() {
-    while (true) {
-      const idx = nextIdx++;
-      if (idx >= ids.length) break;
-      const id = ids[idx];
-      const carta = await buscarCartaCompleta(id);
-      if (carta) {
-        todasCartas.push(carta);
-        cartasPorId[carta.id] = carta;
-        grid.appendChild(criarCarta(carta));
-        completos++;
-        if (completos % 5 === 0) {
-          loading.textContent = `🎴 Carregando cartas... ${completos}/${TOTAL_POKEMON}`;
-        }
-        contadorSalvar++;
-        if (contadorSalvar % 150 === 0) {
-          salvarCacheEvo(); salvarCacheMove();
-        }
-      }
+  for (let inicio = 0; inicio < ids.length; inicio += BATCH) {
+    const lote = ids.slice(inicio, inicio + BATCH);
+    const cartasLote = await carregarLoteCartas(lote, CONC);
+    cartasLote.forEach(c => {
+      todasCartas.push(c);
+      cartasPorId[c.id] = c;
+    });
+    carregados += cartasLote.length;
+    loading.textContent = `🎴 Carregando cartas... ${carregados}/${TOTAL_POKEMON}`;
+    await new Promise(r => setTimeout(r, 0));
+    if (carregados % 150 === 0) {
+      salvarCacheEvo();
+      salvarCacheMove();
     }
   }
 
-  await Promise.all(Array.from({ length: CONC }, () => worker()));
-
-  salvarCacheCartas(); salvarCacheEvo(); salvarCacheMove();
+  salvarCacheCartas();
+  salvarCacheEvo();
+  salvarCacheMove();
   todasCartas.sort((a, b) => a.id - b.id);
   renderizarCartas(todasCartas);
   loading.style.display = 'none';
+}
+
+async function carregarLoteCartas(ids, concorrencia) {
+  const resultados = [];
+  let idx = 0;
+  async function worker() {
+    while (true) {
+      const i = idx++;
+      if (i >= ids.length) break;
+      try {
+        const carta = await buscarCartaCompleta(ids[i]);
+        if (carta) resultados.push(carta);
+      } catch (e) {}
+    }
+  }
+  await Promise.all(Array.from({ length: concorrencia }, () => worker()));
+  return resultados;
 }
 
 function classeStatPct(valor, isLendario, isHP) {
@@ -2998,17 +3015,47 @@ function tiposEfetBadges(lista) {
 
 function renderizarCartas(lista) {
   const grid = document.getElementById('cartas-grid');
+  if (!grid) return;
+  cardsListaFiltrada = lista;
+  cardsPaginaAtual = 0;
   grid.innerHTML = '';
   if (lista.length === 0) {
     grid.innerHTML = '<p class="loading" style="grid-column:1/-1;">Nenhuma carta encontrada.</p>';
     return;
   }
+  renderizarPaginaCartas(0);
+}
+
+function renderizarPaginaCartas(pagina) {
+  const grid = document.getElementById('cartas-grid');
+  if (!grid) return;
+
+  const inicio = pagina * CARDS_PAGINA;
+  const fim = Math.min(inicio + CARDS_PAGINA, cardsListaFiltrada.length);
+  const fatia = cardsListaFiltrada.slice(inicio, fim);
+
+  grid.innerHTML = '';
+
   const frag = document.createDocumentFragment();
-  const CHUNK = 30;
-  for (let i = 0; i < lista.length; i += CHUNK) {
-    lista.slice(i, i + CHUNK).forEach(c => frag.appendChild(criarCarta(c)));
-  }
+  fatia.forEach(c => frag.appendChild(criarCarta(c)));
   grid.appendChild(frag);
+
+  if (fim < cardsListaFiltrada.length) {
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'grid-column:1/-1; text-align:center; padding:16px 0;';
+    const btn = document.createElement('button');
+    btn.className = 'btn-carregar-mais';
+    btn.type = 'button';
+    btn.textContent = `▼ Carregar mais cartas (${fim} de ${cardsListaFiltrada.length})`;
+    btn.style.cssText = 'padding:0.8rem 1.6rem;background:linear-gradient(135deg,rgba(0,224,255,0.2),rgba(0,224,255,0.08));border:2px solid #00e0ff;color:#00e0ff;border-radius:10px;font-family:"Courier New",monospace;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 0 16px rgba(0,224,255,0.35);transition:all 0.25s;';
+    btn.addEventListener('click', () => {
+      cardsPaginaAtual++;
+      renderizarPaginaCartas(cardsPaginaAtual);
+      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    btnWrap.appendChild(btn);
+    grid.appendChild(btnWrap);
+  }
 }
 
 function gerarHTMLCarta(c, opts = {}) {

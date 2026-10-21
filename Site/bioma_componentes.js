@@ -1,6 +1,5 @@
 /* =========================================================
-   bioma_componentes.js — MASTER (v7 — quality-aware)
-   Popup HTML (desktop) + Popup 3D (VR) simultâneos
+   bioma_componentes.js — MASTER (v9 — popups corrigidos)
    ========================================================= */
 (function () {
   'use strict';
@@ -9,118 +8,83 @@
     if (!AFRAME.components[nome]) AFRAME.registerComponent(nome, def);
   };
 
-  // Helper: animações decorativas estão ligadas?
   const animLigada = () =>
     !window.MewQualidade || window.MewQualidade.perfil.animacoesDecorativas;
 
-  /* --------------------------------------------------------
-     CSS injetado para o popup HTML (desktop/celular)
-     -------------------------------------------------------- */
   function injetarEstilosPopup() {
     if (document.getElementById('hotspot-popup-styles')) return;
     const style = document.createElement('style');
     style.id = 'hotspot-popup-styles';
     style.textContent = `
       .hotspot-popup {
-        position: fixed;
+        position: fixed; left: 0; top: 0;
         transform: translate(-50%, calc(-100% - 16px));
         background: rgba(8, 18, 6, 0.97);
         border: 2px solid #7ee898;
-        border-radius: 14px;
-        padding: 0;
-        max-width: 380px;
-        min-width: 240px;
-        z-index: 99999;
-        pointer-events: none;
-        box-shadow:
-          0 8px 28px rgba(0, 0, 0, 0.8),
-          0 0 30px rgba(63, 185, 80, 0.4);
+        border-radius: 14px; padding: 0;
+        max-width: 380px; min-width: 240px;
+        z-index: 2147483646;
+        pointer-events: none; visibility: hidden;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.8), 0 0 30px rgba(63,185,80,0.4);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        animation: hotspotFadeIn 0.22s ease-out;
         overflow: hidden;
       }
+      .hotspot-popup[data-visivel="1"] {
+        visibility: visible;
+        animation: hotspotFadeIn 0.22s ease-out;
+      }
       .hotspot-popup::after {
-        content: '';
-        position: absolute;
-        bottom: -13px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
+        content: ''; position: absolute; bottom: -13px; left: 50%;
+        transform: translateX(-50%); width: 0; height: 0;
         border-left: 11px solid transparent;
         border-right: 11px solid transparent;
         border-top: 13px solid var(--hotspot-cor, #7ee898);
         filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
       }
       .hotspot-popup-imagem-wrap {
-        width: 100%;
-        height: 180px;
-        overflow: hidden;
+        width: 100%; height: 180px; overflow: hidden;
         background: #0a1a0c;
         border-bottom: 2px solid var(--hotspot-cor, #7ee898);
         position: relative;
       }
       .hotspot-popup-imagem {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
+        width: 100%; height: 100%; object-fit: contain; display: block;
         filter: brightness(0.95) saturate(1.05);
         background: linear-gradient(180deg, #0a1a0c 0%, #08120c 100%);
       }
       .hotspot-popup-imagem-wrap::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, transparent 65%, rgba(8, 18, 6, 0.6) 100%);
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(180deg, transparent 65%, rgba(8,18,6,0.6) 100%);
         pointer-events: none;
       }
-      .hotspot-popup-conteudo {
-        padding: 12px 18px 14px;
-      }
+      .hotspot-popup-conteudo { padding: 12px 18px 14px; }
       .hotspot-popup-categoria {
-        display: inline-block;
-        font-family: 'Courier New', monospace;
-        font-size: 0.6rem;
-        font-weight: bold;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        padding: 3px 9px;
-        border-radius: 10px;
-        margin-bottom: 8px;
+        display: inline-block; font-family: 'Courier New', monospace;
+        font-size: 0.6rem; font-weight: bold; letter-spacing: 2px;
+        text-transform: uppercase; padding: 3px 9px;
+        border-radius: 10px; margin-bottom: 8px;
         background: rgba(126, 232, 152, 0.15);
         border: 1px solid var(--hotspot-cor, #7ee898);
         color: var(--hotspot-cor, #7ee898);
         text-shadow: 0 0 6px var(--hotspot-cor, #7ee898);
       }
       .hotspot-popup-titulo {
-        font-size: 1.02rem;
-        font-weight: 800;
-        margin: 0 0 8px 0;
-        text-align: left;
-        font-family: 'Courier New', monospace;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        text-shadow: 0 0 12px currentColor;
-        line-height: 1.25;
+        font-size: 1.02rem; font-weight: 800; margin: 0 0 8px 0;
+        text-align: left; font-family: 'Courier New', monospace;
+        letter-spacing: 1.2px; text-transform: uppercase;
+        text-shadow: 0 0 12px currentColor; line-height: 1.25;
         color: var(--hotspot-cor, #7ee898);
       }
       .hotspot-popup-desc {
-        font-size: 0.83rem;
-        line-height: 1.55;
-        color: #d5ffdd;
-        margin: 0;
-        text-align: left;
+        font-size: 0.83rem; line-height: 1.55;
+        color: #d5ffdd; margin: 0; text-align: left;
       }
       @keyframes hotspotFadeIn {
         from { opacity: 0; transform: translate(-50%, calc(-100% - 8px)); }
         to   { opacity: 1; transform: translate(-50%, calc(-100% - 16px)); }
       }
       @media (max-width: 600px) {
-        .hotspot-popup {
-          max-width: calc(100vw - 30px);
-          min-width: 200px;
-        }
+        .hotspot-popup { max-width: calc(100vw - 30px); min-width: 200px; }
         .hotspot-popup-imagem-wrap { height: 140px; }
         .hotspot-popup-conteudo { padding: 10px 14px 12px; }
         .hotspot-popup-titulo { font-size: 0.9rem; }
@@ -133,7 +97,6 @@
 
   injetarEstilosPopup();
 
-  /* ---------- billboard-y (legado) ---------- */
   R('billboard-y', {
     tick: function () {
       const cam = this.el.sceneEl && this.el.sceneEl.camera;
@@ -144,7 +107,22 @@
     }
   });
 
-  /* ---------- info-hotspot (v7 — quality-aware) ---------- */
+  function obterCamera(sceneEl) {
+    if (!sceneEl) return null;
+    let cam = sceneEl.camera;
+    if (cam && cam.isCamera) return cam;
+    if (cam && typeof cam.getObject3D === 'function') {
+      const inner = cam.getObject3D('camera');
+      if (inner && inner.isCamera) return inner;
+    }
+    const camEl = sceneEl.querySelector('a-camera, [camera]');
+    if (camEl) {
+      const inner = camEl.getObject3D('camera');
+      if (inner && inner.isCamera) return inner;
+    }
+    return null;
+  }
+
   R('info-hotspot', {
     schema: {
       titulo:    { type: 'string', default: 'Elemento' },
@@ -160,7 +138,6 @@
       const t = this.data.tamanho;
       this.el.classList.add('clickable');
 
-      /* Marcador esférico */
       const marc = document.createElement('a-sphere');
       marc.setAttribute('radius', (0.10 * t).toFixed(3));
       marc.setAttribute('color', cor);
@@ -172,7 +149,6 @@
       }
       this.el.appendChild(marc);
 
-      /* Anel pulsante */
       const anel = document.createElement('a-ring');
       anel.setAttribute('radius-inner', (0.14 * t).toFixed(3));
       anel.setAttribute('radius-outer', (0.21 * t).toFixed(3));
@@ -187,17 +163,14 @@
       }
       this.el.appendChild(anel);
 
-      /* Luz ambiente */
       const luz = document.createElement('a-entity');
       luz.setAttribute('light', 'type: point; color: ' + cor + '; intensity: 0.4; distance: 2.8');
       this.el.appendChild(luz);
 
-      /* Painel 3D (VR) */
       this.painelVR = this._criarPainelVR(cor);
       this.painelVR.setAttribute('visible', 'false');
       this.el.appendChild(this.painelVR);
 
-      /* Popup HTML (desktop) */
       this.popupHTML = this._criarPopupHTML(cor);
       document.body.appendChild(this.popupHTML);
 
@@ -274,7 +247,7 @@
     _criarPopupHTML: function (cor) {
       const popup = document.createElement('div');
       popup.className = 'hotspot-popup';
-      popup.style.display = 'none';
+      popup.setAttribute('data-visivel', '0');
       popup.style.borderColor = cor;
       popup.style.setProperty('--hotspot-cor', cor);
 
@@ -316,59 +289,66 @@
     },
 
     tick: function () {
-      if (!this.aberto) return;
-
+      if (!this.aberto || !this.popupHTML) return;
       const sceneEl = this.el.sceneEl;
-      const cam = sceneEl && sceneEl.camera;
+      if (!sceneEl) return;
+
+      const cam = obterCamera(sceneEl);
       if (!cam) return;
 
       const emVR = sceneEl.is('vr-mode');
-
       if (emVR) {
         if (this.painelVR) this.painelVR.setAttribute('visible', 'true');
-        if (this.popupHTML) this.popupHTML.style.display = 'none';
+        this.popupHTML.setAttribute('data-visivel', '0');
         return;
       }
-
       if (this.painelVR) this.painelVR.setAttribute('visible', 'false');
-      if (!this.popupHTML) return;
 
       this.el.object3D.getWorldPosition(this._v);
       this._v.project(cam);
 
-      if (this._v.z > 1) {
-        this.popupHTML.style.visibility = 'hidden';
+      if (
+        !isFinite(this._v.x) || !isFinite(this._v.y) || !isFinite(this._v.z) ||
+        this._v.z > 1
+      ) {
+        this.popupHTML.setAttribute('data-visivel', '0');
         return;
       }
 
-      this.popupHTML.style.visibility = 'visible';
       const canvas = sceneEl.canvas;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+
       const x = rect.left + (this._v.x * 0.5 + 0.5) * rect.width;
       const y = rect.top  + (-this._v.y * 0.5 + 0.5) * rect.height;
+
       this.popupHTML.style.left = x + 'px';
       this.popupHTML.style.top  = y + 'px';
+      this.popupHTML.setAttribute('data-visivel', '1');
     },
 
     toggle: function () {
       this.aberto = !this.aberto;
+
       if (this.aberto && window.MewAPI) {
         const speciesId = new URLSearchParams(window.location.search).get('id');
         MewAPI.track(speciesId, 'hotspot');
       }
+
       if (this.popupHTML) {
-        this.popupHTML.style.display = this.aberto ? 'block' : 'none';
         if (this.aberto) this.tick();
+        else this.popupHTML.setAttribute('data-visivel', '0');
       }
       if (this.painelVR) {
         this.painelVR.setAttribute('visible', this.aberto ? 'true' : 'false');
       }
+
       clearTimeout(this._t);
       if (this.aberto) {
         this._t = setTimeout(() => {
           this.aberto = false;
-          if (this.popupHTML) this.popupHTML.style.display = 'none';
+          if (this.popupHTML) this.popupHTML.setAttribute('data-visivel', '0');
           if (this.painelVR) this.painelVR.setAttribute('visible', 'false');
         }, 11000);
       }
@@ -382,21 +362,14 @@
     }
   });
 
-  /* ==========================================================
-     SWAY-* — animações decorativas (todas respeitam qualidade)
-     ========================================================== */
   R('sway-grass', {
     schema: { ampl: { default: 8 } },
     init: function () {
       if (!animLigada()) return;
       const a = this.data.ampl;
       const dur = 2400 + Math.random() * 1800;
-      this.el.setAttribute('animation__swx',
-        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + dur +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
-      this.el.setAttribute('animation__swz',
-        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.7) + '; dur: ' + (dur + 400) +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__swx', 'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + dur + '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__swz', 'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.7) + '; dur: ' + (dur + 400) + '; dir: alternate; loop: true; easing: easeInOutSine');
     }
   });
 
@@ -406,12 +379,8 @@
       if (!animLigada()) return;
       const a = this.data.ampl;
       const d = 2400 + Math.random() * 1600;
-      this.el.setAttribute('animation__cx',
-        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
-      this.el.setAttribute('animation__cz',
-        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.6) + '; dur: ' + (d + 400) +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__cx', 'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d + '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__cz', 'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.6) + '; dur: ' + (d + 400) + '; dir: alternate; loop: true; easing: easeInOutSine');
     }
   });
 
@@ -421,12 +390,8 @@
       if (!animLigada()) return;
       const a = this.data.ampl;
       const d = 2800 + Math.random() * 1600;
-      this.el.setAttribute('animation__dx',
-        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
-      this.el.setAttribute('animation__dz',
-        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.7) + '; dur: ' + (d + 400) +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__dx', 'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d + '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__dz', 'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.7) + '; dur: ' + (d + 400) + '; dir: alternate; loop: true; easing: easeInOutSine');
     }
   });
 
@@ -436,12 +401,8 @@
       if (!animLigada()) return;
       const a = this.data.ampl;
       const d = this.data.dur + Math.random() * 1200;
-      this.el.setAttribute('animation__lx',
-        'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
-      this.el.setAttribute('animation__lz',
-        'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.6) + '; dur: ' + (d + 500) +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__lx', 'property: rotation; from: 0 0 0; to: ' + a + ' 0 0; dur: ' + d + '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__lz', 'property: rotation; from: 0 0 0; to: 0 0 ' + (-a * 0.6) + '; dur: ' + (d + 500) + '; dir: alternate; loop: true; easing: easeInOutSine');
     }
   });
 
@@ -451,33 +412,25 @@
       if (!animLigada()) return;
       const a = this.data.ampl;
       const d = 2200 + Math.random() * 1600;
-      this.el.setAttribute('animation',
-        'property: rotation; from: 0 0 ' + (-a) + ' 0 0 ' + a +
-        '; dur: ' + d + '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation', 'property: rotation; from: 0 0 ' + (-a) + ' 0 0 ' + a + '; dur: ' + d + '; dir: alternate; loop: true; easing: easeInOutSine');
     }
   });
 
-  /* ---------- bobber ---------- */
   R('bobber', {
     schema: { amp: { default: 0.12 }, dur: { default: 2600 } },
     init: function () {
       if (!animLigada()) return;
       const y = this.el.object3D.position.y;
-      this.el.setAttribute('animation',
-        'property: position; from: 0 ' + y + ' 0; to: 0 ' + (y + this.data.amp) + ' 0; dur: ' +
-        this.data.dur + '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation', 'property: position; from: 0 ' + y + ' 0; to: 0 ' + (y + this.data.amp) + ' 0; dur: ' + this.data.dur + '; dir: alternate; loop: true; easing: easeInOutSine');
     }
   });
 
-  /* ---------- flutter-by ---------- */
   R('flutter-by', {
     schema: { raio: { default: 1.5 }, alt: { default: 1.2 }, dur: { default: 8000 } },
     init: function () {
       if (!animLigada()) return;
       const d = this.data.dur + Math.random() * 3000;
-      this.el.setAttribute('animation__y',
-        'property: position; from: 0 ' + this.data.alt + ' 0; to: 0 ' + (this.data.alt + 0.4) +
-        ' 0; dur: 1400; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation__y', 'property: position; from: 0 ' + this.data.alt + ' 0; to: 0 ' + (this.data.alt + 0.4) + ' 0; dur: 1400; dir: alternate; loop: true; easing: easeInOutSine');
       const raio = this.data.raio;
       let i = 0;
       const pontos = 6;
@@ -485,10 +438,7 @@
         const a = (i % pontos) / pontos * Math.PI * 2;
         const nx = Math.cos(a) * raio;
         const nz = Math.sin(a) * raio;
-        this.el.setAttribute('animation__p',
-          'property: position; to: ' + nx.toFixed(2) + ' ' +
-          (this.data.alt + (Math.random() * 0.3)).toFixed(2) + ' ' + nz.toFixed(2) +
-          '; dur: ' + (d / pontos) + '; easing: easeInOutSine');
+        this.el.setAttribute('animation__p', 'property: position; to: ' + nx.toFixed(2) + ' ' + (this.data.alt + (Math.random() * 0.3)).toFixed(2) + ' ' + nz.toFixed(2) + '; dur: ' + (d / pontos) + '; easing: easeInOutSine');
         i++;
       };
       step();
@@ -497,7 +447,6 @@
     remove: function () { clearInterval(this._int); }
   });
 
-  /* ---------- flutter-bird ---------- */
   R('flutter-bird', {
     schema: { raio: { default: 3 }, alt: { default: 2 }, dur: { default: 9000 } },
     init: function () {
@@ -510,10 +459,7 @@
         const a = (i % pontos) / pontos * Math.PI * 2;
         const nx = Math.cos(a) * raio;
         const nz = Math.sin(a) * raio;
-        this.el.setAttribute('animation__p',
-          'property: position; to: ' + nx.toFixed(2) + ' ' +
-          (this.data.alt + (Math.random() * 0.4)).toFixed(2) + ' ' + nz.toFixed(2) +
-          '; dur: ' + (d / pontos) + '; easing: easeInOutSine');
+        this.el.setAttribute('animation__p', 'property: position; to: ' + nx.toFixed(2) + ' ' + (this.data.alt + (Math.random() * 0.4)).toFixed(2) + ' ' + nz.toFixed(2) + '; dur: ' + (d / pontos) + '; easing: easeInOutSine');
         i++;
       };
       step();
@@ -522,18 +468,14 @@
     remove: function () { clearInterval(this._int); }
   });
 
-  /* ---------- ghost-fade ---------- */
   R('ghost-fade', {
     schema: { dur: { default: 6000 } },
     init: function () {
       if (!animLigada()) return;
-      this.el.setAttribute('animation',
-        'property: material.opacity; from: 0.15; to: 0.55; dur: ' + this.data.dur +
-        '; dir: alternate; loop: true; easing: easeInOutSine');
+      this.el.setAttribute('animation', 'property: material.opacity; from: 0.15; to: 0.55; dur: ' + this.data.dur + '; dir: alternate; loop: true; easing: easeInOutSine');
     }
   });
 
-  /* ---------- ensureCursorBioma ---------- */
   window.ensureCursorBioma = function (sceneEl) {
     if (!sceneEl || sceneEl.dataset.cursorOk === '1') return;
     sceneEl.dataset.cursorOk = '1';
@@ -550,5 +492,5 @@
     else sceneEl.addEventListener('loaded', add, { once: true });
   };
 
-  console.log('[bioma_componentes] v7 — quality-aware (sway off em baixa).');
+  console.log('[bioma_componentes] v9 — popups 3D corrigidos (câmera robusta, sem NaN).');
 })();
