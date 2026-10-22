@@ -187,7 +187,7 @@
   
   <div class="instrucoes" id="instrucoes" style="display:none;">
     <span class="instr-desktop"><span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>👁️ Mire 3s</span></span>
-    <span class="instr-mobile"><span>👆 Arraste</span> girar · <span>👁️ Mire 3s</span></span>
+    <span class="instr-mobile"><span>👆 Arraste</span> girar · <span>🤏 Pinça</span> zoom · <span>👁️ Mire 3s</span></span>
   </div>
 
   <div id="scene-container"></div>
@@ -396,8 +396,9 @@
         document.getElementById('gaze-reticle').style.display = 'block';
         if (isMobile && 'xr' in navigator) document.getElementById('vr-toggle').classList.add('visivel');
         
+        // Instruções: mobile usa orbit-camera (pinch de 2 dedos para zoom)
         if (isMobile) {
-          document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>👆 Arraste</span> pra olhar · <span>▲▼◀▶</span> pra andar</span>';
+          document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>👆 Arraste</span> girar · <span>🤏 Pinça</span> zoom · <span>👁️ Mire 3s</span></span>';
         } else {
           document.getElementById('instrucoes').innerHTML = '<span class="instr-desktop"><span>🖱️ Arraste</span> girar · <span>🎯 Scroll</span> zoom · <span>👁️ Mire 3s</span></span>';
         }
@@ -422,22 +423,47 @@
 
     function configurarListenersVR(cena) {
       cena.addEventListener('enter-vr', () => {
-        document.body.classList.add('em-vr'); EstadoApp.modo = 'vr';
+        document.body.classList.add('em-vr');
+        EstadoApp.modo = 'vr';
         const camEl = cena.querySelector('#camera, [camera]');
-        if (camEl && camEl.hasAttribute('fps-walker')) {
+        if (!camEl) return;
+
+        if (isMobile) {
+          // MOBILE: ao entrar em VR troca orbit-camera por fps-walker (gaze walk do Cardboard)
+          if (camEl.hasAttribute('orbit-camera')) camEl.removeAttribute('orbit-camera');
+          camEl.setAttribute('fps-walker', 'speed: 3.5; gazeMaxSpeed: 4.0; eyeHeight: 1.6;');
           camEl.setAttribute('look-controls', 'enabled: true');
-        } else if (camEl) {
-          camEl.removeAttribute('orbit-camera'); camEl.setAttribute('look-controls', 'enabled: true'); camEl.setAttribute('wasd-controls', 'enabled: false');
-          camEl.object3D.position.set(0, 0, 0); camEl.object3D.rotation.set(0, 0, 0);
+        } else if (camEl.hasAttribute('fps-walker')) {
+          camEl.setAttribute('look-controls', 'enabled: true');
+        } else {
+          camEl.removeAttribute('orbit-camera');
+          camEl.setAttribute('look-controls', 'enabled: true');
+          camEl.setAttribute('wasd-controls', 'enabled: false');
+          camEl.object3D.position.set(0, 0, 0);
+          camEl.object3D.rotation.set(0, 0, 0);
         }
       });
+
       cena.addEventListener('exit-vr', () => {
-        document.body.classList.remove('em-vr'); EstadoApp.modo = '3d';
+        document.body.classList.remove('em-vr');
+        EstadoApp.modo = '3d';
         const camEl = cena.querySelector('#camera, [camera]');
-        if (camEl && camEl.hasAttribute('fps-walker')) return;
-        if (camEl) {
-          camEl.setAttribute('look-controls', 'enabled: false'); camEl.setAttribute('wasd-controls', 'enabled: false');
-          camEl.object3D.position.set(0, 0, 0); camEl.object3D.rotation.set(0, 0, 0);
+        if (!camEl) return;
+
+        if (isMobile) {
+          // MOBILE: ao sair do VR volta ao orbit-camera (pinch zoom com 2 dedos)
+          if (camEl.hasAttribute('fps-walker')) camEl.removeAttribute('fps-walker');
+          camEl.setAttribute('look-controls', 'enabled: false');
+          camEl.setAttribute('wasd-controls', 'enabled: false');
+          camEl.object3D.position.set(0, 0, 0);
+          camEl.object3D.rotation.set(0, 0, 0);
+          camEl.setAttribute('orbit-camera', 'distance: 7.0; minDistance: 1.5; maxDistance: 40; targetY: 1.0; moveSpeed: 5.0;');
+          document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>👆 Arraste</span> girar · <span>🤏 Pinça</span> zoom · <span>👁️ Mire 3s</span></span>';
+        } else if (!camEl.hasAttribute('fps-walker')) {
+          camEl.setAttribute('look-controls', 'enabled: false');
+          camEl.setAttribute('wasd-controls', 'enabled: false');
+          camEl.object3D.position.set(0, 0, 0);
+          camEl.object3D.rotation.set(0, 0, 0);
           camEl.setAttribute('orbit-camera', 'distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;');
         }
       });
@@ -461,8 +487,11 @@
       const shadowAttr = perfil.sombras ? `shadow="type: ${perfil.shadowMapSize >= 2048 ? 'pcfsoft' : 'pcf'}"` : '';
       const rendererAttr = `renderer="antialias: ${perfil.antialias}; colorManagement: true;"`;
       
-      const cameraAttr = isMobile 
-        ? `fps-walker="speed: 3.5; gazeMaxSpeed: 4.0; eyeHeight: 1.6;"` 
+      // MOBILE: orbit-camera — 1 dedo gira, 2 dedos fazem pinch zoom (igual foto).
+      // fps-walker só é injetado ao entrar em VR (gaze walk do Cardboard).
+      // DESKTOP: orbit-camera — mouse arrasta/scroll (comportamento original).
+      const cameraAttr = isMobile
+        ? `orbit-camera="distance: 7.0; minDistance: 1.5; maxDistance: 40; targetY: 1.0; moveSpeed: 5.0;"`
         : `orbit-camera="distance: 5.0; minDistance: 0.8; maxDistance: 35; targetY: 0.0; moveSpeed: 5.0;"`;
 
       container.innerHTML = `
@@ -484,9 +513,15 @@
       }, { once: true });
     }
 
+    // ===================================================================
+    //   AR — SOMENTE O MODELO NO MARCADOR (SEM ambienteHtml)
+    //   O ambiente (céu, chão de 90 unidades, colinas, árvores) NÃO entra
+    //   no AR porque em AR.js 1 unidade = 1 marcador. Injetar o ambiente
+    //   criava uma esfera de 5000 unidades ao redor da câmera (efeito
+    //   "proximidade absurda") e o modelo de 0.15 ficava perdido.
+    // ===================================================================
     function construirCenaAR() {
       const container = document.getElementById('scene-container');
-      const { ambienteHtml } = montarAmbienteHTML();
       const perfil = window.MewQualidade.perfil;
       const rendererAttr = `renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: ${perfil.antialias};"`;
 
@@ -494,11 +529,10 @@
         <a-scene id="cena-ar" embedded dual-hand-control arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;" ${rendererAttr} vr-mode-ui="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
           <a-assets timeout="30000"><a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item></a-assets>
           
-          <!-- MARCADOR ESQUERDO: Segura o modelo -->
+          <!-- Marcador principal: segura o modelo -->
           <a-marker type="barcode" value="5" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5" id="marcador-qr">
-            ${ambienteHtml}
             <a-entity id="modelo-wrapper" position="0 0 0">
-              <a-box id="cubo-placeholder" position="0 0.25 0" width="0.5" height="0.5" depth="0.5" color="#888888" animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"></a-box>
+              <a-box id="cubo-placeholder" position="0 0.2 0" width="0.4" height="0.4" depth="0.4" color="#888888" animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"></a-box>
             </a-entity>
             <a-entity id="linha-ar" geometry="primitive: cylinder; radius: 0.012; height: 1;" material="shader: standard; color: #7ee898; emissive: #7ee898; emissiveIntensity: 0.8; opacity: 0.9; transparent: true" visible="false"></a-entity>
             <a-entity id="mao-grupo" visible="false">
@@ -509,9 +543,14 @@
             </a-entity>
           </a-marker>
 
-          <!-- MARCADOR DIREITO: Usado como controle espacial -->
+          <!-- Marcador secundário: controle espacial de escala/rotação (dual-hand) -->
           <a-marker type="barcode" value="6" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5" id="marcador-controle">
           </a-marker>
+
+          <!-- Luzes no mundo (FORA do marcador) para iluminar uniformemente -->
+          <a-entity light="type: ambient; color: #ffffff; intensity: 1.0"></a-entity>
+          <a-entity position="0.5 2 0.5" light="type: directional; color: #ffffff; intensity: 1.0"></a-entity>
+          <a-entity position="-1 1.5 -1" light="type: directional; color: #ffe8c8; intensity: 0.5"></a-entity>
 
           <a-entity id="ar-camera" camera></a-entity>
         </a-scene>
@@ -552,15 +591,32 @@
       const ajustar = () => {
         const mesh = modelo.getObject3D('mesh');
         if (!mesh) { if (tentativas++ < 40) { setTimeout(ajustar, 100); return; } return; }
-        mesh.position.set(0, 0, 0); mesh.rotation.set(0, 0, 0); mesh.scale.set(1, 1, 1); mesh.updateMatrixWorld(true);
-        const box = new THREE.Box3().setFromObject(mesh); const size = box.getSize(new THREE.Vector3()); const center = box.getCenter(new THREE.Vector3()); const maxDim = Math.max(size.x, size.y, size.z);
+        mesh.position.set(0, 0, 0); 
+        mesh.rotation.set(0, 0, 0); 
+        mesh.scale.set(1, 1, 1); 
+        mesh.updateMatrixWorld(true);
+        
+        const box = new THREE.Box3().setFromObject(mesh); 
+        const size = box.getSize(new THREE.Vector3()); 
+        const center = box.getCenter(new THREE.Vector3()); 
+        const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
         
-        // ALVO 0.15 para AR (pequeno) e 2.0 para 3D
-        const ALVO = EstadoApp.modo === 'ar' ? 0.15 : 2.0; 
+        // AR: 0.4 unidades (~40% do marcador) — visível, apoiado no marcador,
+        //     sem cobrir a tela e sem ficar perdido em cenário gigante.
+        // 3D: 2.0 unidades (mantém comportamento original)
+        const ALVO = EstadoApp.modo === 'ar' ? 0.4 : 2.0; 
         const escala = ALVO / maxDim;
         
-        mesh.scale.set(escala, escala, escala); mesh.position.set(-center.x * escala, -center.y * escala + (size.y * escala / 2), -center.z * escala); mesh.updateMatrixWorld(true);
+        // Centralização: mesh em x=0, z=0 (centro do marcador);
+        // base em y=0 (apoiado sobre o marcador, sem flutuar nem afundar).
+        mesh.scale.set(escala, escala, escala); 
+        mesh.position.set(
+          -center.x * escala,                          // x = 0 (centro horizontal)
+          -center.y * escala + (size.y * escala / 2),  // base em y=0 (sobre o marcador)
+          -center.z * escala                           // z = 0 (centro em profundidade)
+        ); 
+        mesh.updateMatrixWorld(true);
       };
       ajustar();
     }
