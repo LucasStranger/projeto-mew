@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- CORREÇÃO 1: viewport travado (impede pinch-zoom que desalinha o AR) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Visualização 3D — Projeto Mew</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
@@ -12,10 +13,10 @@
     html, body { 
       width: 100%; height: 100dvh; overflow: hidden; 
       -webkit-text-size-adjust: 100%; background: #05140c;
-      -webkit-tap-highlight-color: transparent; 
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation; /* impede gestos de zoom acidentais */
     }
 
-    /* MODO AR: Fundo transparente para a câmera aparecer */
     body.modo-ar { background: transparent !important; }
     
     #scene-container { 
@@ -23,7 +24,6 @@
       width: 100vw; height: 100dvh; z-index: 0; 
     }
 
-    /* ================= UI PADRÃO ================= */
     .info { position: absolute; top: 15px; left: 15px; z-index: 100; background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); max-width: 42vw; }
     .info a { color: #7ee898; text-decoration: none; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nome-animal { position: absolute; top: 15px; right: 15px; z-index: 100; background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); color: #7ee898; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.82rem; max-width: 45vw; text-align: right; line-height: 1.35; }
@@ -82,7 +82,6 @@
     .hd-badge .spinner { display: inline-block; width: 8px; height: 8px; border: 2px solid rgba(63, 185, 80, 0.3); border-top-color: #7ee898; border-radius: 50%; animation: girar 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes girar { to { transform: rotate(360deg); } }
 
-    /* ================= MODO AR ================= */
     body.modo-ar .info, body.modo-ar .nome-animal, body.modo-ar .qualidade-select, body.modo-ar .instrucoes, body.modo-ar .controles, body.modo-ar .teclas-wasd, body.modo-ar .gaze-reticle, body.modo-ar .gaze-reticle-progresso, body.modo-ar .mao-toggle, body.modo-ar .vr-toggle, body.modo-ar .hd-badge { display: none !important; }
 
     body.modo-ar .modo-toggle {
@@ -92,13 +91,13 @@
       z-index: 99999 !important; opacity: 0.85; box-shadow: none !important; backdrop-filter: blur(4px);
     }
 
-    /* Aviso AR */
     .ar-hint {
       position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
       background: rgba(5, 30, 15, 0.9); border: 2px solid #ffcb05; color: #ffcb05;
       font-family: 'Courier New', monospace; font-size: 0.85rem; font-weight: bold;
       padding: 12px 20px; border-radius: 20px; z-index: 99998; text-align: center;
       opacity: 0; visibility: hidden; transition: all 0.3s; box-shadow: 0 0 20px rgba(255,203,5,0.5);
+      max-width: 85vw; line-height: 1.4;
     }
     .ar-hint.visivel { opacity: 1; visibility: visible; }
 
@@ -152,8 +151,7 @@
   
   <div class="vr-crosshair"></div>
   
-  <!-- Aviso para quando o marcador não está visível no AR -->
-  <div class="ar-hint" id="ar-hint">📷 Aponte a câmera para o marcador!</div>
+  <div class="ar-hint" id="ar-hint">📷 Aponte a câmera para o QR Code e mantenha centralizado</div>
 
   <button class="modo-toggle" id="modo-toggle">🥽 Modo AR</button>
   <button class="vr-toggle" id="vr-toggle">📱 VR Cardboard</button>
@@ -176,7 +174,6 @@
 
   <div id="scene-container"></div>
 
-  <!-- Cache buster adicionado (?v=2) para forçar atualização dos scripts -->
   <script src="api.js?v=2"></script>
   <script src="biomas_fauna.js?v=2"></script>
   <script src="bioma_componentes.js?v=2"></script>
@@ -462,11 +459,16 @@
       const perfil = window.MewQualidade.perfil;
       const rendererAttr = `renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: ${perfil.antialias};"`;
 
+      // CORREÇÃO 2: câmera declarada ANTES dos marcadores (AR.js processa melhor nesta ordem)
+      // CORREÇÃO 3: fov explícito (evita "zoom estranho" até calibração carregar)
+      // CORREÇÃO 4: maxDetectionRate: 60 (default) + sourceWidth/sourceHeight/displayWidth/displayHeight explícitos
       container.innerHTML = `
-        <a-scene id="cena-ar" embedded dual-hand-control arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;" ${rendererAttr} vr-mode-ui="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
+        <a-scene id="cena-ar" embedded dual-hand-control arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 60; sourceWidth: 1280; sourceHeight: 720; displayWidth: 1280; displayHeight: 720;" ${rendererAttr} vr-mode-ui="enabled: false" loading-screen="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
           <a-assets timeout="30000"><a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item></a-assets>
           
-          <a-marker type="barcode" value="5" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5" id="marcador-qr">
+          <a-entity id="ar-camera" camera="fov: 60; near: 0.01; far: 10000;"></a-entity>
+
+          <a-marker type="barcode" value="5" smooth="true" smoothCount="5" smoothTolerance="0.01" smoothThreshold="3" id="marcador-qr">
             <a-entity id="modelo-wrapper" position="0 0 0">
               <a-box id="cubo-placeholder" position="0 0.2 0" width="0.4" height="0.4" depth="0.4" color="#888888" animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"></a-box>
             </a-entity>
@@ -479,14 +481,12 @@
             </a-entity>
           </a-marker>
 
-          <a-marker type="barcode" value="6" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5" id="marcador-controle">
+          <a-marker type="barcode" value="6" smooth="true" smoothCount="5" smoothTolerance="0.01" smoothThreshold="3" id="marcador-controle">
           </a-marker>
 
           <a-entity light="type: ambient; color: #ffffff; intensity: 1.0"></a-entity>
           <a-entity position="0.5 2 0.5" light="type: directional; color: #ffffff; intensity: 1.0"></a-entity>
           <a-entity position="-1 1.5 -1" light="type: directional; color: #ffe8c8; intensity: 0.5"></a-entity>
-
-          <a-entity id="ar-camera" camera></a-entity>
         </a-scene>
       `;
 
@@ -499,7 +499,6 @@
         if (window.MewQualidade) window.MewQualidade.aplicarFallback(cena);
         iniciarGaze(cena); iniciarLinhaAR(cena); iniciarModoMao(cena); agendarCarregamentoPesado();
         
-        // Esconde o aviso quando encontrar o marcador
         const marcador = cena.querySelector('#marcador-qr');
         if (marcador) {
           marcador.addEventListener('markerFound', () => { hint.classList.remove('visivel'); });
@@ -545,8 +544,8 @@
         const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
         
-        // Aumentado para 1.2 no AR para ficar bem visível sobre o marcador
-        const ALVO = EstadoApp.modo === 'ar' ? 1.2 : 2.0; 
+        // CORREÇÃO 5: modelo menor no AR (0.8) para não "engolir" a tela e confundir a leitura do QR
+        const ALVO = EstadoApp.modo === 'ar' ? 0.8 : 2.0; 
         const escala = ALVO / maxDim;
         
         mesh.scale.set(escala, escala, escala); 
