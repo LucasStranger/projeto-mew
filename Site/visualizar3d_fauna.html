@@ -332,6 +332,9 @@
 
       pararTodosLoops();
       EstadoApp.modo = novoModo;
+
+      document.body.classList.toggle('modo-ar', novoModo === 'ar');
+      
       document.getElementById('scene-container').innerHTML = '';
       if (document.pointerLockElement) document.exitPointerLock();
 
@@ -513,7 +516,7 @@
         mesh.position.set(0, 0, 0); mesh.rotation.set(0, 0, 0); mesh.scale.set(1, 1, 1); mesh.updateMatrixWorld(true);
         const box = new THREE.Box3().setFromObject(mesh); const size = box.getSize(new THREE.Vector3()); const center = box.getCenter(new THREE.Vector3()); const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
-        const ALVO = EstadoApp.modo === 'ar' ? 0.8 : 2.0; const escala = ALVO / maxDim;
+        const ALVO = EstadoApp.modo === 'ar' ? 0.3 : 2.0; const escala = ALVO / maxDim;
         mesh.scale.set(escala, escala, escala); mesh.position.set(-center.x * escala, -center.y * escala + (size.y * escala / 2), -center.z * escala); mesh.updateMatrixWorld(true);
       };
       ajustar();

@@ -2877,7 +2877,26 @@ body {
     gap: 0.5rem;
   }
 }
+/* ================= AJUSTES ESPECÍFICOS PARA O MODO AR NO CELULAR ================= */
+@media (max-width: 700px) {
+/* Esconde os botões e painéis quando a classe modo-ar estiver no body */
+    body.modo-ar .nome-animal,
+    body.modo-ar .info,
+    body.modo-ar .qualidade-select {
+    display: none !important;
+  }
 
+      /* Reposiciona o botão de voltar pro modo 3D para um canto discreto */
+  body.modo-ar .modo-toggle {
+    top: 10px !important;
+    left: 10px !important;
+    bottom: auto !important;
+    right: auto !important;
+    padding: 6px 12px !important;
+    font-size: 0.6rem !important;
+    opacity: 0.8;
+  }
+}
 /* Tablets em modo paisagem */
 @media (min-width: 801px) and (max-width: 1100px) {
   .detalhes-layout {
