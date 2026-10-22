@@ -16,7 +16,19 @@
       touch-action: manipulation;
     }
 
-    body.modo-ar { background: transparent !important; }
+    /* FORÇA TRANSPARÊNCIA TOTAL NO MODO AR */
+    body.modo-ar, 
+    body.modo-ar #scene-container, 
+    body.modo-ar a-scene, 
+    body.modo-ar .a-canvas {
+      background: transparent !important;
+      background-color: transparent !important;
+    }
+
+    /* ESCONDE O CÉU NO MODO AR PARA NÃO TAMPAR A CÂMERA */
+    body.modo-ar a-sky {
+      display: none !important;
+    }
     
     #scene-container { 
       position: fixed; top: 0; left: 0; 
@@ -32,7 +44,7 @@
     .qualidade-select { position: absolute; top: 88px; right: 15px; z-index: 150; background: rgba(5, 30, 15, 0.92); border: 2px solid rgba(63, 185, 80, 0.55); color: #7ee898; padding: 7px 12px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(6px); }
     .qualidade-select option { background: #05140c; color: #7ee898; }
     
-    .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #7ee898; font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px; z-index: 100; text-shadow: 0 0 15px rgba(63, 185, 80, 0.8); background: rgba(0, 0, 0, 0.6); padding: 20px 30px; border-radius: 12px; border: 2px solid rgba(63, 185, 80, 0.4); text-align: center; max-width: 90vw; pointer-events: none; }
+    .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #7ee898; font-family: 'Courier New', monospace; font-size: 1rem; letter-spacing: 2px; z-index: 100; text-shadow: 0 0 15px rgba(63, 185, 80, 0.8); background: rgba(0, 0, 0, 0.8); padding: 20px 30px; border-radius: 12px; border: 2px solid rgba(63, 185, 80, 0.4); text-align: center; max-width: 90vw; pointer-events: none; }
 
     .gaze-reticle { position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); pointer-events: none; z-index: 500; opacity: 0.75; transition: opacity 0.3s; }
     .gaze-reticle::before, .gaze-reticle::after { content: ''; position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
@@ -136,7 +148,7 @@
     <option value="alta">✨ Alta</option>
   </select>
   
-  <div class="loading" id="loading">🌀 Carregando ambiente 3D...</div>
+  <div class="loading" id="loading">🌀 Iniciando câmera...</div>
   
   <div class="hd-badge" id="hd-badge">
     <span class="spinner"></span>
@@ -150,7 +162,7 @@
   
   <div class="vr-crosshair"></div>
   
-  <div class="ar-hint" id="ar-hint">📷 Aponte a câmera para o QR Code e mantenha centralizado</div>
+  <div class="ar-hint" id="ar-hint">📷 Aponte a câmera para o QR Code</div>
 
   <button class="modo-toggle" id="modo-toggle">🥽 Modo AR</button>
   <button class="vr-toggle" id="vr-toggle">📱 VR Cardboard</button>
@@ -173,20 +185,20 @@
 
   <div id="scene-container"></div>
 
-  <script src="api.js?v=3"></script>
-  <script src="biomas_fauna.js?v=3"></script>
-  <script src="bioma_componentes.js?v=3"></script>
-  <script src="bioma_costeiro.js?v=3"></script>
-  <script src="bioma_mataatlantica.js?v=3"></script>
-  <script src="bioma_caatinga_galo.js?v=3"></script>
-  <script src="bioma_caatinga_tatu.js?v=3"></script>
-  <script src="bioma_cerrado_tamandua.js?v=3"></script>
-  <script src="bioma_mata_limpafolha.js?v=3"></script>
-  <script src="bioma_mata_maracaja.js?v=3"></script>
-  <script src="bioma_transicao_jaguatirica.js?v=3"></script>
-  <script src="bioma_recife_tartaruga_pente.js?v=3"></script>
-  <script src="bioma_oceano_tartaruga_couro.js?v=3"></script>
-  <script src="fps-walker.js?v=3"></script>
+  <script src="api.js?v=4"></script>
+  <script src="biomas_fauna.js?v=4"></script>
+  <script src="bioma_componentes.js?v=4"></script>
+  <script src="bioma_costeiro.js?v=4"></script>
+  <script src="bioma_mataatlantica.js?v=4"></script>
+  <script src="bioma_caatinga_galo.js?v=4"></script>
+  <script src="bioma_caatinga_tatu.js?v=4"></script>
+  <script src="bioma_cerrado_tamandua.js?v=4"></script>
+  <script src="bioma_mata_limpafolha.js?v=4"></script>
+  <script src="bioma_mata_maracaja.js?v=4"></script>
+  <script src="bioma_transicao_jaguatirica.js?v=4"></script>
+  <script src="bioma_recife_tartaruga_pente.js?v=4"></script>
+  <script src="bioma_oceano_tartaruga_couro.js?v=4"></script>
+  <script src="fps-walker.js?v=4"></script>
 
   <script>
     const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
@@ -419,6 +431,12 @@
         const resultado = window.MewBiomas.montarCena3D(EstadoApp.animal, { densidade: perfil.densidade });
         ambienteHtml = resultado.html; bioma = resultado.bioma;
       }
+      
+      // Remove o céu (a-sky) no modo AR para ele não cobrir a câmera
+      if (EstadoApp.modo === 'ar') {
+        ambienteHtml = ambienteHtml.replace(/<a-sky[^>]*><\/a-sky>/g, '');
+      }
+      
       return { ambienteHtml, bioma };
     }
 
@@ -456,17 +474,23 @@
     function construirCenaAR() {
       const container = document.getElementById('scene-container');
       const perfil = window.MewQualidade.perfil;
+      // alpha: true garante que o fundo do canvas seja transparente (mostra a câmera)
       const rendererAttr = `renderer="alpha: true; logarithmicDepthBuffer: true; colorManagement: true; antialias: ${perfil.antialias};"`;
 
+      const { ambienteHtml } = montarAmbienteHTML();
+
       container.innerHTML = `
-        <a-scene id="cena-ar" embedded dual-hand-control arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 60;" ${rendererAttr} vr-mode-ui="enabled: false" loading-screen="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
+        <a-scene id="cena-ar" embedded dual-hand-control 
+                 arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 60;" 
+                 ${rendererAttr} vr-mode-ui="enabled: false" loading-screen="enabled: false" 
+                 style="position: fixed; inset: 0; width: 100%; height: 100%; background: transparent !important;">
+          
           <a-assets timeout="30000"><a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item></a-assets>
           
           <a-entity id="ar-camera" camera="fov: 60; near: 0.01; far: 10000;"></a-entity>
 
           <a-marker type="barcode" value="5" smooth="true" smoothCount="5" smoothTolerance="0.01" smoothThreshold="3" id="marcador-qr">
             
-            <!-- CORREÇÃO DE ESCALA DO AMBIENTE: Reduzido para caber na mesa -->
             <a-entity scale="0.04 0.04 0.04">
               ${ambienteHtml}
             </a-entity>
@@ -495,10 +519,10 @@
       const cena = container.querySelector('a-scene');
       const hint = document.getElementById('ar-hint');
       
+      // Esconde a tela de loading após 1 segundo para dar tempo da câmera ligar
       setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 1000);
 
       cena.addEventListener('loaded', () => {
-        document.getElementById('loading').style.display = 'none';
         setTimeout(() => { const arCam = cena.querySelector('#ar-camera'); if (arCam) EstadoApp.cameraAR = arCam.getObject3D('camera'); }, 600);
         if (window.MewQualidade) window.MewQualidade.aplicarFallback(cena);
         
@@ -552,7 +576,6 @@
         const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
         
-        // AJUSTE DE ESCALA: Modelo em tamanho razoável no AR (1.0) para o QR conseguir ver
         const ALVO = EstadoApp.modo === 'ar' ? 1.0 : 2.0; 
         const escala = ALVO / maxDim;
         
@@ -633,9 +656,6 @@
     }
     function pararMao() { if (EstadoApp.maoFrameId) { cancelAnimationFrame(EstadoApp.maoFrameId); EstadoApp.maoFrameId = null; } }
 
-    // =====================================================================
-    // AQUI ESTÁ A FUNÇÃO EXATA QUE VOCÊ PEDIU (DO ARQUIVO TXT)
-    // =====================================================================
     function iniciarLinhaAR(sceneEl) {
       pararLinhaAR(); 
       const linha = sceneEl.querySelector('#linha-ar'), marcador = sceneEl.querySelector('#marcador-qr'); 
@@ -645,11 +665,10 @@
       let marcadorVisivel = false; 
       EstadoApp.linhaARAtiva = true;
       
-      // Variáveis para controlar a abertura do popup
       let alvoAtual = null;
       let tempoInicio = 0;
       let disparado = false;
-      const dwellMs = 1500; // 1.5 segundos para abrir o popup
+      const dwellMs = 1500; 
 
       marcador.addEventListener('markerFound', () => { marcadorVisivel = true; });
       marcador.addEventListener('markerLost', () => { 
@@ -664,11 +683,9 @@
         EstadoApp.linhaARFrameId = requestAnimationFrame(loop); 
         if (EstadoApp.modo !== 'ar' || !marcadorVisivel) return;
 
-        // 1. Pega a posição do QR code no mundo real
         fromV.set(0, 0, 0); 
         marcador.object3D.localToWorld(fromV); 
 
-        // 2. Encontra o popup (info-hotspot) mais próximo do QR code
         const hotspots = document.querySelectorAll('[info-hotspot]'); 
         let alvo = null, menorDist = Infinity, alvoPos = null;
 
@@ -684,12 +701,10 @@
           } 
         });
 
-        // 3. Se achou o popup, desenha a linha até ele
         if (alvo && alvoPos) {
           toV.copy(alvoPos);
           linha.setAttribute('visible', 'true');
 
-          // Converte as posições para o espaço local do marcador
           localFrom.copy(fromV); 
           marcador.object3D.worldToLocal(localFrom); 
           localTo.copy(toV); 
@@ -703,25 +718,21 @@
           localMid.addVectors(localFrom, localTo).multiplyScalar(0.5); 
           quat.setFromUnitVectors(upV, localDir);
           
-          // Posiciona e estica a linha
           linha.object3D.position.copy(localMid); 
           linha.object3D.quaternion.copy(quat); 
           linha.object3D.scale.set(1, len, 1); 
           linha.object3D.updateMatrixWorld(true);
 
-          // 4. Controla a abertura automática do popup
           if (alvoAtual !== alvo) {
             alvoAtual = alvo; 
             tempoInicio = performance.now(); 
             disparado = false;
-            // Muda a cor da linha para verde quando começa a contar
             linha.setAttribute('material', 'color', '#7ee898');
             linha.setAttribute('material', 'emissive', '#7ee898');
           } else {
             const decorrido = performance.now() - tempoInicio; 
             const pct = Math.min(decorrido / dwellMs, 1);
             
-            // Fica amarela quando está prestes a abrir
             if (pct >= 1 && !disparado) {
               linha.setAttribute('material', 'color', '#ffcb05');
               linha.setAttribute('material', 'emissive', '#ffcb05');
@@ -734,7 +745,6 @@
             }
           }
         } else {
-          // Se não achou popup, esconde a linha
           linha.setAttribute('visible', 'false');
         }
       }
