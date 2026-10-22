@@ -44,6 +44,7 @@
       .fps-dpad-right { grid-column: 3; grid-row: 2; }
       .fps-dpad-down  { grid-column: 2; grid-row: 3; }
       body.em-vr .fps-dpad { display: none !important; }
+      body.modo-ar .fps-dpad { display: none !important; }
       .fps-gaze-indicator {
         position: fixed; bottom: 10%; left: 50%; transform: translateX(-50%);
         width: 140px; height: 40px; pointer-events: none; z-index: 490;

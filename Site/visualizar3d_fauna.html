@@ -9,22 +9,32 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #05140c; -webkit-tap-highlight-color: transparent; }
+    html, body { 
+      width: 100%; 
+      height: 100dvh; /* Resolve o problema de proporção no celular */
+      overflow: hidden; 
+      -webkit-text-size-adjust: 100%; 
+      background: #05140c;
+      -webkit-tap-highlight-color: transparent; 
+    }
     
-    #scene-container { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; }
+    #scene-container { 
+      position: fixed; top: 0; left: 0; 
+      width: 100vw; height: 100dvh; z-index: 0; 
+    }
 
-    /* UI HEADER */
+    /* ================= UI PADRÃO (DESKTOP E MOBILE 3D) ================= */
     .info { position: absolute; top: 15px; left: 15px; z-index: 100; background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); max-width: 42vw; }
-    .info a { color: #7ee898; text-decoration: none; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem; transition: all 0.25s; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .info a { color: #7ee898; text-decoration: none; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nome-animal { position: absolute; top: 15px; right: 15px; z-index: 100; background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); color: #7ee898; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.82rem; max-width: 45vw; text-align: right; line-height: 1.35; }
     .nome-animal .cientifico { display: block; font-style: italic; font-weight: normal; font-size: 0.72rem; color: #a8d8b8; text-transform: none; letter-spacing: 0.5px; margin-top: 3px; }
     .nome-animal .bioma { display: block; font-size: 0.62rem; color: #6ab880; letter-spacing: 1.5px; margin-top: 5px; padding-top: 5px; border-top: 1px dashed rgba(63, 185, 80, 0.35); }
+    
     .qualidade-select { position: absolute; top: 88px; right: 15px; z-index: 150; background: rgba(5, 30, 15, 0.92); border: 2px solid rgba(63, 185, 80, 0.55); color: #7ee898; padding: 7px 12px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(6px); }
     .qualidade-select option { background: #05140c; color: #7ee898; }
+    
     .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #7ee898; font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px; z-index: 100; text-shadow: 0 0 15px rgba(63, 185, 80, 0.8); background: rgba(0, 0, 0, 0.6); padding: 20px 30px; border-radius: 12px; border: 2px solid rgba(63, 185, 80, 0.4); text-align: center; max-width: 90vw; pointer-events: none; }
 
-    /* MIRA E HOTSPOTS */
     .gaze-reticle { position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); pointer-events: none; z-index: 500; opacity: 0.75; transition: opacity 0.3s; }
     .gaze-reticle::before, .gaze-reticle::after { content: ''; position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
     .gaze-reticle::before { width: 44px; height: 44px; border: 2px solid rgba(126, 232, 152, 0.55); box-shadow: 0 0 12px rgba(63, 185, 80, 0.4); transition: all 0.25s; }
@@ -37,7 +47,6 @@
     .gaze-reticle-progresso.ativo { display: block; }
     .gaze-reticle-progresso circle { fill: none; stroke: #ffcb05; stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255, 203, 5, 0.9)); }
 
-    /* BOTÕES */
     .modo-toggle { position: absolute; bottom: 110px; right: 20px; z-index: 150; background: linear-gradient(135deg, rgba(63, 185, 80, 0.45), rgba(30, 130, 60, 0.3)); border: 2px solid #7ee898; color: #fff; font-family: 'Courier New', monospace; font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; box-shadow: 0 0 20px rgba(63, 185, 80, 0.6); backdrop-filter: blur(6px); }
     .modo-toggle.ar-ativo { background: linear-gradient(135deg, rgba(255, 203, 5, 0.45), rgba(255, 152, 0, 0.3)); border-color: #ffcb05; box-shadow: 0 0 20px rgba(255, 203, 5, 0.7); }
     .vr-toggle { position: absolute; bottom: 165px; right: 20px; z-index: 150; background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(100, 40, 200, 0.4)); border: 2px solid #c084fc; color: #fff; font-family: 'Courier New', monospace; font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; box-shadow: 0 0 20px rgba(192, 132, 252, 0.6); backdrop-filter: blur(6px); display: none; }
@@ -46,7 +55,6 @@
     .mao-toggle.visivel { display: block; }
     .mao-toggle.ativo { background: linear-gradient(135deg, rgba(255, 203, 5, 0.5), rgba(255, 152, 0, 0.35)); border-color: #ffcb05; box-shadow: 0 0 22px rgba(255, 203, 5, 0.8); }
 
-    /* CONTROLES E VR */
     .instrucoes { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; color: #a8d8b8; font-family: 'Courier New', monospace; font-size: 0.75rem; letter-spacing: 1px; background: rgba(0, 0, 0, 0.6); padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(63, 185, 80, 0.25); backdrop-filter: blur(4px); white-space: nowrap; max-width: calc(100vw - 40px); text-align: center; }
     .instrucoes span { color: #7ee898; font-weight: bold; }
     .instrucoes .instr-mobile { display: none; }
@@ -73,6 +81,42 @@
     .hd-badge .spinner { display: inline-block; width: 8px; height: 8px; border: 2px solid rgba(63, 185, 80, 0.3); border-top-color: #7ee898; border-radius: 50%; animation: girar 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes girar { to { transform: rotate(360deg); } }
 
+    /* ================= REGRAS EXCLUSIVAS PARA O MODO AR ================= */
+    body.modo-ar .info,
+    body.modo-ar .nome-animal,
+    body.modo-ar .qualidade-select,
+    body.modo-ar .instrucoes,
+    body.modo-ar .controles,
+    body.modo-ar .teclas-wasd,
+    body.modo-ar .gaze-reticle,
+    body.modo-ar .gaze-reticle-progresso,
+    body.modo-ar .mao-toggle,
+    body.modo-ar .vr-toggle,
+    body.modo-ar .hd-badge,
+    body.modo-ar .fps-dpad,
+    body.modo-ar .fps-gaze-indicator {
+      display: none !important;
+    }
+
+    /* Botão minúsculo no canto para voltar ao modo 3D */
+    body.modo-ar .modo-toggle {
+      position: fixed !important;
+      top: 15px !important;
+      left: 15px !important;
+      bottom: auto !important;
+      right: auto !important;
+      padding: 6px 12px !important;
+      font-size: 0.65rem !important;
+      border-radius: 8px !important;
+      background: rgba(5, 30, 15, 0.8) !important;
+      border: 1px solid #7ee898 !important;
+      color: #7ee898 !important;
+      z-index: 99999 !important;
+      opacity: 0.85;
+      box-shadow: none !important;
+      backdrop-filter: blur(4px);
+    }
+
     @media (max-width: 700px) {
       .info { top: 8px; left: 8px; padding: 6px 10px; border-radius: 9px; max-width: 38vw; }
       .info a { font-size: 0.62rem; letter-spacing: 0.5px; }
@@ -82,7 +126,7 @@
       .nome-animal .bioma { font-size: 0.5rem; margin-top: 3px; padding-top: 3px; letter-spacing: 1px; }
       .qualidade-select { top: 72px; right: 8px; font-size: 0.6rem; padding: 4px 8px; }
       .teclas-wasd { display: none !important; }
-      .instrucoes { bottom: 258px; left: 8px; right: 8px; transform: none; max-width: none; font-size: 0.55rem; padding: 5px 10px; border-radius: 12px; letter-spacing: 0.3px; white-space: normal; line-height: 1.35; }
+      .instrucoes { bottom: 20px; left: 8px; right: 8px; transform: none; max-width: none; font-size: 0.55rem; padding: 5px 10px; border-radius: 12px; letter-spacing: 0.3px; white-space: normal; line-height: 1.35; }
       .instrucoes .instr-desktop { display: none; }
       .instrucoes .instr-mobile { display: inline; }
       .controles { display: none !important; }
@@ -187,7 +231,6 @@
       });
     })();
 
-    // COMPONENTE DUAL-MARKER (JOYSTICK)
     AFRAME.registerComponent('dual-hand-control', {
       init: function () {
         this.markerLeft = document.querySelector('#marcador-qr');
@@ -333,6 +376,7 @@
       pararTodosLoops();
       EstadoApp.modo = novoModo;
 
+      // ADICIONA A CLASSE PARA O CSS ESCONDER OS ELEMENTOS
       document.body.classList.toggle('modo-ar', novoModo === 'ar');
       
       document.getElementById('scene-container').innerHTML = '';
@@ -341,12 +385,6 @@
       const btn = document.getElementById('modo-toggle');
       if (novoModo === 'ar') {
         btn.textContent = '🖥️ Modo 3D'; btn.classList.add('ar-ativo');
-        document.getElementById('controles').style.display = 'none';
-        document.getElementById('teclas-wasd').style.display = 'none';
-        document.getElementById('gaze-reticle').style.display = 'none';
-        document.getElementById('gaze-reticle-progresso').style.display = 'none';
-        document.getElementById('vr-toggle').style.display = 'none';
-        document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>📱 Aponte para os QR</span> · Afaste as mãos p/ Zoom · Gire p/ Rotacionar</span>';
       } else {
         btn.textContent = '🥽 Modo AR'; btn.classList.remove('ar-ativo');
         document.getElementById('controles').style.display = isMobile ? 'none' : 'flex';
@@ -448,7 +486,6 @@
       const perfil = window.MewQualidade.perfil;
       const rendererAttr = `renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: ${perfil.antialias};"`;
 
-      // AQUI ESTÁ A MÁGICA DOS DOIS MARCADORES
       container.innerHTML = `
         <a-scene id="cena-ar" embedded dual-hand-control arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;" ${rendererAttr} vr-mode-ui="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
           <a-assets timeout="30000"><a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item></a-assets>
@@ -475,8 +512,6 @@
           <a-entity id="ar-camera" camera></a-entity>
         </a-scene>
       `;
-
-      document.getElementById('vr-toggle').style.display = 'none';
 
       const cena = container.querySelector('a-scene');
       cena.addEventListener('loaded', () => {
@@ -516,7 +551,11 @@
         mesh.position.set(0, 0, 0); mesh.rotation.set(0, 0, 0); mesh.scale.set(1, 1, 1); mesh.updateMatrixWorld(true);
         const box = new THREE.Box3().setFromObject(mesh); const size = box.getSize(new THREE.Vector3()); const center = box.getCenter(new THREE.Vector3()); const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
-        const ALVO = EstadoApp.modo === 'ar' ? 0.3 : 2.0; const escala = ALVO / maxDim;
+        
+        // ALVO 0.15 para AR (pequeno) e 2.0 para 3D
+        const ALVO = EstadoApp.modo === 'ar' ? 0.15 : 2.0; 
+        const escala = ALVO / maxDim;
+        
         mesh.scale.set(escala, escala, escala); mesh.position.set(-center.x * escala, -center.y * escala + (size.y * escala / 2), -center.z * escala); mesh.updateMatrixWorld(true);
       };
       ajustar();

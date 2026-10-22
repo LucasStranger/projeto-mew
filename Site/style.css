@@ -2877,29 +2877,44 @@ body {
     gap: 0.5rem;
   }
 }
-/* ================= AJUSTES ESPECÍFICOS PARA O MODO AR NO CELULAR ================= */
-@media (max-width: 700px) {
-/* Esconde os botões e painéis quando a classe modo-ar estiver no body */
-    body.modo-ar .nome-animal,
-    body.modo-ar .info,
-    body.modo-ar .qualidade-select {
-    display: none !important;
-  }
-
-      /* Reposiciona o botão de voltar pro modo 3D para um canto discreto */
-  body.modo-ar .modo-toggle {
-    top: 10px !important;
-    left: 10px !important;
-    bottom: auto !important;
-    right: auto !important;
-    padding: 6px 12px !important;
-    font-size: 0.6rem !important;
-    opacity: 0.8;
-  }
-}
 /* Tablets em modo paisagem */
 @media (min-width: 801px) and (max-width: 1100px) {
   .detalhes-layout {
     gap: 0.85rem;
+  }
+}
+/* ================= AJUSTES ESPECÍFICOS PARA O MODO AR NO CELULAR ================= */
+@media (max-width: 700px) {
+  /* Esconde todos os painéis do site no modo AR */
+  body.modo-ar .nome-animal,
+  body.modo-ar .info,
+  body.modo-ar .qualidade-select,
+  body.modo-ar .instrucoes,
+  body.modo-ar .controles,
+  body.modo-ar .teclas-wasd,
+  body.modo-ar .gaze-reticle,
+  body.modo-ar .gaze-reticle-progresso,
+  body.modo-ar .hd-badge,
+  body.modo-ar .fps-dpad,
+  body.modo-ar .fps-gaze-indicator {
+    display: none !important;
+  }
+
+  /* Deixa só o botão de voltar minúsculo no canto */
+  body.modo-ar .modo-toggle {
+    position: fixed !important;
+    top: 10px !important;
+    left: 10px !important;
+    bottom: auto !important;
+    right: auto !important;
+    padding: 6px 10px !important;
+    font-size: 0.6rem !important;
+    opacity: 0.8;
+    z-index: 999999 !important;
+    background: rgba(5, 30, 15, 0.9) !important;
+    border: 1px solid #7ee898 !important;
+    color: #7ee898 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
   }
 }
