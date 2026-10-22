@@ -21,7 +21,7 @@ window.MewQualidade = (function () {
       pixelRatio: 1,
       animacoesDecorativas: false,
       gazeIntervalMs: 150,
-      raycasterDistancia: 20,
+      raycasterDistancia: 50,
       modelosLOD: true
     },
     media: {
@@ -33,7 +33,7 @@ window.MewQualidade = (function () {
       pixelRatio: 1,
       animacoesDecorativas: true,
       gazeIntervalMs: 100,
-      raycasterDistancia: 50,
+      raycasterDistancia: 80,
       modelosLOD: true
     },
     alta: {
@@ -45,7 +45,7 @@ window.MewQualidade = (function () {
       pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
       animacoesDecorativas: true,
       gazeIntervalMs: 80,
-      raycasterDistancia: 100,
+      raycasterDistancia: 150,
       modelosLOD: false
     }
   };
