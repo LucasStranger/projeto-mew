@@ -9,234 +9,70 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #05140c; -webkit-tap-highlight-color: transparent; }
     
-    html, body { 
-      width: 100%; 
-      height: 100%; 
-      overflow: hidden; 
-      -webkit-text-size-adjust: 100%; 
-    }
-    
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      background: #05140c; 
-      -webkit-tap-highlight-color: transparent; 
-    }
-    
-    #scene-container { 
-      position: fixed; 
-      inset: 0; 
-      width: 100vw; 
-      height: 100vh; 
-      z-index: 0; 
-    }
+    #scene-container { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; }
 
-    /* ================= HEADER E UI ================= */
-    .info { 
-      position: absolute; top: 15px; left: 15px; z-index: 100; 
-      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); 
-      border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); 
-      box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); max-width: 42vw; 
-    }
-    .info a { 
-      color: #7ee898; text-decoration: none; font-family: 'Courier New', monospace; 
-      font-weight: bold; letter-spacing: 1px; text-transform: uppercase; 
-      font-size: 0.85rem; transition: all 0.25s; display: block; 
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-    }
-    .nome-animal { 
-      position: absolute; top: 15px; right: 15px; z-index: 100; 
-      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); 
-      border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); 
-      box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); color: #7ee898; 
-      font-family: 'Courier New', monospace; font-weight: bold; 
-      letter-spacing: 1px; text-transform: uppercase; font-size: 0.82rem; 
-      max-width: 45vw; text-align: right; line-height: 1.35; 
-    }
-    .nome-animal .cientifico { 
-      display: block; font-style: italic; font-weight: normal; 
-      font-size: 0.72rem; color: #a8d8b8; text-transform: none; 
-      letter-spacing: 0.5px; margin-top: 3px; 
-    }
-    .nome-animal .bioma { 
-      display: block; font-size: 0.62rem; color: #6ab880; 
-      letter-spacing: 1.5px; margin-top: 5px; padding-top: 5px; 
-      border-top: 1px dashed rgba(63, 185, 80, 0.35); 
-    }
-    
-    .qualidade-select { 
-      position: absolute; top: 88px; right: 15px; z-index: 150; 
-      background: rgba(5, 30, 15, 0.92); border: 2px solid rgba(63, 185, 80, 0.55); 
-      color: #7ee898; padding: 7px 12px; border-radius: 10px; 
-      font-family: 'Courier New', monospace; font-size: 0.75rem; 
-      font-weight: bold; letter-spacing: 1px; text-transform: uppercase; 
-      cursor: pointer; backdrop-filter: blur(6px); 
-    }
+    /* UI HEADER */
+    .info { position: absolute; top: 15px; left: 15px; z-index: 100; background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); max-width: 42vw; }
+    .info a { color: #7ee898; text-decoration: none; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem; transition: all 0.25s; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nome-animal { position: absolute; top: 15px; right: 15px; z-index: 100; background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); border-radius: 12px; padding: 10px 18px; backdrop-filter: blur(6px); box-shadow: 0 0 20px rgba(63, 185, 80, 0.35); color: #7ee898; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.82rem; max-width: 45vw; text-align: right; line-height: 1.35; }
+    .nome-animal .cientifico { display: block; font-style: italic; font-weight: normal; font-size: 0.72rem; color: #a8d8b8; text-transform: none; letter-spacing: 0.5px; margin-top: 3px; }
+    .nome-animal .bioma { display: block; font-size: 0.62rem; color: #6ab880; letter-spacing: 1.5px; margin-top: 5px; padding-top: 5px; border-top: 1px dashed rgba(63, 185, 80, 0.35); }
+    .qualidade-select { position: absolute; top: 88px; right: 15px; z-index: 150; background: rgba(5, 30, 15, 0.92); border: 2px solid rgba(63, 185, 80, 0.55); color: #7ee898; padding: 7px 12px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(6px); }
     .qualidade-select option { background: #05140c; color: #7ee898; }
+    .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #7ee898; font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px; z-index: 100; text-shadow: 0 0 15px rgba(63, 185, 80, 0.8); background: rgba(0, 0, 0, 0.6); padding: 20px 30px; border-radius: 12px; border: 2px solid rgba(63, 185, 80, 0.4); text-align: center; max-width: 90vw; pointer-events: none; }
 
-    .loading { 
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-      color: #7ee898; font-family: 'Courier New', monospace; font-size: 1.2rem; 
-      letter-spacing: 2px; z-index: 100; text-shadow: 0 0 15px rgba(63, 185, 80, 0.8); 
-      background: rgba(0, 0, 0, 0.6); padding: 20px 30px; border-radius: 12px; 
-      border: 2px solid rgba(63, 185, 80, 0.4); text-align: center; 
-      max-width: 90vw; pointer-events: none; 
-    }
-
-    /* ================= MIRA E HOTSPOTS ================= */
-    .gaze-reticle { 
-      position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; 
-      transform: translate(-50%, -50%); pointer-events: none; z-index: 500; 
-      opacity: 0.75; transition: opacity 0.3s; 
-    }
-    .gaze-reticle::before, .gaze-reticle::after { 
-      content: ''; position: absolute; top: 50%; left: 50%; 
-      border-radius: 50%; transform: translate(-50%, -50%); 
-    }
-    .gaze-reticle::before { 
-      width: 44px; height: 44px; border: 2px solid rgba(126, 232, 152, 0.55); 
-      box-shadow: 0 0 12px rgba(63, 185, 80, 0.4); transition: all 0.25s; 
-    }
-    .gaze-reticle::after { 
-      width: 5px; height: 5px; background: #7ee898; box-shadow: 0 0 8px #3fb950; 
-    }
+    /* MIRA E HOTSPOTS */
+    .gaze-reticle { position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); pointer-events: none; z-index: 500; opacity: 0.75; transition: opacity 0.3s; }
+    .gaze-reticle::before, .gaze-reticle::after { content: ''; position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+    .gaze-reticle::before { width: 44px; height: 44px; border: 2px solid rgba(126, 232, 152, 0.55); box-shadow: 0 0 12px rgba(63, 185, 80, 0.4); transition: all 0.25s; }
+    .gaze-reticle::after { width: 5px; height: 5px; background: #7ee898; box-shadow: 0 0 8px #3fb950; }
     .gaze-reticle.ativo { opacity: 1; }
-    .gaze-reticle.ativo::before { 
-      border-color: rgba(255, 203, 5, 0.7); 
-      box-shadow: 0 0 22px rgba(255, 203, 5, 0.6); 
-      animation: gazeHalo 2.2s ease-in-out infinite; 
-    }
-    @keyframes gazeHalo { 
-      0%, 100% { box-shadow: 0 0 16px rgba(255, 203, 5, 0.5); } 
-      50% { box-shadow: 0 0 30px rgba(255, 203, 5, 0.9); } 
-    }
+    .gaze-reticle.ativo::before { border-color: rgba(255, 203, 5, 0.7); box-shadow: 0 0 22px rgba(255, 203, 5, 0.6); animation: gazeHalo 2.2s ease-in-out infinite; }
+    @keyframes gazeHalo { 0%, 100% { box-shadow: 0 0 16px rgba(255, 203, 5, 0.5); } 50% { box-shadow: 0 0 30px rgba(255, 203, 5, 0.9); } }
 
-    .gaze-reticle-progresso { 
-      position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; 
-      transform: translate(-50%, -50%) rotate(-90deg); pointer-events: none; 
-      z-index: 501; opacity: 0.95; display: none; 
-    }
+    .gaze-reticle-progresso { position: fixed; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%) rotate(-90deg); pointer-events: none; z-index: 501; opacity: 0.95; display: none; }
     .gaze-reticle-progresso.ativo { display: block; }
-    .gaze-reticle-progresso circle { 
-      fill: none; stroke: #ffcb05; stroke-width: 2.5; stroke-linecap: round; 
-      filter: drop-shadow(0 0 6px rgba(255, 203, 5, 0.9)); 
-    }
+    .gaze-reticle-progresso circle { fill: none; stroke: #ffcb05; stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255, 203, 5, 0.9)); }
 
-    /* ================= BOTÕES ================= */
-    .modo-toggle { 
-      position: absolute; bottom: 110px; right: 20px; z-index: 150; 
-      background: linear-gradient(135deg, rgba(63, 185, 80, 0.45), rgba(30, 130, 60, 0.3)); 
-      border: 2px solid #7ee898; color: #fff; font-family: 'Courier New', monospace; 
-      font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; 
-      border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; 
-      box-shadow: 0 0 20px rgba(63, 185, 80, 0.6); backdrop-filter: blur(6px); 
-    }
-    .modo-toggle.ar-ativo { 
-      background: linear-gradient(135deg, rgba(255, 203, 5, 0.45), rgba(255, 152, 0, 0.3)); 
-      border-color: #ffcb05; box-shadow: 0 0 20px rgba(255, 203, 5, 0.7); 
-    }
-
-    .vr-toggle { 
-      position: absolute; bottom: 165px; right: 20px; z-index: 150; 
-      background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(100, 40, 200, 0.4)); 
-      border: 2px solid #c084fc; color: #fff; font-family: 'Courier New', monospace; 
-      font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; 
-      border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; 
-      box-shadow: 0 0 20px rgba(192, 132, 252, 0.6); backdrop-filter: blur(6px); 
-      display: none; 
-    }
+    /* BOTÕES */
+    .modo-toggle { position: absolute; bottom: 110px; right: 20px; z-index: 150; background: linear-gradient(135deg, rgba(63, 185, 80, 0.45), rgba(30, 130, 60, 0.3)); border: 2px solid #7ee898; color: #fff; font-family: 'Courier New', monospace; font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; box-shadow: 0 0 20px rgba(63, 185, 80, 0.6); backdrop-filter: blur(6px); }
+    .modo-toggle.ar-ativo { background: linear-gradient(135deg, rgba(255, 203, 5, 0.45), rgba(255, 152, 0, 0.3)); border-color: #ffcb05; box-shadow: 0 0 20px rgba(255, 203, 5, 0.7); }
+    .vr-toggle { position: absolute; bottom: 165px; right: 20px; z-index: 150; background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(100, 40, 200, 0.4)); border: 2px solid #c084fc; color: #fff; font-family: 'Courier New', monospace; font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; box-shadow: 0 0 20px rgba(192, 132, 252, 0.6); backdrop-filter: blur(6px); display: none; }
     .vr-toggle.visivel { display: block; }
-
-    .mao-toggle { 
-      position: absolute; bottom: 220px; right: 20px; z-index: 150; 
-      background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(80, 40, 160, 0.4)); 
-      border: 2px solid #c084fc; color: #fff; font-family: 'Courier New', monospace; 
-      font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; 
-      border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; 
-      box-shadow: 0 0 20px rgba(192, 132, 252, 0.5); backdrop-filter: blur(6px); 
-      display: none; 
-    }
+    .mao-toggle { position: absolute; bottom: 220px; right: 20px; z-index: 150; background: linear-gradient(135deg, rgba(160, 100, 255, 0.55), rgba(80, 40, 160, 0.4)); border: 2px solid #c084fc; color: #fff; font-family: 'Courier New', monospace; font-size: 0.78rem; font-weight: bold; letter-spacing: 1.5px; padding: 10px 18px; border-radius: 25px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; box-shadow: 0 0 20px rgba(192, 132, 252, 0.5); backdrop-filter: blur(6px); display: none; }
     .mao-toggle.visivel { display: block; }
-    .mao-toggle.ativo { 
-      background: linear-gradient(135deg, rgba(255, 203, 5, 0.5), rgba(255, 152, 0, 0.35)); 
-      border-color: #ffcb05; box-shadow: 0 0 22px rgba(255, 203, 5, 0.8); 
-    }
+    .mao-toggle.ativo { background: linear-gradient(135deg, rgba(255, 203, 5, 0.5), rgba(255, 152, 0, 0.35)); border-color: #ffcb05; box-shadow: 0 0 22px rgba(255, 203, 5, 0.8); }
 
-    /* ================= CONTROLES DESKTOP ================= */
-    .instrucoes { 
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; 
-      color: #a8d8b8; font-family: 'Courier New', monospace; font-size: 0.75rem; 
-      letter-spacing: 1px; background: rgba(0, 0, 0, 0.6); padding: 8px 18px; 
-      border-radius: 20px; border: 1px solid rgba(63, 185, 80, 0.25); backdrop-filter: blur(4px); 
-      white-space: nowrap; max-width: calc(100vw - 40px); text-align: center; 
-    }
+    /* CONTROLES E VR */
+    .instrucoes { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; color: #a8d8b8; font-family: 'Courier New', monospace; font-size: 0.75rem; letter-spacing: 1px; background: rgba(0, 0, 0, 0.6); padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(63, 185, 80, 0.25); backdrop-filter: blur(4px); white-space: nowrap; max-width: calc(100vw - 40px); text-align: center; }
     .instrucoes span { color: #7ee898; font-weight: bold; }
     .instrucoes .instr-mobile { display: none; }
     .instrucoes .instr-desktop { display: inline; }
-
-    .controles { 
-      position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 100; 
-      display: flex; gap: 8px; 
-    }
-    .controles button { 
-      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); 
-      color: #7ee898; font-family: 'Courier New', monospace; font-size: 0.75rem; 
-      font-weight: bold; letter-spacing: 1px; padding: 8px 14px; border-radius: 8px; 
-      cursor: pointer; transition: all 0.25s; text-transform: uppercase; backdrop-filter: blur(6px); 
-    }
-    .teclas-wasd { 
-      position: absolute; bottom: 20px; right: 20px; z-index: 100; display: grid; 
-      grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(2, 34px); gap: 4px; opacity: 0.85; 
-    }
-    .teclas-wasd .tecla { 
-      display: flex; align-items: center; justify-content: center; 
-      background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.45); 
-      border-radius: 6px; color: #7ee898; font-family: 'Courier New', monospace; 
-      font-weight: bold; font-size: 0.85rem; transition: all 0.15s; user-select: none; 
-    }
+    .controles { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; gap: 8px; }
+    .controles button { background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.55); color: #7ee898; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; padding: 8px 14px; border-radius: 8px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; backdrop-filter: blur(6px); }
+    .teclas-wasd { position: absolute; bottom: 20px; right: 20px; z-index: 100; display: grid; grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(2, 34px); gap: 4px; opacity: 0.85; }
+    .teclas-wasd .tecla { display: flex; align-items: center; justify-content: center; background: rgba(5, 30, 15, 0.88); border: 2px solid rgba(63, 185, 80, 0.45); border-radius: 6px; color: #7ee898; font-family: 'Courier New', monospace; font-weight: bold; font-size: 0.85rem; transition: all 0.15s; user-select: none; }
     .teclas-wasd .tecla.w { grid-column: 2; grid-row: 1; }
     .teclas-wasd .tecla.a { grid-column: 1; grid-row: 2; }
     .teclas-wasd .tecla.s { grid-column: 2; grid-row: 2; }
     .teclas-wasd .tecla.d { grid-column: 3; grid-row: 2; }
-    .teclas-wasd .tecla.ativa { 
-      background: rgba(63, 185, 80, 0.45); border-color: #7ee898; color: #fff; 
-      box-shadow: 0 0 12px rgba(63, 185, 80, 0.7); 
-    }
+    .teclas-wasd .tecla.ativa { background: rgba(63, 185, 80, 0.45); border-color: #7ee898; color: #fff; box-shadow: 0 0 12px rgba(63, 185, 80, 0.7); }
 
-    /* ================= VR ================= */
-    body.em-vr .info, body.em-vr .nome-animal, body.em-vr .qualidade-select, 
-    body.em-vr .controles, body.em-vr .teclas-wasd, body.em-vr .instrucoes, 
-    body.em-vr .modo-toggle, body.em-vr .vr-toggle, body.em-vr .mao-toggle, 
-    body.em-vr .hd-badge, body.em-vr #fps-toggle { 
-      display: none !important; 
-    }
-
-    .vr-crosshair { 
-      position: fixed; top: 50%; left: 50%; width: 12px; height: 12px; 
-      transform: translate(-50%, -50%); pointer-events: none; z-index: 600; display: none; 
-    }
+    body.em-vr .info, body.em-vr .nome-animal, body.em-vr .qualidade-select, body.em-vr .controles, body.em-vr .teclas-wasd, body.em-vr .instrucoes, body.em-vr .modo-toggle, body.em-vr .vr-toggle, body.em-vr .mao-toggle, body.em-vr .hd-badge, body.em-vr #fps-toggle { display: none !important; }
+    .vr-crosshair { position: fixed; top: 50%; left: 50%; width: 12px; height: 12px; transform: translate(-50%, -50%); pointer-events: none; z-index: 600; display: none; }
     body.em-vr .vr-crosshair { display: block; }
-    .vr-crosshair::before, .vr-crosshair::after { 
-      content: ''; position: absolute; background: #ffcb05; box-shadow: 0 0 8px #ffcb05; 
-    }
+    .vr-crosshair::before, .vr-crosshair::after { content: ''; position: absolute; background: #ffcb05; box-shadow: 0 0 8px #ffcb05; }
     .vr-crosshair::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
     .vr-crosshair::after { top: 0; left: 50%; width: 2px; height: 100%; transform: translateX(-50%); }
 
-    .hd-badge { 
-      position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 100; 
-      color: #a8d8b8; font-family: 'Courier New', monospace; font-size: 0.65rem; 
-      letter-spacing: 1px; background: rgba(0, 0, 0, 0.55); padding: 5px 12px; 
-      border-radius: 12px; border: 1px solid rgba(63, 185, 80, 0.3); pointer-events: none; display: none; 
-    }
+    .hd-badge { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 100; color: #a8d8b8; font-family: 'Courier New', monospace; font-size: 0.65rem; letter-spacing: 1px; background: rgba(0, 0, 0, 0.55); padding: 5px 12px; border-radius: 12px; border: 1px solid rgba(63, 185, 80, 0.3); pointer-events: none; display: none; }
     .hd-badge.ativo { display: block; }
-    .hd-badge .spinner { 
-      display: inline-block; width: 8px; height: 8px; border: 2px solid rgba(63, 185, 80, 0.3); 
-      border-top-color: #7ee898; border-radius: 50%; animation: girar 0.8s linear infinite; 
-      vertical-align: middle; margin-right: 6px; 
-    }
+    .hd-badge .spinner { display: inline-block; width: 8px; height: 8px; border: 2px solid rgba(63, 185, 80, 0.3); border-top-color: #7ee898; border-radius: 50%; animation: girar 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes girar { to { transform: rotate(360deg); } }
 
-    /* ================= RESPONSIVO MOBILE ================= */
     @media (max-width: 700px) {
       .info { top: 8px; left: 8px; padding: 6px 10px; border-radius: 9px; max-width: 38vw; }
       .info a { font-size: 0.62rem; letter-spacing: 0.5px; }
@@ -308,7 +144,6 @@
 
   <div id="scene-container"></div>
 
-  <!-- Aqui está a inclusão do api.js que o Dhavi adicionou -->
   <script src="api.js"></script>
   <script src="biomas_fauna.js"></script>
   <script src="bioma_componentes.js"></script>
@@ -352,20 +187,54 @@
       });
     })();
 
-    AFRAME.registerComponent('orbit-camera', {
-      schema: { 
-        distance: { type: 'number', default: 4.0 }, 
-        minDistance: { type: 'number', default: 1.0 }, 
-        maxDistance: { type: 'number', default: 30 }, 
-        targetY: { type: 'number', default: 0.0 }, 
-        minPolar: { type: 'number', default: 0.10 }, 
-        maxPolar: { type: 'number', default: Math.PI - 0.10 }, 
-        autoRotate: { type: 'boolean', default: false }, 
-        autoRotateSpeed: { type: 'number', default: 0.8 }, 
-        rotateSpeed: { type: 'number', default: 1.0 }, 
-        zoomSpeed: { type: 'number', default: 0.6 }, 
-        moveSpeed: { type: 'number', default: 4.0 } 
+    // COMPONENTE DUAL-MARKER (JOYSTICK)
+    AFRAME.registerComponent('dual-hand-control', {
+      init: function () {
+        this.markerLeft = document.querySelector('#marcador-qr');
+        this.markerRight = document.querySelector('#marcador-controle');
+        this.target = document.querySelector('#modelo-wrapper');
+        
+        this.posLeft = new THREE.Vector3();
+        this.posRight = new THREE.Vector3();
+        this.lastDist = null;
+        this.currentScale = 1;
+        this.currentRot = 0;
       },
+      tick: function () {
+        if (!this.markerLeft || !this.markerRight || !this.target) return;
+        
+        const leftVisible = this.markerLeft.object3D.visible;
+        const rightVisible = this.markerRight.object3D.visible;
+
+        if (leftVisible && rightVisible) {
+          this.markerLeft.object3D.getWorldPosition(this.posLeft);
+          this.markerRight.object3D.getWorldPosition(this.posRight);
+          
+          const dist = this.posLeft.distanceTo(this.posRight);
+          if (this.lastDist === null) {
+            this.lastDist = dist;
+          }
+          
+          const diff = dist - this.lastDist;
+          this.currentScale = Math.max(0.2, Math.min(5, this.currentScale + diff * 5));
+          this.target.object3D.scale.set(this.currentScale, this.currentScale, this.currentScale);
+          
+          const dx = this.posRight.x - this.posLeft.x;
+          const dz = this.posRight.z - this.posLeft.z;
+          const angle = Math.atan2(dx, dz);
+          
+          this.currentRot = THREE.MathUtils.lerp(this.currentRot, angle, 0.1);
+          this.target.object3D.rotation.y = this.currentRot;
+          
+          this.lastDist = dist;
+        } else {
+          this.lastDist = null; 
+        }
+      }
+    });
+
+    AFRAME.registerComponent('orbit-camera', {
+      schema: { distance: { type: 'number', default: 4.0 }, minDistance: { type: 'number', default: 1.0 }, maxDistance: { type: 'number', default: 30 }, targetY: { type: 'number', default: 0.0 }, minPolar: { type: 'number', default: 0.10 }, maxPolar: { type: 'number', default: Math.PI - 0.10 }, autoRotate: { type: 'boolean', default: false }, autoRotateSpeed: { type: 'number', default: 0.8 }, rotateSpeed: { type: 'number', default: 1.0 }, zoomSpeed: { type: 'number', default: 0.6 }, moveSpeed: { type: 'number', default: 4.0 } },
       init: function () {
         this.theta = Math.PI / 4; this.phi = Math.PI / 2.4; this.distance = this.data.distance;
         this.target = new THREE.Vector3(0, this.data.targetY, 0); this.isDragging = false; this.prevMouse = { x: 0, y: 0 };
@@ -426,15 +295,9 @@
     async function iniciarFluxoFauna() {
       const loading = document.getElementById('loading');
       try {
-        // =========================================================
-        // MUDANÇA PARA O BACKEND: Puxa o animal pela API em vez do JSON local
-        // =========================================================
         EstadoApp.animal = await MewAPI.request(`/api/especies/${encodeURIComponent(faunaId)}`);
         MewAPI.track(faunaId, 'exploracao_3d');
-        
-        if (!EstadoApp.animal) {
-          throw new Error('Animal não encontrado no banco de dados.');
-        }
+        if (!EstadoApp.animal) throw new Error('Animal não encontrado no banco de dados.');
       } catch (e) { 
         console.error('Erro:', e); 
         loading.textContent = '⚠️ Erro ao carregar os dados do animal.'; 
@@ -480,7 +343,7 @@
         document.getElementById('gaze-reticle').style.display = 'none';
         document.getElementById('gaze-reticle-progresso').style.display = 'none';
         document.getElementById('vr-toggle').style.display = 'none';
-        document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>📱 Aponte para o QR</span> · <span>👁️ 3s</span> nos hotspots</span>';
+        document.getElementById('instrucoes').innerHTML = '<span class="instr-mobile"><span>📱 Aponte para os QR</span> · Afaste as mãos p/ Zoom · Gire p/ Rotacionar</span>';
       } else {
         btn.textContent = '🥽 Modo AR'; btn.classList.remove('ar-ativo');
         document.getElementById('controles').style.display = isMobile ? 'none' : 'flex';
@@ -582,9 +445,12 @@
       const perfil = window.MewQualidade.perfil;
       const rendererAttr = `renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: ${perfil.antialias};"`;
 
+      // AQUI ESTÁ A MÁGICA DOS DOIS MARCADORES
       container.innerHTML = `
-        <a-scene id="cena-ar" embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;" ${rendererAttr} vr-mode-ui="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
+        <a-scene id="cena-ar" embedded dual-hand-control arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; maxDetectionRate: 30;" ${rendererAttr} vr-mode-ui="enabled: false" style="position: fixed; inset: 0; width: 100%; height: 100%;">
           <a-assets timeout="30000"><a-asset-item id="modelo-pesado-asset" src="${EstadoApp.modeloPesado}"></a-asset-item></a-assets>
+          
+          <!-- MARCADOR ESQUERDO: Segura o modelo -->
           <a-marker type="barcode" value="5" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5" id="marcador-qr">
             ${ambienteHtml}
             <a-entity id="modelo-wrapper" position="0 0 0">
@@ -598,6 +464,11 @@
               <a-sphere id="mao-ponta" position="0 0 2" radius="0.03" color="#ffcb05" material="shader: standard; emissive: #ffcb05; emissiveIntensity: 2"></a-sphere>
             </a-entity>
           </a-marker>
+
+          <!-- MARCADOR DIREITO: Usado como controle espacial -->
+          <a-marker type="barcode" value="6" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5" id="marcador-controle">
+          </a-marker>
+
           <a-entity id="ar-camera" camera></a-entity>
         </a-scene>
       `;
@@ -664,7 +535,6 @@
       function tick() {
         hotspotsFrame++; if (!hotspotsCache || hotspotsFrame > 30) { hotspotsCache = Array.from(document.querySelectorAll('[info-hotspot]')); hotspotsFrame = 0; }
         
-        // AR esconde o retículo DOM. 3D e VR mantêm visível (VR tem também um retículo 3D).
         if (EstadoApp.modo === 'ar') { reticle.style.display = 'none'; progresso.style.display = 'none'; } else { reticle.style.display = 'block'; progresso.style.display = EstadoApp.gazeState.alvoAtual ? 'block' : 'none'; }
         
         const cam = getCamera(); if (!cam) return;
