@@ -409,6 +409,7 @@ function abrirModalHabilidade(nomeOriginal, nomeBonito) {
 function fecharModal() {
   document.getElementById('modal-container').innerHTML = '';
   document.removeEventListener('keydown', escutarEsc);
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
 }
 
 function escutarEsc(e) { if (e.key === 'Escape') fecharModal(); }
@@ -748,35 +749,81 @@ async function carregarDetalhes() {
 
 /* =========================================================
    FAUNA (PROJETO MEW) — Ambiente virtual por bioma
-   Usa o módulo MewBiomas (biomas_fauna.js) para gerar
-   o cenário 3D de acordo com o habitat do animal.
    ========================================================= */
+window.mewHotspotsAtuais = []; // Armazena os hotspots globais
+
+function extrairHotspots(html) {
+  const regex = /info-hotspot="([^"]+)"/g;
+  let match;
+  const hotspots = [];
+  while ((match = regex.exec(html)) !== null) {
+    const attr = match[1];
+    const obj = {};
+    const parts = attr.split(';');
+    parts.forEach(p => {
+      const idx = p.indexOf(':');
+      if (idx !== -1) {
+        const key = p.slice(0, idx).trim();
+        const val = p.slice(idx + 1).trim();
+        obj[key] = val;
+      }
+    });
+    if (obj.titulo) hotspots.push(obj);
+  }
+  return hotspots;
+}
+
+window.abrirHotspotModal = function(index) {
+  const h = window.mewHotspotsAtuais[index];
+  if (!h) return;
+
+  const textoFalar = `${h.titulo}. ${h.categoria ? 'Categoria ' + h.categoria + '.' : ''} ${h.descricao}`;
+  if (window.falarTexto) window.falarTexto(textoFalar);
+
+  const container = document.getElementById('modal-container');
+  container.innerHTML = `
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal-box hotspot-modal-box" style="border-color: ${h.cor || '#00e0ff'}; max-width: 500px; padding:0; overflow:hidden;">
+        <button class="modal-close" id="modal-close" style="z-index: 10;">✕</button>
+        ${h.imagem ? `<img src="${h.imagem}" class="hotspot-modal-img" alt="${h.titulo}" onerror="this.style.display='none'">` : ''}
+        <div class="hotspot-modal-content" style="padding: 20px;">
+          <span class="hotspot-modal-cat" style="background: ${h.cor || '#00e0ff'}22; color: ${h.cor || '#00e0ff'}; border: 1px solid ${h.cor || '#00e0ff'};">${h.categoria || 'Elemento'}</span>
+          <h4 style="color: ${h.cor || '#00e0ff'}; text-shadow: 0 0 10px ${h.cor || '#00e0ff'}88; margin-top: 10px;">${h.titulo}</h4>
+          <p style="margin-top: 5px;">${h.descricao}</p>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-overlay') fecharModal();
+  });
+  document.getElementById('modal-close').addEventListener('click', fecharModal);
+  document.addEventListener('keydown', escutarEsc);
+};
+
 async function carregarAnimalFauna(id, container, loading) {
   try {
     const animal = await MewAPI.request(`/api/especies/${encodeURIComponent(id)}`);
     MewAPI.track(id);
 
-    if (!animal) {
-      throw new Error('Animal não encontrado na lista do banco de dados.');
-    }
+    if (!animal) throw new Error('Animal não encontrado na lista do banco de dados.');
 
     loading.style.display = 'none';
 
     const modeloPath = animal.modelo_gltf || "assets/modelo/animais.glb";
-
     const habitatTexto = Array.isArray(animal.habitat) ? animal.habitat.join(', ') : animal.habitat;
     const ameacasTexto = Array.isArray(animal.principais_ameacas) ? animal.principais_ameacas.join('; ') : animal.principais_ameacas;
 
     const url3D = `visualizar3d_fauna.html?id=${id}`;
     const urlQuiz = `quiz.html?animal=${id}`;
 
-    // ===== MONTAGEM DO BIOMA =====
     let ambienteHtml = '';
     let nomeBioma = '';
     if (window.MewBiomas && typeof window.MewBiomas.montarCena3D === 'function') {
       const { html, bioma } = window.MewBiomas.montarCena3D(animal, { densidade: 'baixa' });
       ambienteHtml = html;
       nomeBioma = bioma.nome;
+      window.mewHotspotsAtuais = extrairHotspots(html);
     } else {
       ambienteHtml = `
         <a-sky color="#87CEEB"></a-sky>
@@ -785,27 +832,40 @@ async function carregarAnimalFauna(id, container, loading) {
         <a-entity position="5 8 5" light="type: directional; color: #fff; intensity: 1.2"></a-entity>
       `;
       nomeBioma = 'Genérico';
+      window.mewHotspotsAtuais = [];
+    }
+
+    // GERA O HTML DOS BOTÕES DE HOTSPOTS
+    let hotspotsHtml = '';
+    if (window.mewHotspotsAtuais.length > 0) {
+      hotspotsHtml = `
+        <div class="screen info-bloco">
+          <h3>▸ Explorar Hotspots</h3>
+          <p style="font-size: 0.8rem; color: #a0b9ce; margin-bottom: 10px;">Clique em um elemento do bioma para ouvir e ver detalhes.</p>
+          <div class="hotspots-grid">
+            ${window.mewHotspotsAtuais.map((h, i) => `
+              <button class="hotspot-btn" onclick="window.abrirHotspotModal(${i})" style="border-color: ${h.cor || '#00e0ff'}55;">
+                <span class="hotspot-dot" style="background: ${h.cor || '#00e0ff'}; box-shadow: 0 0 8px ${h.cor || '#00e0ff'};"></span>
+                <span class="hotspot-titulo">${h.titulo}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
     }
 
     container.innerHTML = `
       <div class="detalhes-layout">
         <div class="col-esquerda">
-
           <div class="screen ambiente-virtual" style="position: relative; overflow: hidden; border-radius: 15px; padding: 0;">
             <a-scene embedded style="width: 100%; height: clamp(220px, 55vw, 350px); display: block;" vr-mode-ui="enabled: false">
               ${ambienteHtml}
-              <a-gltf-model
-                id="modelo-fauna-viewer"
-                src="${modeloPath}"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear">
-              </a-gltf-model>
+              <a-gltf-model id="modelo-fauna-viewer" src="${modeloPath}" animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"></a-gltf-model>
               <a-entity camera position="0 1.6 0"></a-entity>
             </a-scene>
           </div>
 
-          <a href="${url3D}" class="btn-ar-mobile">
-            📱 Ver no seu espaço (Realidade Aumentada)
-          </a>
+          <a href="${url3D}" class="btn-ar-mobile">📱 Ver no seu espaço (Realidade Aumentada)</a>
 
           <div class="screen screen-identidade" style="margin-top: clamp(8px, 2vw, 15px); display: flex; flex-direction: column; justify-content: center;">
             <div class="numero-grande" style="font-size: clamp(0.85rem, 3vw, 1.1rem);">${id.toUpperCase()}</div>
@@ -818,7 +878,6 @@ async function carregarAnimalFauna(id, container, loading) {
         </div>
 
         <div class="col-direita">
-
           <div class="screen info-bloco bioquiz-bloco">
             <h3>🎮 BIOQUIZ</h3>
             <p>Teste seus conhecimentos sobre o ${animal.nome_popular} e ganhe o selo de Analista Ambiental!</p>
@@ -846,81 +905,54 @@ async function carregarAnimalFauna(id, container, loading) {
             <p style="line-height: 1.4; font-size: clamp(10.5px, 2.2vw, 12px); margin-top: 10px; color: #ff8c8c;"><strong>Principais Ameaças:</strong> ${ameacasTexto}</p>
           </div>
 
+          ${hotspotsHtml}
+
         </div>
       </div>
     `;
 
-    // ===== VOZ: texto montado em JS (evita quebra por apóstrofos) =====
     const textoComportamento = `${animal.nome_popular}. Comportamento: ${animal.caracteristicas.comportamento}. Coloração: ${animal.caracteristicas.coloracao}`;
     const textoBiologico = `Dados biológicos do ${animal.nome_popular}. Habitat: ${habitatTexto}. Tamanho: ${animal.caracteristicas.tamanho}. Principais ameaças: ${ameacasTexto}`;
 
     const btnOuvirComportamento = container.querySelector('#btn-ouvir-comportamento');
-    if (btnOuvirComportamento) {
-      btnOuvirComportamento.addEventListener('click', () => window.falarTexto(textoComportamento));
-    }
+    if (btnOuvirComportamento) btnOuvirComportamento.addEventListener('click', () => window.falarTexto(textoComportamento));
     const btnOuvirBiologico = container.querySelector('#btn-ouvir-biologico');
-    if (btnOuvirBiologico) {
-      btnOuvirBiologico.addEventListener('click', () => window.falarTexto(textoBiologico));
-    }
+    if (btnOuvirBiologico) btnOuvirBiologico.addEventListener('click', () => window.falarTexto(textoBiologico));
 
-    // ===== AJUSTE DO MODELO 3D =====
     const cena = container.querySelector('a-scene');
     cena.addEventListener('loaded', () => {
       const el = container.querySelector('#modelo-fauna-viewer');
       if (!el) return;
-
       let tentativas = 0;
       const MAX_TENTATIVAS = 80;
-
       const acharMesh = () => {
         let m = el.getObject3D && el.getObject3D('mesh');
-        if (!m && el.object3D) {
-          el.object3D.traverse((n) => {
-            if (!m && n.isMesh) m = n;
-          });
-        }
+        if (!m && el.object3D) el.object3D.traverse((n) => { if (!m && n.isMesh) m = n; });
         return m;
       };
-
       const ajustar = () => {
         const mesh = acharMesh();
         if (!mesh) {
           if (tentativas++ < MAX_TENTATIVAS) return void setTimeout(ajustar, 100);
-          console.warn('[fauna] mesh do modelo nunca apareceu');
           return;
         }
-
-        mesh.position.set(0, 0, 0);
-        mesh.rotation.set(0, 0, 0);
-        mesh.scale.set(1, 1, 1);
+        mesh.position.set(0, 0, 0); mesh.rotation.set(0, 0, 0); mesh.scale.set(1, 1, 1);
         mesh.updateWorldMatrix(true, true);
-
         const box = new THREE.Box3().setFromObject(mesh);
         const size = box.getSize(new THREE.Vector3());
         const centerWorld = box.getCenter(new THREE.Vector3());
-
         const maxDim = Math.max(size.x, size.y, size.z);
         if (!isFinite(maxDim) || maxDim <= 0.0001) return;
-
         const elWorldPos = new THREE.Vector3();
         el.object3D.getWorldPosition(elWorldPos);
-
         const localCenter = centerWorld.clone().sub(elWorldPos);
-
         const ALVO = 1.5;
         const escala = ALVO / maxDim;
-
         mesh.scale.set(escala, escala, escala);
-        mesh.position.set(
-          -localCenter.x * escala,
-          -localCenter.y * escala,
-          -localCenter.z * escala
-        );
+        mesh.position.set(-localCenter.x * escala, -localCenter.y * escala, -localCenter.z * escala);
         mesh.updateWorldMatrix(true, true);
-
         el.setAttribute('position', `0 ${((size.y * escala) / 2).toFixed(3)} -3.5`);
       };
-
       ajustar();
     });
 
@@ -928,7 +960,7 @@ async function carregarAnimalFauna(id, container, loading) {
 
   } catch (erro) {
     loading.style.display = 'none';
-    container.innerHTML = '<p class="loading">Erro ao carregar o animal da fauna. Verifique o ficheiro JSON e os ativos 3D.</p>';
+    container.innerHTML = '<p class="loading">Erro ao carregar o animal da fauna.</p>';
     console.error('Erro:', erro);
   }
 }
@@ -989,9 +1021,7 @@ async function carregarPokemonClassico(id, container, loading) {
       })
       .join('');
 
-    const regiaoHTML = regiao
-      ? `<div class="regiao-info">Gen ${regiao.geracao} · ${regiao.nome}</div>`
-      : '';
+    const regiaoHTML = regiao ? `<div class="regiao-info">Gen ${regiao.geracao} · ${regiao.nome}</div>` : '';
 
     const botaoShinyHTML = temShiny
       ? `<button class="shiny-btn" id="shiny-btn" title="Alternar shiny">
@@ -1005,13 +1035,7 @@ async function carregarPokemonClassico(id, container, loading) {
         <div class="col-esquerda">
           <div class="screen screen-imagem" id="screen-imagem">
             <a href="visualizar3d.html?id=${pokemon.id}&nome=${encodeURIComponent(nome)}" class="link-3d" title="Clique para ver em 3D">
-              <img
-                src="${imagem}"
-                alt="${nome}"
-                id="imagem-pokemon"
-                data-shiny="false"
-                onerror="this.onerror=null; this.src='${fallback}';"
-              >
+              <img src="${imagem}" alt="${nome}" id="imagem-pokemon" data-shiny="false" onerror="this.onerror=null; this.src='${fallback}';">
               <span class="badge-3d">🧊 Ver em 3D</span>
             </a>
             <span class="som-icone" id="som-icone" title="Ouvir grito">🔊</span>
@@ -1075,31 +1099,20 @@ async function carregarPokemonClassico(id, container, loading) {
     document.title = `${nome} — Pokédex`;
 
     document.getElementById('som-icone').addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      tocarGrito(pokemon.id);
+      e.preventDefault(); e.stopPropagation(); tocarGrito(pokemon.id);
     });
 
     if (temShiny) {
       const botao = document.getElementById('shiny-btn');
       const img = document.getElementById('imagem-pokemon');
-
       botao.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        alternarShiny(img, {
-          normalArtwork: normalArtwork,
-          shinyArtwork: shinyArtwork,
-          normal: normalPixel,
-          shiny: shinyPixel
-        }, botao);
+        e.preventDefault(); e.stopPropagation();
+        alternarShiny(img, { normalArtwork, shinyArtwork, normal: normalPixel, shiny: shinyPixel }, botao);
       });
     }
 
     document.querySelectorAll('#habilidades-lista li').forEach(li => {
-      li.addEventListener('click', () => {
-        abrirModalHabilidade(li.dataset.habilidade, li.dataset.nomeBonito);
-      });
+      li.addEventListener('click', () => abrirModalHabilidade(li.dataset.habilidade, li.dataset.nomeBonito));
     });
 
     buscarMovimentos(pokemon).then(({ nivel, tm, tutor, egg }) => {
@@ -1151,10 +1164,6 @@ async function carregarPokemonClassico(id, container, loading) {
 
 document.addEventListener('DOMContentLoaded', carregarDetalhes);
 
-/* =========================================================
-   ACESSIBILIDADE — Leitura em voz alta (Web Speech API)
-   Chamada pelos botões "🔊 Ouvir" nos detalhes da fauna.
-   ========================================================= */
 window.falarTexto = function (texto) {
   const synth = window.speechSynthesis;
   if (!synth) return;

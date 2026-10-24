@@ -58,10 +58,26 @@
     }
 
     .hint { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #ffcb05; padding: 10px 20px; border-radius: 20px; font-weight: bold; z-index: 999; border: 2px solid #ffcb05; text-align: center; width: 90%; max-width: 400px; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+
+    /* OVERLAY DA IMAGEM (Fica por cima do AR) */
+    #ar-image-overlay {
+      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 9999; width: 85vw; max-width: 400px;
+      border-radius: 16px; overflow: hidden; border: 3px solid #7ee898;
+      box-shadow: 0 0 40px rgba(0,0,0,0.9); background: #0a1a0c;
+      pointer-events: none; animation: popIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    }
+    #ar-image-overlay img { width: 100%; display: block; }
+    @keyframes popIn { from{ opacity: 0; transform: translate(-50%, -40%) scale(0.9); } to{ opacity: 1; transform: translate(-50%, -50%) scale(1); } }
   </style>
 </head>
 <body>
   <div class="hint" id="hint">📷 Aponte para o QR Code e arraste o dedo para girar</div>
+
+  <!-- CAMADA DA IMAGEM (O que vai aparecer ao clicar no botão) -->
+  <div id="ar-image-overlay">
+    <img id="ar-image-content" src="" alt="Hotspot">
+  </div>
 
   <div id="painel-info">
     <h2 id="info-nome">Carregando...</h2>
@@ -81,7 +97,6 @@
     const params = new URLSearchParams(window.location.search);
     const animalId = params.get('id') || 'pe-1'; 
 
-    // 1. SISTEMA DE VOZ
     const synth = window.speechSynthesis;
     function falar(texto) {
       synth.cancel(); 
@@ -94,19 +109,12 @@
       synth.speak(utterance);
     }
 
-    // 2. MAPEAMENTO DE MODELOS 3D E IMAGENS DE HOTSPOTS
-    // Baseado nas imagens que você enviou do seu VS Code
     const modelosMap = {
-      'pe-1': 'assets/modelo/peixe_boi.glb',
-      'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
-      'pe-3': 'assets/modelo/tatu_bola_do_nordeste_med.glb',
-      'pe-4': 'assets/modelo/saira_pintor_med.glb',
-      'pe-5': 'assets/modelo/limpa_folha_do_nordeste_med.glb',
-      'pe-6': 'assets/modelo/gato_maracaja_med.glb',
-      'pe-7': 'assets/modelo/jaguatirica_med.glb',
-      'pe-8': 'assets/modelo/tartaruga_de_pente_med.glb',
-      'pe-9': 'assets/modelo/tartaruga_de_couro_med.glb',
-      'pe-10': 'assets/modelo/galo_de_campina_novo.glb'
+      'pe-1': 'assets/modelo/peixe_boi.glb', 'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
+      'pe-3': 'assets/modelo/tatu_bola_do_nordeste_med.glb', 'pe-4': 'assets/modelo/saira_pintor_med.glb',
+      'pe-5': 'assets/modelo/limpa_folha_do_nordeste_med.glb', 'pe-6': 'assets/modelo/gato_maracaja_med.glb',
+      'pe-7': 'assets/modelo/jaguatirica_med.glb', 'pe-8': 'assets/modelo/tartaruga_de_pente_med.glb',
+      'pe-9': 'assets/modelo/tartaruga_de_couro_med.glb', 'pe-10': 'assets/modelo/galo_de_campina_novo.glb'
     };
 
     const imagensMap = {
@@ -122,9 +130,6 @@
       'pe-10': { oque: 'assets/hotspots/caatinga_galo_ave.jpg', alimentacao: 'assets/hotspots/caatinga_galo_bioma.jpg', habitat: 'assets/hotspots/caatinga_galo_juazeiro.jpg', ameacas: 'assets/hotspots/caatinga_galo_cupinzeiro.jpg' }
     };
 
-    // ==========================================
-    // 3. COMPONENTE DE ARRASTAR (GIRAR O MODELO)
-    // ==========================================
     AFRAME.registerComponent('drag-rotate', {
       init: function () {
         this.isDragging = false;
@@ -139,22 +144,16 @@
 
         this.el.sceneEl.canvas.addEventListener('touchmove', (e) => {
           if (!this.isDragging || e.touches.length !== 1) return;
-          
           const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
           const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
-          
           this.el.object3D.rotation.y += deltaX * 0.01;
           this.el.object3D.rotation.x += deltaY * 0.01;
           this.el.object3D.rotation.x = Math.max(-0.5, Math.min(0.5, this.el.object3D.rotation.x));
-          
           this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-          
           if(e.cancelable) e.preventDefault();
         }, { passive: false });
 
-        this.el.sceneEl.canvas.addEventListener('touchend', () => {
-          this.isDragging = false;
-        });
+        this.el.sceneEl.canvas.addEventListener('touchend', () => { this.isDragging = false; });
 
         this.el.sceneEl.canvas.addEventListener('mousedown', (e) => {
           this.isDragging = true;
@@ -173,130 +172,77 @@
       }
     });
 
-    // ==========================================
-    // 4. LÓGICA DE IMAGEM E ÁUDIO
-    // ==========================================
     let timeoutImagem;
-    const hotspotImage = document.getElementById('hotspot-image');
-
     function falarEMostrar(texto, imagemSrc) {
-      // 1. Toca o áudio
       falar(texto);
-
-      // 2. Mostra a imagem
-      if (imagemSrc && hotspotImage) {
-        hotspotImage.setAttribute('src', imagemSrc);
-        hotspotImage.setAttribute('visible', 'true');
-
-        // Efeito de escala (pop-in)
-        hotspotImage.setAttribute('animation', 'property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 400; easing: easeOutElastic');
-
+      if (imagemSrc) {
+        const overlay = document.getElementById('ar-image-overlay');
+        const img = document.getElementById('ar-image-content');
+        img.src = imagemSrc;
+        overlay.style.display = 'block';
+        
         clearTimeout(timeoutImagem);
-        // Esconde após 15 segundos
-        timeoutImagem = setTimeout(() => {
-          hotspotImage.setAttribute('visible', 'false');
-        }, 15000);
+        timeoutImagem = setTimeout(() => { overlay.style.display = 'none'; }, 15000);
       }
     }
 
-    // ==========================================
-    // 5. CARREGAR DADOS E MONTAR CENA
-    // ==========================================
     async function iniciarAR() {
       try {
-        // Puxa os dados do JSON
         const res = await fetch('fauna_pe.json');
         const data = await res.json();
         const animal = data.especies_ameacadas.find(a => a.id === animalId);
-
         if (!animal) throw new Error("Animal não encontrado");
 
-        // Preenche a interface
         document.getElementById('info-nome').textContent = animal.nome_popular;
         document.getElementById('info-cientifico').textContent = animal.nome_cientifico;
 
-        // Prepara os textos combinando as propriedades
         const textoOque = `${animal.classe}. ${animal.caracteristicas.comportamento}. Coloração: ${animal.caracteristicas.coloracao}. Tamanho: ${animal.caracteristicas.tamanho}.`;
         const textoAlimentacao = `Alimenta-se de ${animal.alimentacao.join(', ')}.`;
         const textoHabitat = `Encontrado em ${animal.habitat.join(', ')}.`;
         const textoAmeacas = `As principais ameaças são: ${animal.principais_ameacas.join(', ')}.`;
 
-        // Atribui os cliques nos botões
         document.getElementById('btn-oque').onclick = () => falarEMostrar(textoOque, imagensMap[animalId]?.oque);
         document.getElementById('btn-alimentacao').onclick = () => falarEMostrar(textoAlimentacao, imagensMap[animalId]?.alimentacao);
         document.getElementById('btn-habitat').onclick = () => falarEMostrar(textoHabitat, imagensMap[animalId]?.habitat);
         document.getElementById('btn-ameacas').onclick = () => falarEMostrar(textoAmeacas, imagensMap[animalId]?.ameacas);
 
-        // Define o modelo 3D
         const modeloPath = modelosMap[animalId] || animal.modelo_gltf || "assets/modelo/animais.glb";
-
-        // Monta a cena A-Frame dinamicamente
         const container = document.getElementById('scene-container');
+        
         container.innerHTML = `
           <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" renderer="alpha: true; antialias: true;" vr-mode-ui="enabled: false" loading-screen="enabled: false">
-            
-            <a-assets>
-              <a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item>
-            </a-assets>
-
+            <a-assets><a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item></a-assets>
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
             <a-marker type="barcode" value="5" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-              
-              <!-- Modelo 3D -->
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-3d" src="#modelo-animal"></a-gltf-model>
               </a-entity>
-
-              <!-- Imagem do Hotspot (Fica ao lado do modelo, sem girar com ele) -->
-              <a-image id="hotspot-image" visible="false" position="1.5 1.2 0" rotation="0 -30 0" width="1.2" height="1.2" opacity="1"></a-image>
-
               <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
               <a-entity position="0 2 1" light="type: directional; color: #ffffff; intensity: 1.0"></a-entity>
             </a-marker>
           </a-scene>
         `;
 
-        // Lógica de exibição do marcador
         const cena = container.querySelector('a-scene');
         const marcador = cena.querySelector('#marcador');
         const modeloWrapper = cena.querySelector('#modelo-wrapper');
         const animal3D = document.getElementById('animal-3d');
         const painel = document.getElementById('painel-info');
         const hint = document.getElementById('hint');
-        
-        // Como o hotspotImage foi criado agora no innerHTML, precisamos pegá-lo novamente para o escopo global
-        window.hotspotImage = document.getElementById('hotspot-image');
 
-        // Ajuste perfeito da altura do modelo
         animal3D.addEventListener('model-loaded', () => {
             const mesh = animal3D.getObject3D('mesh');
             if (!mesh) return;
-            
-            mesh.position.set(0, 0, 0);
-            mesh.rotation.set(0, 0, 0);
-            mesh.scale.set(1, 1, 1);
-            mesh.updateMatrixWorld(true);
-            
+            mesh.position.set(0, 0, 0); mesh.rotation.set(0, 0, 0); mesh.scale.set(1, 1, 1); mesh.updateMatrixWorld(true);
             const box = new THREE.Box3().setFromObject(mesh);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
             const maxDim = Math.max(size.x, size.y, size.z);
-            
             const ALVO = 1.5; 
             const escala = ALVO / maxDim;
-            
-            mesh.scale.set(escala, escala, escala);
-            mesh.updateMatrixWorld(true);
-            
+            mesh.scale.set(escala, escala, escala); mesh.updateMatrixWorld(true);
             const box2 = new THREE.Box3().setFromObject(mesh);
-            
-            mesh.position.set(
-                -center.x * escala, 
-                -box2.min.y, 
-                -center.z * escala
-            );
-            mesh.updateMatrixWorld(true);
+            mesh.position.set(-center.x * escala, -box2.min.y, -center.z * escala); mesh.updateMatrixWorld(true);
         });
 
         marcador.addEventListener('markerFound', () => {
@@ -307,8 +253,7 @@
 
         marcador.addEventListener('markerLost', () => {
           modeloWrapper.setAttribute('visible', 'false');
-          // Opcional: esconder a imagem também se perder o marcador
-          window.hotspotImage.setAttribute('visible', 'false');
+          document.getElementById('ar-image-overlay').style.display = 'none';
         });
 
       } catch (erro) {
@@ -317,22 +262,17 @@
       }
     }
 
-    // Botão de fechar
     document.getElementById('btn-fechar').addEventListener('click', () => {
       synth.cancel();
       const modeloWrapper = document.getElementById('modelo-wrapper');
       if (modeloWrapper) modeloWrapper.setAttribute('visible', 'false');
-      
-      const imagem = document.getElementById('hotspot-image');
-      if (imagem) imagem.setAttribute('visible', 'false');
-      
+      document.getElementById('ar-image-overlay').style.display = 'none';
       document.getElementById('painel-info').style.display = 'none';
       const hint = document.getElementById('hint');
       hint.style.display = 'block';
       hint.textContent = "📷 Aponte para o QR Code novamente";
     });
 
-    // Inicia tudo
     window.addEventListener('DOMContentLoaded', iniciarAR);
   </script>
 </body>
