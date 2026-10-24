@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Realidade Aumentada — Projeto Mew</title>
   
-  <!-- Bibliotecas do A-Frame e AR.js -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
 
@@ -15,7 +14,6 @@
     
     #scene-container { position: fixed; inset: 0; width: 100vw; height: 100dvh; z-index: 0; }
 
-    /* Painel de Informações (Fica escondido até achar o QR Code) */
     #painel-info {
       position: fixed;
       bottom: 20px; left: 20px; right: 20px;
@@ -59,30 +57,20 @@
       box-shadow: 0 4px 12px rgba(220,10,45,0.4);
     }
 
-    /* Instrução inicial */
     .hint { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #ffcb05; padding: 10px 20px; border-radius: 20px; font-weight: bold; z-index: 999; border: 2px solid #ffcb05; text-align: center; width: 90%; max-width: 400px; font-family: 'Courier New', monospace; font-size: 0.85rem; }
   </style>
 </head>
 <body>
   <div class="hint" id="hint">📷 Aponte para o QR Code do animal</div>
 
-  <!-- Painel de Informações -->
   <div id="painel-info">
     <h2 id="info-nome">Carregando...</h2>
     <div class="cientifico" id="info-cientifico"></div>
     
-    <button class="btn-hotspot" id="btn-oque">
-      <span class="icone">❓</span> O que é?
-    </button>
-    <button class="btn-hotspot" id="btn-alimentacao">
-      <span class="icone">🥩</span> Alimentação
-    </button>
-    <button class="btn-hotspot" id="btn-habitat">
-      <span class="icone">🌿</span> Habitat
-    </button>
-    <button class="btn-hotspot" id="btn-ameacas">
-      <span class="icone">⚠️</span> Ameaças
-    </button>
+    <button class="btn-hotspot" id="btn-oque"><span class="icone">❓</span> O que é?</button>
+    <button class="btn-hotspot" id="btn-alimentacao"><span class="icone">🥩</span> Alimentação</button>
+    <button class="btn-hotspot" id="btn-habitat"><span class="icone">🌿</span> Habitat</button>
+    <button class="btn-hotspot" id="btn-ameacas"><span class="icone">⚠️</span> Ameaças</button>
     
     <button class="btn-fechar" id="btn-fechar">Fechar e escanear novamente</button>
   </div>
@@ -90,16 +78,13 @@
   <div id="scene-container"></div>
 
   <script>
-    // Pega o ID do animal pela URL (ex: visualizar3d_fauna.html?id=pe-1)
     const params = new URLSearchParams(window.location.search);
     const animalId = params.get('id') || 'pe-1'; 
 
-    // ==========================================
-    // 1. SISTEMA DE VOZ (Text-to-Speech)
-    // ==========================================
+    // 1. SISTEMA DE VOZ
     const synth = window.speechSynthesis;
     function falar(texto) {
-      synth.cancel(); // Para áudio anterior
+      synth.cancel(); 
       const utterance = new SpeechSynthesisUtterance(texto);
       utterance.lang = 'pt-BR';
       utterance.rate = 1.0; 
@@ -109,35 +94,21 @@
       synth.speak(utterance);
     }
 
-    // ==========================================
-    // 2. DADOS DO ANIMAL (Rápido e Offline)
-    // ==========================================
-    // Aqui você pode adicionar os outros animais depois. 
-    // Usei o Peixe-boi como exemplo padrão.
+    // 2. DADOS DO ANIMAL
     const dadosAnimais = {
       'pe-1': { 
         nome: 'Peixe-boi-marinho', 
         cientifico: 'Trichechus manatus', 
-        modelo: 'assets/modelo/peixeboi_med.glb', // Lembre-se de ter o modelo _med
+        modelo: 'assets/modelo/peixeboi_med.glb', 
         oque: 'Um mamífero aquático dócil que pode pesar 1 tonelada e medir até 4 metros.', 
         alimentacao: 'Herbívoro, alimenta-se de capim-marinho e algas.', 
         habitat: 'Águas calmas de estuários, baías e manguezais.', 
         ameacas: 'Colisões com barcos, redes de pesca e destruição do habitat.' 
-      },
-      'pe-2': { 
-        nome: 'Tamanduá-bandeira', 
-        cientifico: 'Myrmecophaga tridactyla', 
-        modelo: 'assets/modelo/tamandua_med.glb', 
-        oque: 'Um mamífero com uma língua pegajosa de 60cm.', 
-        alimentacao: 'Especialista em comer formigas e cupins.', 
-        habitat: 'Cerrado, campos e áreas abertas.', 
-        ameacas: 'Atropelamentos, queimadas e perda de habitat.' 
       }
     };
 
     const dados = dadosAnimais[animalId] || dadosAnimais['pe-1'];
     
-    // Atualiza o HTML com os dados
     document.getElementById('info-nome').textContent = dados.nome;
     document.getElementById('info-cientifico').textContent = dados.cientifico;
     
@@ -146,29 +117,25 @@
     document.getElementById('btn-habitat').onclick = () => falar("Habitat: " + dados.habitat);
     document.getElementById('btn-ameacas').onclick = () => falar("Ameaças: " + dados.ameacas);
 
-    // ==========================================
     // 3. CRIAÇÃO DA CENA AR
-    // ==========================================
     const container = document.getElementById('scene-container');
     
     container.innerHTML = `
       <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" renderer="alpha: true; antialias: true;" vr-mode-ui="enabled: false" loading-screen="enabled: false">
         
         <a-assets>
-          <!-- Carrega o modelo usando o caminho definido no JSON -->
           <a-asset-item id="modelo-animal" src="${dados.modelo}"></a-asset-item>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- O Marcador 5 (Onde o bicho vai aparecer) -->
-        <a-marker type="barcode" value="5" id="marcador" smooth="true" smoothCount="5" smoothTolerance="0.01" smoothThreshold="3">
+        <!-- AQUI ESTÁ A MÁGICA DA ESTABILIDADE (smoothCount="10") -->
+        <a-marker type="barcode" value="5" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
           
           <a-entity id="modelo-wrapper" visible="false">
             <a-gltf-model id="animal-3d" src="#modelo-animal" rotation="0 0 0" scale="1 1 1"></a-gltf-model>
           </a-entity>
 
-          <!-- Luzes para o modelo não ficar escuro -->
           <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
           <a-entity position="0 2 1" light="type: directional; color: #ffffff; intensity: 1.0"></a-entity>
         </a-marker>
@@ -181,24 +148,17 @@
     const painel = document.getElementById('painel-info');
     const hint = document.getElementById('hint');
 
-    // Quando o QR Code é reconhecido
+    // Quando o QR Code é reconhecido (SEM setTimeout agora)
     marcador.addEventListener('markerFound', () => {
       hint.style.display = 'none';
       ajustarModelo();
-
-      setTimeout(() => {
-        modeloWrapper.setAttribute('visible', 'true');
-        painel.style.display = 'flex';
-      }, 800); // Pequeno delay de 0.8s pro celular processar
+      
+      // Aparece na mesma hora!
+      modeloWrapper.setAttribute('visible', 'true');
+      painel.style.display = 'flex';
     });
 
-    // Quando perde o QR Code de vista
-    marcador.addEventListener('markerLost', () => {
-      // Deixa o painel visível para a pessoa ler, mas o modelo some se perder o QR
-      // modeloWrapper.setAttribute('visible', 'false'); 
-    });
-
-    // Função para deixar o modelo no tamanho certo (1.5 metros)
+    // Função para ajustar o modelo
     function ajustarModelo() {
       const modelo = document.getElementById('animal-3d');
       let tentativas = 0;
