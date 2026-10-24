@@ -129,11 +129,11 @@
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- AQUI ESTÁ A MÁGICA DA ESTABILIDADE (smoothCount="10") -->
+        <!-- Marcador configurado para ser estável -->
         <a-marker type="barcode" value="5" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
           
           <a-entity id="modelo-wrapper" visible="false">
-            <a-gltf-model id="animal-3d" src="#modelo-animal" rotation="0 0 0" scale="1 1 1"></a-gltf-model>
+            <a-gltf-model id="animal-3d" src="#modelo-animal"></a-gltf-model>
           </a-entity>
 
           <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
@@ -148,27 +148,11 @@
     const painel = document.getElementById('painel-info');
     const hint = document.getElementById('hint');
 
-    // Quando o QR Code é reconhecido (SEM setTimeout agora)
-    marcador.addEventListener('markerFound', () => {
-      hint.style.display = 'none';
-      ajustarModelo();
-      
-      // Aparece na mesma hora!
-      modeloWrapper.setAttribute('visible', 'true');
-      painel.style.display = 'flex';
-    });
-
-    // Função para ajustar o modelo
-    function ajustarModelo() {
-      const modelo = document.getElementById('animal-3d');
-      let tentativas = 0;
-      
-      const ajustar = () => {
-        const mesh = modelo.getObject3D('mesh');
-        if (!mesh) {
-          if (tentativas++ < 50) setTimeout(ajustar, 100);
-          return;
-        }
+    // AQUI ESTÁ A MÁGICA: Ajusta o modelo APENAS UMA VEZ quando ele carrega!
+    const animal3D = document.getElementById('animal-3d');
+    animal3D.addEventListener('model-loaded', () => {
+        const mesh = animal3D.getObject3D('mesh');
+        if (!mesh) return;
         
         mesh.position.set(0, 0, 0);
         mesh.rotation.set(0, 0, 0);
@@ -180,15 +164,35 @@
         const center = box.getCenter(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         
-        const ALVO = 1.5; 
+        const ALVO = 1.5; // Altura de 1.5 metros
         const escala = ALVO / maxDim;
         
         mesh.scale.set(escala, escala, escala);
-        mesh.position.set(-center.x * escala, -center.y * escala + (size.y * escala / 2), -center.z * escala);
         mesh.updateMatrixWorld(true);
-      };
-      ajustar();
-    }
+        
+        // Recalcula caixa após escala para achar o fundo exato (min.y)
+        const box2 = new THREE.Box3().setFromObject(mesh);
+        
+        // Centraliza X e Z, e coloca o fundo em Y=0 (no papel)
+        mesh.position.set(
+            -center.x * escala, 
+            -box2.min.y, 
+            -center.z * escala
+        );
+        mesh.updateMatrixWorld(true);
+    });
+
+    // Quando acha o QR Code: Mostra o modelo e o painel
+    marcador.addEventListener('markerFound', () => {
+      hint.style.display = 'none';
+      modeloWrapper.setAttribute('visible', 'true');
+      painel.style.display = 'flex';
+    });
+
+    // Quando perde o QR de vista: Esconde o modelo para não flutuar
+    marcador.addEventListener('markerLost', () => {
+      modeloWrapper.setAttribute('visible', 'false');
+    });
 
     // Botão de Fechar
     document.getElementById('btn-fechar').addEventListener('click', () => {
