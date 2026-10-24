@@ -2838,12 +2838,6 @@ body {
     font-size: clamp(0.7rem, 3vw, 0.82rem);
     letter-spacing: 1px;
   }
-
-  /* Botão da missão em mobile: altura menor e largura total */
-  #btn-missao-novo {
-    min-height: clamp(110px, 18vh, 160px) !important;
-    font-size: clamp(13px, 3.5vw, 15px) !important;
-  }
 }
 
 /* Celulares muito pequenos (iPhone SE, etc) */
@@ -2917,4 +2911,126 @@ body {
     border-radius: 8px !important;
     box-shadow: none !important;
   }
+}
+
+/* =========================================================
+   FAUNA — Botões de voz, AR mobile e Bioquiz no topo
+   ========================================================= */
+
+/* Botão "Ouvir" (acessibilidade por voz) */
+.btn-ouvir {
+  background: rgba(0, 224, 255, 0.1);
+  border: 1px solid rgba(0, 224, 255, 0.4);
+  color: #00e0ff;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.65rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.btn-ouvir:hover {
+  background: rgba(0, 224, 255, 0.25);
+  box-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+  transform: translateY(-1px);
+}
+.btn-ouvir:active {
+  transform: scale(0.96);
+}
+
+/* Título do bloco com o botão de voz alinhado à direita */
+.bloco-titulo-com-voz {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* Botão AR destacado (mobile-friendly) */
+.btn-ar-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #00e0ff, #0090b8);
+  color: #051020;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: clamp(0.9rem, 4vw, 1.15rem);
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 10px;
+  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-ar-mobile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px rgba(0, 224, 255, 0.85), inset 0 0 24px rgba(255, 255, 255, 0.25);
+}
+.btn-ar-mobile:active {
+  transform: scale(0.98);
+}
+
+/* Bloco do Bioquiz (topo da coluna direita) */
+.bioquiz-bloco {
+  background: linear-gradient(135deg, rgba(255, 203, 5, 0.15), rgba(0, 0, 0, 0.6)) !important;
+  border: 2px solid #ffcb05 !important;
+  text-align: center;
+}
+.bioquiz-bloco h3 {
+  color: #ffcb05 !important;
+  border-bottom: none !important;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  justify-content: center;
+}
+.bioquiz-bloco p {
+  font-size: 0.85rem;
+  color: #d0f4ff;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+.btn-bioquiz {
+  display: inline-block;
+  padding: 12px 24px;
+  background: #ffcb05;
+  color: #051020;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  transition: all 0.25s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-bioquiz:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 22px rgba(255, 203, 5, 0.7);
+  background: #ffd633;
+}
+.btn-bioquiz:active {
+  transform: scale(0.98);
+}
+
+/* Mobile: ajustes finos */
+@media (max-width: 600px) {
+  .btn-ar-mobile {
+    font-size: 0.85rem;
+    padding: 12px;
+    gap: 6px;
+  }
+  .bioquiz-bloco h3 { font-size: 1rem; }
+  .bioquiz-bloco p { font-size: 0.78rem; margin-bottom: 12px; }
+  .btn-bioquiz { padding: 10px 18px; font-size: 0.82rem; }
+  .btn-ouvir { font-size: 0.6rem; padding: 3px 8px; }
 }

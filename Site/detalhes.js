@@ -763,12 +763,12 @@ async function carregarAnimalFauna(id, container, loading) {
     loading.style.display = 'none';
 
     const modeloPath = animal.modelo_gltf || "assets/modelo/animais.glb";
-    const escala3d = animal.escala || "0.1";
 
     const habitatTexto = Array.isArray(animal.habitat) ? animal.habitat.join(', ') : animal.habitat;
     const ameacasTexto = Array.isArray(animal.principais_ameacas) ? animal.principais_ameacas.join('; ') : animal.principais_ameacas;
 
     const url3D = `visualizar3d_fauna.html?id=${id}`;
+    const urlQuiz = `quiz.html?animal=${id}`;
 
     // ===== MONTAGEM DO BIOMA =====
     let ambienteHtml = '';
@@ -787,11 +787,6 @@ async function carregarAnimalFauna(id, container, loading) {
       nomeBioma = 'Genérico';
     }
 
-    // ===== LAYOUT MOBILE-FRIENDLY =====
-    // - clamp() escala fontes/tamanhos entre mínimo e máximo
-    // - look-controls REMOVIDO do camera (evita capturar scroll vertical)
-    // - touch-action: manipulation (evita zoom acidental em botões)
-    // - -webkit-tap-highlight-color: transparent (remove highlight azul Android)
     container.innerHTML = `
       <div class="detalhes-layout">
         <div class="col-esquerda">
@@ -806,11 +801,11 @@ async function carregarAnimalFauna(id, container, loading) {
               </a-gltf-model>
               <a-entity camera position="0 1.6 0"></a-entity>
             </a-scene>
-
-            <a href="${url3D}" class="link-3d-fauna" title="Clique para ver em tela cheia (3D)">
-              <span class="badge-3d-fauna">🧊 Tela cheia 3D</span>
-            </a>
           </div>
+
+          <a href="${url3D}" class="btn-ar-mobile">
+            📱 Ver no seu espaço (Realidade Aumentada)
+          </a>
 
           <div class="screen screen-identidade" style="margin-top: clamp(8px, 2vw, 15px); display: flex; flex-direction: column; justify-content: center;">
             <div class="numero-grande" style="font-size: clamp(0.85rem, 3vw, 1.1rem);">${id.toUpperCase()}</div>
@@ -823,14 +818,27 @@ async function carregarAnimalFauna(id, container, loading) {
         </div>
 
         <div class="col-direita">
-          <div class="screen info-bloco">
-             <h3>▸ Comportamento e Características</h3>
-             <p style="line-height: 1.5; font-size: clamp(11.5px, 2.5vw, 13px); margin-top: 8px;">${animal.caracteristicas.comportamento}</p>
-             <p style="line-height: 1.5; font-size: clamp(11.5px, 2.5vw, 13px); margin-top: 6px;"><strong>Coloração:</strong> ${animal.caracteristicas.coloracao}</p>
+
+          <div class="screen info-bloco bioquiz-bloco">
+            <h3>🎮 BIOQUIZ</h3>
+            <p>Teste seus conhecimentos sobre o ${animal.nome_popular} e ganhe o selo de Analista Ambiental!</p>
+            <a href="${urlQuiz}" class="btn-bioquiz">Iniciar Missão Ecológica</a>
           </div>
 
           <div class="screen info-bloco">
-            <h3>▸ Dados Biológicos</h3>
+            <h3 class="bloco-titulo-com-voz">
+              <span>▸ Comportamento e Características</span>
+              <button id="btn-ouvir-comportamento" class="btn-ouvir" type="button" aria-label="Ouvir texto sobre comportamento">🔊 Ouvir</button>
+            </h3>
+            <p style="line-height: 1.5; font-size: clamp(11.5px, 2.5vw, 13px); margin-top: 8px;">${animal.caracteristicas.comportamento}</p>
+            <p style="line-height: 1.5; font-size: clamp(11.5px, 2.5vw, 13px); margin-top: 6px;"><strong>Coloração:</strong> ${animal.caracteristicas.coloracao}</p>
+          </div>
+
+          <div class="screen info-bloco">
+            <h3 class="bloco-titulo-com-voz">
+              <span>▸ Dados Biológicos</span>
+              <button id="btn-ouvir-biologico" class="btn-ouvir" type="button" aria-label="Ouvir dados biológicos">🔊 Ouvir</button>
+            </h3>
             <div class="fisico" style="margin-top: 8px;">
               <div class="item"><div class="label">Habitat</div><div class="valor" style="font-size: clamp(11px, 2.3vw, 12px);">${habitatTexto}</div></div>
               <div class="item"><div class="label">Tamanho</div><div class="valor" style="font-size: clamp(11px, 2.3vw, 12px);">${animal.caracteristicas.tamanho}</div></div>
@@ -838,21 +846,31 @@ async function carregarAnimalFauna(id, container, loading) {
             <p style="line-height: 1.4; font-size: clamp(10.5px, 2.2vw, 12px); margin-top: 10px; color: #ff8c8c;"><strong>Principais Ameaças:</strong> ${ameacasTexto}</p>
           </div>
 
-          <button id="btn-missao-novo" style="flex: 1 1 auto; min-height: clamp(110px, 18vh, 200px); width: 100%; padding: clamp(14px, 3vw, 22px) clamp(12px, 3vw, 16px); font-weight: bold; font-size: clamp(13px, 3vw, 15px); letter-spacing: 1.5px; cursor: pointer; border-radius: 12px; background: linear-gradient(135deg, #238636, #2ea043); color: white; border: 2px solid #3fb950; box-shadow: 0 4px 16px rgba(35, 134, 54, 0.45), inset 0 0 20px rgba(126, 232, 152, 0.08); display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2); font-family: 'Segoe UI', sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-            <span style="font-size: clamp(24px, 6vw, 34px); margin-bottom: clamp(6px, 1.5vw, 10px);">🔬</span>
-            INICIAR MISSÃO<br>ECOLÓGICA
-          </button>
         </div>
       </div>
     `;
 
+    // ===== VOZ: texto montado em JS (evita quebra por apóstrofos) =====
+    const textoComportamento = `${animal.nome_popular}. Comportamento: ${animal.caracteristicas.comportamento}. Coloração: ${animal.caracteristicas.coloracao}`;
+    const textoBiologico = `Dados biológicos do ${animal.nome_popular}. Habitat: ${habitatTexto}. Tamanho: ${animal.caracteristicas.tamanho}. Principais ameaças: ${ameacasTexto}`;
+
+    const btnOuvirComportamento = container.querySelector('#btn-ouvir-comportamento');
+    if (btnOuvirComportamento) {
+      btnOuvirComportamento.addEventListener('click', () => window.falarTexto(textoComportamento));
+    }
+    const btnOuvirBiologico = container.querySelector('#btn-ouvir-biologico');
+    if (btnOuvirBiologico) {
+      btnOuvirBiologico.addEventListener('click', () => window.falarTexto(textoBiologico));
+    }
+
+    // ===== AJUSTE DO MODELO 3D =====
     const cena = container.querySelector('a-scene');
     cena.addEventListener('loaded', () => {
       const el = container.querySelector('#modelo-fauna-viewer');
       if (!el) return;
 
       let tentativas = 0;
-      const MAX_TENTATIVAS = 80; // ~8s
+      const MAX_TENTATIVAS = 80;
 
       const acharMesh = () => {
         let m = el.getObject3D && el.getObject3D('mesh');
@@ -866,7 +884,6 @@ async function carregarAnimalFauna(id, container, loading) {
 
       const ajustar = () => {
         const mesh = acharMesh();
-
         if (!mesh) {
           if (tentativas++ < MAX_TENTATIVAS) return void setTimeout(ajustar, 100);
           console.warn('[fauna] mesh do modelo nunca apareceu');
@@ -883,10 +900,7 @@ async function carregarAnimalFauna(id, container, loading) {
         const centerWorld = box.getCenter(new THREE.Vector3());
 
         const maxDim = Math.max(size.x, size.y, size.z);
-        if (!isFinite(maxDim) || maxDim <= 0.0001) {
-          console.warn('[fauna] maxDim inválido:', maxDim, size);
-          return;
-        }
+        if (!isFinite(maxDim) || maxDim <= 0.0001) return;
 
         const elWorldPos = new THREE.Vector3();
         el.object3D.getWorldPosition(elWorldPos);
@@ -895,8 +909,6 @@ async function carregarAnimalFauna(id, container, loading) {
 
         const ALVO = 1.5;
         const escala = ALVO / maxDim;
-
-        console.log('[fauna] maxDim bruto:', maxDim.toFixed(3), '→ escala:', escala.toFixed(5));
 
         mesh.scale.set(escala, escala, escala);
         mesh.position.set(
@@ -907,39 +919,12 @@ async function carregarAnimalFauna(id, container, loading) {
         mesh.updateWorldMatrix(true, true);
 
         el.setAttribute('position', `0 ${((size.y * escala) / 2).toFixed(3)} -3.5`);
-
-        console.log('[fauna] altura final:', (size.y * escala).toFixed(3));
       };
 
       ajustar();
     });
+
     document.title = `${animal.nome_popular} — Projeto Mew`;
-
-    document.getElementById('btn-missao-novo').addEventListener('click', () => {
-          window.location.href = `quiz.html?animal=${id}`;
-    });
-
-    // Efeito de hover no botão (desktop) — em touch, o :active já dá feedback
-    const btnMissao = document.getElementById('btn-missao-novo');
-    if (btnMissao) {
-      btnMissao.addEventListener('mouseenter', () => {
-        btnMissao.style.transform = 'translateY(-3px) scale(1.02)';
-        btnMissao.style.boxShadow = '0 8px 24px rgba(35, 134, 54, 0.65), inset 0 0 24px rgba(126, 232, 152, 0.15)';
-        btnMissao.style.borderColor = '#7ee898';
-      });
-      btnMissao.addEventListener('mouseleave', () => {
-        btnMissao.style.transform = 'translateY(0) scale(1)';
-        btnMissao.style.boxShadow = '0 4px 16px rgba(35, 134, 54, 0.45), inset 0 0 20px rgba(126, 232, 152, 0.08)';
-        btnMissao.style.borderColor = '#3fb950';
-      });
-      // Feedback tátil em touch (mobile)
-      btnMissao.addEventListener('touchstart', () => {
-        btnMissao.style.transform = 'scale(0.98)';
-      }, { passive: true });
-      btnMissao.addEventListener('touchend', () => {
-        btnMissao.style.transform = 'scale(1)';
-      }, { passive: true });
-    }
 
   } catch (erro) {
     loading.style.display = 'none';
@@ -1165,3 +1150,20 @@ async function carregarPokemonClassico(id, container, loading) {
 }
 
 document.addEventListener('DOMContentLoaded', carregarDetalhes);
+
+/* =========================================================
+   ACESSIBILIDADE — Leitura em voz alta (Web Speech API)
+   Chamada pelos botões "🔊 Ouvir" nos detalhes da fauna.
+   ========================================================= */
+window.falarTexto = function (texto) {
+  const synth = window.speechSynthesis;
+  if (!synth) return;
+  synth.cancel();
+  const utterance = new SpeechSynthesisUtterance(texto);
+  utterance.lang = 'pt-BR';
+  utterance.rate = 1.0;
+  const vozes = synth.getVoices();
+  const vozPt = vozes.find(v => v.lang.includes('pt-BR'));
+  if (vozPt) utterance.voice = vozPt;
+  synth.speak(utterance);
+};
