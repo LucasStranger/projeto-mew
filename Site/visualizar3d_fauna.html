@@ -10,7 +10,8 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100dvh; overflow: hidden; background: transparent !important; }
+    /* touch-action: none impede que a tela role enquanto você gira o modelo */
+    html, body { width: 100%; height: 100dvh; overflow: hidden; background: transparent !important; touch-action: none; }
     
     #scene-container { position: fixed; inset: 0; width: 100vw; height: 100dvh; z-index: 0; }
 
@@ -61,7 +62,7 @@
   </style>
 </head>
 <body>
-  <div class="hint" id="hint">📷 Aponte para o QR Code do animal</div>
+  <div class="hint" id="hint">📷 Aponte para o QR Code e arraste o dedo para girar</div>
 
   <div id="painel-info">
     <h2 id="info-nome">Carregando...</h2>
@@ -117,7 +118,67 @@
     document.getElementById('btn-habitat').onclick = () => falar("Habitat: " + dados.habitat);
     document.getElementById('btn-ameacas').onclick = () => falar("Ameaças: " + dados.ameacas);
 
-    // 3. CRIAÇÃO DA CENA AR
+    // ==========================================
+    // 3. COMPONENTE DE ARRASTAR (GIRAR O MODELO)
+    // ==========================================
+    AFRAME.registerComponent('drag-rotate', {
+      init: function () {
+        this.isDragging = false;
+        this.previousMousePosition = { x: 0, y: 0 };
+        
+        // Detecta o toque na tela
+        this.el.sceneEl.canvas.addEventListener('touchstart', (e) => {
+          if(e.touches.length === 1) {
+            this.isDragging = true;
+            this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          }
+        }, { passive: true });
+
+        // Move o modelo conforme o dedo desliza
+        this.el.sceneEl.canvas.addEventListener('touchmove', (e) => {
+          if (!this.isDragging || e.touches.length !== 1) return;
+          
+          const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
+          const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
+          
+          // Rotação Horizontal (Y) - 360 graus
+          this.el.object3D.rotation.y += deltaX * 0.01;
+          
+          // Rotação Vertical (X) - Limitada para não virar de ponta cabeça
+          this.el.object3D.rotation.x += deltaY * 0.01;
+          this.el.object3D.rotation.x = Math.max(-0.5, Math.min(0.5, this.el.object3D.rotation.x));
+          
+          this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          
+          // Previne que a tela recarregue ou faça scroll
+          if(e.cancelable) e.preventDefault();
+        }, { passive: false });
+
+        this.el.sceneEl.canvas.addEventListener('touchend', () => {
+          this.isDragging = false;
+        });
+
+        // Suporte para testar com o mouse no PC
+        this.el.sceneEl.canvas.addEventListener('mousedown', (e) => {
+          this.isDragging = true;
+          this.previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('mousemove', (e) => {
+          if (!this.isDragging) return;
+          const deltaX = e.clientX - this.previousMousePosition.x;
+          const deltaY = e.clientY - this.previousMousePosition.y;
+          this.el.object3D.rotation.y += deltaX * 0.01;
+          this.el.object3D.rotation.x += deltaY * 0.01;
+          this.el.object3D.rotation.x = Math.max(-0.5, Math.min(0.5, this.el.object3D.rotation.x));
+          this.previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('mouseup', () => { this.isDragging = false; });
+      }
+    });
+
+    // ==========================================
+    // 4. CRIAÇÃO DA CENA AR
+    // ==========================================
     const container = document.getElementById('scene-container');
     
     container.innerHTML = `
@@ -129,10 +190,10 @@
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- Marcador configurado para ser estável -->
         <a-marker type="barcode" value="5" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
           
-          <a-entity id="modelo-wrapper" visible="false">
+          <!-- ADICIONAMOS O COMPONENTE DRAG-ROTATE AQUI -->
+          <a-entity id="modelo-wrapper" visible="false" drag-rotate>
             <a-gltf-model id="animal-3d" src="#modelo-animal"></a-gltf-model>
           </a-entity>
 
@@ -147,9 +208,9 @@
     const modeloWrapper = cena.querySelector('#modelo-wrapper');
     const painel = document.getElementById('painel-info');
     const hint = document.getElementById('hint');
-
-    // AQUI ESTÁ A MÁGICA: Ajusta o modelo APENAS UMA VEZ quando ele carrega!
     const animal3D = document.getElementById('animal-3d');
+
+    // Ajuste perfeito da altura do modelo
     animal3D.addEventListener('model-loaded', () => {
         const mesh = animal3D.getObject3D('mesh');
         if (!mesh) return;
@@ -164,16 +225,14 @@
         const center = box.getCenter(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         
-        const ALVO = 1.5; // Altura de 1.5 metros
+        const ALVO = 1.5; 
         const escala = ALVO / maxDim;
         
         mesh.scale.set(escala, escala, escala);
         mesh.updateMatrixWorld(true);
         
-        // Recalcula caixa após escala para achar o fundo exato (min.y)
         const box2 = new THREE.Box3().setFromObject(mesh);
         
-        // Centraliza X e Z, e coloca o fundo em Y=0 (no papel)
         mesh.position.set(
             -center.x * escala, 
             -box2.min.y, 
@@ -182,19 +241,16 @@
         mesh.updateMatrixWorld(true);
     });
 
-    // Quando acha o QR Code: Mostra o modelo e o painel
     marcador.addEventListener('markerFound', () => {
       hint.style.display = 'none';
       modeloWrapper.setAttribute('visible', 'true');
       painel.style.display = 'flex';
     });
 
-    // Quando perde o QR de vista: Esconde o modelo para não flutuar
     marcador.addEventListener('markerLost', () => {
       modeloWrapper.setAttribute('visible', 'false');
     });
 
-    // Botão de Fechar
     document.getElementById('btn-fechar').addEventListener('click', () => {
       synth.cancel();
       modeloWrapper.setAttribute('visible', 'false');
