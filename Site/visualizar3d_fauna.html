@@ -59,7 +59,7 @@
 
     .hint { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #ffcb05; padding: 10px 20px; border-radius: 20px; font-weight: bold; z-index: 999; border: 2px solid #ffcb05; text-align: center; width: 90%; max-width: 400px; font-family: 'Courier New', monospace; font-size: 0.85rem; }
 
-    /* OVERLAY DA IMAGEM (Fica por cima do AR) */
+    /* OVERLAY DA IMAGEM */
     #ar-image-overlay {
       display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
       z-index: 9999; width: 85vw; max-width: 400px;
@@ -74,7 +74,6 @@
 <body>
   <div class="hint" id="hint">📷 Aponte para o QR Code e arraste o dedo para girar</div>
 
-  <!-- CAMADA DA IMAGEM (O que vai aparecer ao clicar no botão) -->
   <div id="ar-image-overlay">
     <img id="ar-image-content" src="" alt="Hotspot">
   </div>
@@ -97,7 +96,6 @@
     const params = new URLSearchParams(window.location.search);
     const animalId = params.get('id') || 'pe-1'; 
 
-    // 1. SISTEMA DE VOZ
     const synth = window.speechSynthesis;
     function falar(texto) {
       synth.cancel(); 
@@ -110,7 +108,6 @@
       synth.speak(utterance);
     }
 
-    // 2. MAPEAMENTO DE MODELOS 3D
     const modelosMap = {
       'pe-1': 'assets/modelo/peixe_boi.glb',
       'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
@@ -124,7 +121,6 @@
       'pe-10': 'assets/modelo/galo_de_campina_novo.glb'
     };
 
-    // 3. MAPEAMENTO DE IMAGENS DOS HOTSPOTS
     const imagensMap = {
       'pe-1': { oque: 'assets/hotspots/costeiro_peixeboi_animal.jpg', alimentacao: 'assets/hotspots/costeiro_peixeboi_capim.jpg', habitat: 'assets/hotspots/costeiro_peixeboi_estuario.jpg', ameacas: 'assets/hotspots/costeiro_peixeboi_boia.jpg' },
       'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' },
@@ -138,7 +134,6 @@
       'pe-10': { oque: 'assets/hotspots/caatinga_galo_ave.jpg', alimentacao: 'assets/hotspots/caatinga_galo_bioma.jpg', habitat: 'assets/hotspots/caatinga_galo_juazeiro.jpg', ameacas: 'assets/hotspots/caatinga_galo_cupinzeiro.jpg' }
     };
 
-    // 4. COMPONENTE DE ARRASTAR (GIRAR O MODELO)
     AFRAME.registerComponent('drag-rotate', {
       init: function () {
         this.isDragging = false;
@@ -181,7 +176,6 @@
       }
     });
 
-    // 5. LÓGICA DE IMAGEM E ÁUDIO
     let timeoutImagem;
     function falarEMostrar(texto, imagemSrc) {
       falar(texto);
@@ -196,7 +190,6 @@
       }
     }
 
-    // 6. CARREGAR DADOS E MONTAR CENA
     async function iniciarAR() {
       try {
         const res = await fetch('fauna_pe.json');
@@ -220,11 +213,18 @@
         const modeloPath = modelosMap[animalId] || animal.modelo_gltf || "assets/modelo/animais.glb";
         const container = document.getElementById('scene-container');
         
+        // ATENÇÃO: O value="5" abaixo é o primeiro QR Code que você imprimiu. 
+        // Se você quiser usar o número 7, troque o 5 por 7.
         container.innerHTML = `
           <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" renderer="alpha: true; antialias: true;" vr-mode-ui="enabled: false" loading-screen="enabled: false">
             <a-assets><a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item></a-assets>
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-            <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+            
+            <a-marker type="barcode" value="5" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+              
+              <!-- QUADRADO VERMELHO DE TESTE (Se isso aparecer, o QR Code funciona) -->
+              <a-box color="red" width="0.5" height="0.5" depth="0.5" position="0 0.25 0"></a-box>
+
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-3d" src="#modelo-animal"></a-gltf-model>
               </a-entity>
@@ -241,7 +241,16 @@
         const painel = document.getElementById('painel-info');
         const hint = document.getElementById('hint');
 
+        // Tratamento de erro caso o arquivo GLB não carregue
+        animal3D.addEventListener('model-error', () => {
+          document.getElementById('hint').textContent = "❌ Erro: O arquivo 3D não foi encontrado. Verifique a pasta 'assets/modelo'.";
+          document.getElementById('hint').style.display = 'block';
+          document.getElementById('hint').style.color = '#ff4d4d';
+          document.getElementById('hint').style.borderColor = '#ff4d4d';
+        });
+
         animal3D.addEventListener('model-loaded', () => {
+            document.getElementById('hint').style.display = 'none'; // Esconde o erro se carregar
             const mesh = animal3D.getObject3D('mesh');
             if (!mesh) return;
             mesh.position.set(0, 0, 0); mesh.rotation.set(0, 0, 0); mesh.scale.set(1, 1, 1); mesh.updateMatrixWorld(true);
@@ -269,7 +278,7 @@
 
       } catch (erro) {
         console.error(erro);
-        document.getElementById('hint').textContent = "❌ Erro ao carregar os dados do animal.";
+        document.getElementById('hint').textContent = "❌ Erro ao carregar os dados.";
       }
     }
 
