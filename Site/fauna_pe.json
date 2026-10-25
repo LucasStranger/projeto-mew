@@ -13,7 +13,8 @@
       "habitat": [
         "Ambientes costeiros",
         "estuários",
-        "litoral"
+        "litoral",
+        "manguezais"
       ],
       "alimentacao": [
         "plantas aquáticas",
@@ -22,17 +23,16 @@
       ],
       "caracteristicas": {
         "tamanho": "podem chegar a medir 4 metros",
-        "coloracao": "varia entre cinza e marrom-acinzentado, podendo mudar de tom ao longo da vida ou devido a fatores externos",
-        "comportamento": "temperamento extremamente dócil e pacífico",
+        "coloracao": "varia entre cinza e marrom-acinzentado, podendo mudar de tom ao longo da vida",
+        "comportamento": "temperamento extremamente dócil e pacífico, conhecido como 'engenheiro do ecossistema' por ajudar a manter a saúde das pradarias marinhas",
         "expectativa_vida": "até 60 anos",
-        "peso": "até 1.000 kg"
+        "peso": "até 800 kg"
       },
       "principais_ameacas": [
-        "degradação de estuários",
-        "caça",
-        "perda de habitats",
+        "colisões com embarcações",
+        "degradação de estuários e manguezais",
         "captura acidental em redes de pesca",
-        "ocupação costeira desordenada"
+        "poluição e ocupação costeira desordenada"
       ],
       "id": "pe-1"
     },
@@ -44,24 +44,26 @@
       "situacao": "Vulnerável",
       "habitat": [
         "áreas abertas",
-        "regiões úmidas",
-        "áreas de transição"
+        "savanas",
+        "florestas tropicais úmidas",
+        "Cerrado",
+        "Caatinga"
       ],
       "alimentacao": [
         "formigas",
         "cupins"
       ],
       "caracteristicas": {
-        "tamanho": "podem chegar a 2,10 metros de comprimento total",
-        "coloracao": "varia do cinza ao marrom-acinzentado",
-        "comportamento": "é um animal solitário, pacífico e de movimentos lentos, que passa grande parte do dia em busca de alimento",
-        "expectativa_vida": "entre 15 e 25 anos na natureza, podendo chegar a cerca de 25 a 32 anos quando mantido em cativeiro",
-        "peso": "até 63 kg em casos raros"
+        "tamanho": "podem chegar a 2,20 metros de comprimento total",
+        "coloracao": "cinza a marrom-acinzentado, com faixa preta diagonal no tórax",
+        "comportamento": "solitário, pacífico e de movimentos lentos, passa grande parte do dia em busca de alimento; usa garras poderosas para abrir cupinzeiros",
+        "expectativa_vida": "entre 15 e 25 anos na natureza",
+        "peso": "até 45 kg"
       },
       "principais_ameacas": [
+        "perda e fragmentação de habitat",
+        "queimadas criminosas",
         "atropelamentos",
-        "incêndios florestais",
-        "perda de habitat",
         "caça e ataques de cães"
       ],
       "id": "pe-2"
@@ -73,7 +75,8 @@
       "classe": "Mamíferos",
       "modelo_gltf": "assets/modelo/tatubola_donordeste.glb",
       "habitat": [
-        "caatinga"
+        "caatinga",
+        "Cerrado"
       ],
       "alimentacao": [
         "formigas",
@@ -83,15 +86,16 @@
         "raízes"
       ],
       "caracteristicas": {
-        "tamanho": "mede cerca de 30 cm ",
-        "coloracao": "marrom escura puxada para o preto em sua carapaça e em seu corpo",
-        "comportamento": "hábito único de se enrolar completamente em uma esfera rígida para se proteger de predadores",
+        "tamanho": "mede cerca de 30 cm",
+        "coloracao": "marrom escura puxada para o preto em sua carapaça",
+        "comportamento": "hábito único de se enrolar completamente em uma esfera rígida para se proteger de predadores; é o menor tatu do Brasil",
         "expectativa_vida": "15 a 25 anos na natureza",
         "peso": "entre 1 kg e 1,8 kg"
       },
       "principais_ameacas": [
-        "destruição do habitat",
-        "caça ilegal"
+        "caça predatória e de subsistência",
+        "perda de habitat para pasto e cultivos",
+        "atropelamentos"
       ],
       "id": "pe-3"
     },
@@ -103,7 +107,8 @@
       "escala": "1.5",
       "modelo_gltf": "assets/modelo/Sairapintor.glb",
       "habitat": [
-        "mata atlântica do nordeste brasileiro"
+        "Mata Atlântica do nordeste brasileiro",
+        "florestas úmidas"
       ],
       "alimentacao": [
         "frutos",
@@ -112,13 +117,13 @@
       "caracteristicas": {
         "tamanho": "mede entre 13 a 14 cm",
         "coloracao": "plumagem extremamente colorida, combinando azul-turquesa, verde, amarelo, preto e tons violáceos",
-        "comportamento": "vive em pequenos grupos familiares e é uma espécie bastante territorialista",
+        "comportamento": "vive em pequenos grupos familiares e é uma espécie bastante territorialista; endêmica do Centro de Endemismo Pernambuco",
         "expectativa_vida": "6 a 9 anos na natureza",
         "peso": "entre 16 e 21 gramas"
       },
       "principais_ameacas": [
-        "destruição da Mata Atlântica",
-        "caça ilegal para o tráfico de aves silvestres"
+        "tráfico ilegal de aves silvestres",
+        "destruição e fragmentação da Mata Atlântica"
       ],
       "id": "pe-4"
     },
@@ -131,7 +136,8 @@
       "modelo_gltf": "assets/modelo/Limpafolha.glb",
       "ordem": "Passeriformes",
       "habitat": [
-        "Mata Atlântica do Nordeste"
+        "Mata Atlântica do Nordeste",
+        "fragmentos florestais úmidos"
       ],
       "alimentacao": [
         "insetos",
@@ -140,7 +146,7 @@
       "caracteristicas": {
         "tamanho": "mede cerca de 18 cm",
         "coloracao": "vermelho-tijolo-escura",
-        "comportamento": "ave ativa que vivia nos estratos mais altos da floresta, movendo-se de forma solitária ou em bandos mistos com outras espécies",
+        "comportamento": "ave insetívora que vivia nos estratos mais altos da floresta, dependente de micro-habitats com riachos no interior da mata",
         "ultimo_registro": "em 2011"
       },
       "principais_ameacas": [
@@ -156,28 +162,27 @@
       "modelo_gltf": "assets/modelo/Gato_Maracaja.glb",
       "habitat": [
         "florestas tropicais",
-        "cerrado",
-        "caatinga",
-        "áreas pantanosas"
+        "florestas primárias e secundárias"
       ],
       "alimentacao": [
-        "mamíferos arborícolas (gambás, esquilos e ratos do mato)",
+        "mamíferos arborícolas",
         "aves",
         "répteis",
         "anfíbios",
         "insetos"
       ],
       "caracteristicas": {
-        "tamanho": "podem medir entre 42 e 80 cm de comprimento entre cabeça e corpo, com a cauda medindo de 30 a 51 cm",
-        "coloracao": "pelagem de coloração base que varia do amarelo-acinzentado e amarelo-dourado até o castanho-amarelado ou acastanhado nas partes superiores do corpo",
-        "comportamento": "são solitários e descansam em árvores de dia",
-        "expectativa_vida": "até 13 anos na natureza e até 20 anos em cativeiro",
-        "peso": "entre 3kg e 5 kg"
+        "tamanho": "entre 42 e 80 cm de comprimento",
+        "coloracao": "amarelo-acinzentado a castanho-amarelado, com manchas escuras",
+        "comportamento": "felino arborícola, solitário e noturno; possui tornozelos que giram 180 graus, permitindo descer de troncos de cabeça para baixo",
+        "expectativa_vida": "até 13 anos na natureza",
+        "peso": "entre 3 kg e 5 kg"
       },
       "principais_ameacas": [
-        "caça",
         "perda e fragmentação de habitat",
-        "atropelamentos"
+        "caça",
+        "atropelamentos",
+        "retaliação por predação de animais domésticos"
       ],
       "id": "pe-6"
     },
@@ -189,7 +194,8 @@
       "modelo_gltf": "assets/modelo/Jaguatirica.glb",
       "habitat": [
         "caatinga",
-        "florestas tropicais"
+        "florestas tropicais",
+        "todos os biomas brasileiros"
       ],
       "alimentacao": [
         "mamíferos",
@@ -198,16 +204,17 @@
         "frutas"
       ],
       "caracteristicas": {
-        "tamanho": "seu corpo varia entre 64 e 101,5 cm e a cauda pode medir 35,4 cm",
-        "coloracao": "pelagem curta com coloração entre amarela, preta, cinza, marrom e branca. Possuem manchas e listras no corpo todo, sendo que na barriga são mais claras",
+        "tamanho": "corpo entre 64 e 101,5 cm",
+        "coloracao": "amarela a parda com ocelas em fileiras",
         "comportamento": "felino solitário, territorial e de hábitos predominantemente noturnos e crepusculares",
-        "expectativa_vida": "aproximadamente 10 anos na natureza e 20 anos e cativeiro",
+        "expectativa_vida": "aproximadamente 10 anos na natureza",
         "peso": "entre 6,6 kg e 18,6 kg"
       },
       "principais_ameacas": [
+        "perda de habitat",
         "atropelamentos",
-        "caça",
-        "perda de habitat"
+        "caça ilegal",
+        "conflitos com humanos"
       ],
       "id": "pe-7"
     },
@@ -219,7 +226,8 @@
       "modelo_gltf": "assets/modelo/tartaruga_de_pente.glb",
       "habitat": [
         "recifes de corais",
-        "costões rochosos em águas costeiras rasas"
+        "costões rochosos",
+        "águas costeiras rasas"
       ],
       "alimentacao": [
         "esponjas",
@@ -228,16 +236,17 @@
         "algas"
       ],
       "caracteristicas": {
-        "tamanho": "até 114 cm de comprimento de carapaça",
-        "coloracao": "carapaça com um padrão chamativo em formato de mosaico, misturando tons de marrom, âmbar, amarelo, laranja, dourado e preto",
-        "comportamento": "animal de vida solitária, altamente migratório e que só se junta a outros da mesma espécie na época da reprodução",
+        "tamanho": "até 114 cm de comprimento",
+        "coloracao": "carapaça em mosaico com tons de marrom, âmbar e amarelo",
+        "comportamento": "animal de vida solitária e altamente migratório; usa seu bico em forma de gancho para retirar esponjas das fendas dos recifes",
         "expectativa_vida": "aproximadamente 60 anos",
         "peso": "até 150 kg"
       },
       "principais_ameacas": [
         "captura acidental em redes de pesca",
-        "degradação e ocupação desordenada do ambiente costeiro",
-        "poluição marinha"
+        "degradação do ambiente costeiro",
+        "poluição marinha",
+        "coleta de ovos"
       ],
       "id": "pe-8"
     },
@@ -248,24 +257,26 @@
       "classe": "Répteis",
       "modelo_gltf": "assets/modelo/tartaruga_de_couro.glb",
       "habitat": [
-        "oceano",
-        "litoral na épocas de desova"
+        "oceano aberto",
+        "zona pelágica",
+        "litoral na época de desova"
       ],
       "alimentacao": [
         "águas-vivas",
-        "zoôplancton"
+        "zooplâncton gelatinoso"
       ],
       "caracteristicas": {
-        "tamanho": "possui cerca de 1,78 metros de comprimento de carapaça e até 2 metros de nadadeira dianteiras",
-        "coloracao": "varia de cinza escuro a preto com manchas brancas por todo o corpo",
-        "comportamento": "animais migratórios, transitando entre áreas de alimentação e descanso para as áreas de reprodução",
+        "tamanho": "cerca de 1,78 metros de comprimento",
+        "coloracao": "cinza escuro a preto com manchas brancas",
+        "comportamento": "a maior tartaruga marinha do mundo; altamente migratória, pode mergulhar mais de 1.000 metros de profundidade",
         "expectativa_vida": "entre 40 e 80 anos",
         "peso": "entre 400 kg e 700 kg"
       },
       "principais_ameacas": [
-        "sacolas plásticas",
+        "ingestão de sacolas plásticas",
         "coleta de ovos",
-        "captura acidental em redes"
+        "captura acidental em redes",
+        "destruição de habitat e luz artificial nas praias"
       ],
       "id": "pe-9"
     },
@@ -279,7 +290,8 @@
       "habitat": [
         "caatinga",
         "áreas abertas",
-        "regiões semiáridas"
+        "regiões semiáridas",
+        "matas baixas"
       ],
       "alimentacao": [
         "sementes",
@@ -288,14 +300,13 @@
       ],
       "caracteristicas": {
         "tamanho": "aproximadamente 17 cm",
-        "coloracao": "corpo predominantemente cinza, com cabeça vermelha",
-        "comportamento": "vive geralmente em pares ou pequenos grupos",
+        "coloracao": "corpo predominantemente cinza com cabeça e garganta vermelhas",
+        "comportamento": "vive geralmente em pares ou pequenos grupos; é uma das aves canoras mais visadas pelo tráfico em Pernambuco",
         "expectativa_vida": "aproximadamente 15 anos",
         "peso": "aproximadamente 20 a 30 gramas"
       },
       "principais_ameacas": [
-        "captura ilegal",
-        "tráfico de animais silvestres",
+        "captura ilegal para o tráfico de aves",
         "perda de habitat"
       ],
       "id": "pe-10"

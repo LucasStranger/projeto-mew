@@ -97,6 +97,7 @@
     const params = new URLSearchParams(window.location.search);
     const animalId = params.get('id') || 'pe-1'; 
 
+    // 1. SISTEMA DE VOZ
     const synth = window.speechSynthesis;
     function falar(texto) {
       synth.cancel(); 
@@ -109,14 +110,21 @@
       synth.speak(utterance);
     }
 
+    // 2. MAPEAMENTO DE MODELOS 3D
     const modelosMap = {
-      'pe-1': 'assets/modelo/peixe_boi.glb', 'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
-      'pe-3': 'assets/modelo/tatu_bola_do_nordeste_med.glb', 'pe-4': 'assets/modelo/saira_pintor_med.glb',
-      'pe-5': 'assets/modelo/limpa_folha_do_nordeste_med.glb', 'pe-6': 'assets/modelo/gato_maracaja_med.glb',
-      'pe-7': 'assets/modelo/jaguatirica_med.glb', 'pe-8': 'assets/modelo/tartaruga_de_pente_med.glb',
-      'pe-9': 'assets/modelo/tartaruga_de_couro_med.glb', 'pe-10': 'assets/modelo/galo_de_campina_novo.glb'
+      'pe-1': 'assets/modelo/peixe_boi.glb',
+      'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
+      'pe-3': 'assets/modelo/tatu_bola_do_nordeste_med.glb',
+      'pe-4': 'assets/modelo/saira_pintor_med.glb',
+      'pe-5': 'assets/modelo/limpa_folha_do_nordeste_med.glb',
+      'pe-6': 'assets/modelo/gato_maracaja_med.glb',
+      'pe-7': 'assets/modelo/jaguatirica_med.glb',
+      'pe-8': 'assets/modelo/tartaruga_de_pente_med.glb',
+      'pe-9': 'assets/modelo/tartaruga_de_couro_med.glb',
+      'pe-10': 'assets/modelo/galo_de_campina_novo.glb'
     };
 
+    // 3. MAPEAMENTO DE IMAGENS DOS HOTSPOTS
     const imagensMap = {
       'pe-1': { oque: 'assets/hotspots/costeiro_peixeboi_animal.jpg', alimentacao: 'assets/hotspots/costeiro_peixeboi_capim.jpg', habitat: 'assets/hotspots/costeiro_peixeboi_estuario.jpg', ameacas: 'assets/hotspots/costeiro_peixeboi_boia.jpg' },
       'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' },
@@ -130,6 +138,7 @@
       'pe-10': { oque: 'assets/hotspots/caatinga_galo_ave.jpg', alimentacao: 'assets/hotspots/caatinga_galo_bioma.jpg', habitat: 'assets/hotspots/caatinga_galo_juazeiro.jpg', ameacas: 'assets/hotspots/caatinga_galo_cupinzeiro.jpg' }
     };
 
+    // 4. COMPONENTE DE ARRASTAR (GIRAR O MODELO)
     AFRAME.registerComponent('drag-rotate', {
       init: function () {
         this.isDragging = false;
@@ -172,6 +181,7 @@
       }
     });
 
+    // 5. LÓGICA DE IMAGEM E ÁUDIO
     let timeoutImagem;
     function falarEMostrar(texto, imagemSrc) {
       falar(texto);
@@ -186,6 +196,7 @@
       }
     }
 
+    // 6. CARREGAR DADOS E MONTAR CENA
     async function iniciarAR() {
       try {
         const res = await fetch('fauna_pe.json');
@@ -213,7 +224,7 @@
           <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" renderer="alpha: true; antialias: true;" vr-mode-ui="enabled: false" loading-screen="enabled: false">
             <a-assets><a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item></a-assets>
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-            <a-marker type="barcode" value="5" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+            <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-3d" src="#modelo-animal"></a-gltf-model>
               </a-entity>
