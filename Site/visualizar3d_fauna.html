@@ -66,8 +66,9 @@
     }
     
     #btn-forcar-holograma {
-      background: #ffcb05; color: #000; border: none; padding: 5px 10px;
+      background: #ffcb05; color: #000; border: none; padding: 8px 12px;
       border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.75rem;
+      width: 100%;
     }
 
     #ar-image-overlay {
@@ -83,8 +84,8 @@
 </head>
 <body>
   <div class="hint" id="hint">
-    <span id="hint-texto">📷 Aponte para o QR Code (Aguarde o modelo carregar...)</span>
-    <button id="btn-forcar-holograma">Mostrar Animal na Tela (Modo Holograma)</button>
+    <span id="hint-texto">📷 Aponte para o QR Code...</span>
+    <button id="btn-forcar-holograma">Mostrar Animal na Tela</button>
   </div>
 
   <div id="ar-image-overlay">
@@ -121,18 +122,8 @@
       synth.speak(utterance);
     }
 
-    // MUDANÇA AQUI: Usando os arquivos _med.glb que são mais leves para celular
     const modelosMap = {
-      'pe-1': 'assets/modelo/peixe_boi_med.glb',
-      'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
-      'pe-3': 'assets/modelo/tatu_bola_do_nordeste_med.glb',
-      'pe-4': 'assets/modelo/saira_pintor_med.glb',
-      'pe-5': 'assets/modelo/limpa_folha_do_nordeste_med.glb',
-      'pe-6': 'assets/modelo/gato_maracaja_med.glb',
-      'pe-7': 'assets/modelo/jaguatirica_med.glb',
-      'pe-8': 'assets/modelo/tartaruga_de_pente_med.glb',
-      'pe-9': 'assets/modelo/tartaruga_de_couro_med.glb',
-      'pe-10': 'assets/modelo/galo_de_campina_novo.glb' // Não achei o _med na sua imagem, mas o _novo deve ser leve
+      'pe-1': 'assets/modelo/peixe_boi_med.glb'
     };
 
     const imagensMap = {
@@ -201,13 +192,17 @@
               <a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item>
             </a-assets>
 
-            <a-camera position="0 0 0" look-controls="enabled: false">
-              <a-entity id="modelo-hud" visible="false" position="0 -0.5 -2" drag-rotate>
-                <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
-              </a-entity>
-            </a-camera>
+            <!-- CAMERA -->
+            <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-            <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+            <!-- MODO HOLOGRAMA (Fora da câmera agora) -->
+            <a-entity id="modelo-hud" visible="false" position="0 1 -3" drag-rotate>
+              <a-box color="red" width="0.5" height="0.5" depth="0.5" position="-1 0 0"></a-box>
+              <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
+            </a-entity>
+
+            <!-- MARCADOR QR CODE -->
+            <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="5" smoothTolerance="0.5" smoothThreshold="1">
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-ar" src="#modelo-animal"></a-gltf-model>
               </a-entity>
@@ -225,7 +220,7 @@
 
         const ajustarModelo = (el) => {
           el.addEventListener('model-loaded', () => {
-            document.getElementById('hint-texto').textContent = "✅ Modelo Carregado! Aponte para o QR Code.";
+            document.getElementById('hint-texto').textContent = "✅ Modelo Carregado!";
             const mesh = el.getObject3D('mesh');
             if (!mesh) return;
             const box = new THREE.Box3().setFromObject(mesh);
@@ -234,46 +229,31 @@
             const escala = 1.5 / maxDim;
             mesh.scale.set(escala, escala, escala);
             mesh.position.set(0, 0, 0);
-            if (el.id === 'animal-ar') {
-              mesh.position.y = (size.y * escala) / 2;
-            }
-          });
-          el.addEventListener('model-error', () => {
-            document.getElementById('hint-texto').textContent = "❌ ERRO: O arquivo 3D não foi encontrado!";
-            document.getElementById('hint-texto').style.color = "#ff4d4d";
+            if (el.id === 'animal-ar') { mesh.position.y = (size.y * escala) / 2; }
           });
         };
         ajustarModelo(document.getElementById('animal-ar'));
         ajustarModelo(document.getElementById('animal-hud'));
 
         let timerPerda = null;
-        let marcadorJaFoiEncontrado = false;
 
         marcador.addEventListener('markerFound', () => {
-          marcadorJaFoiEncontrado = true;
           clearTimeout(timerPerda);
-          
-          // Se o HUD estiver visível e achar o marcador, esconde o HUD
           modeloHud.setAttribute('visible', 'false');
-          
           modeloWrapper.setAttribute('visible', 'true');
           painel.style.display = 'flex';
           hint.style.display = 'none';
         });
 
         marcador.addEventListener('markerLost', () => {
-          if (!marcadorJaFoiEncontrado) return; // Se nunca achou, não faz nada
-
           timerPerda = setTimeout(() => {
             modeloWrapper.setAttribute('visible', 'false');
             modeloHud.setAttribute('visible', 'true');
-            
-            hint.style.display = 'flex';
-            document.getElementById('hint-texto').textContent = "🔮 Modo Holograma Ativado!";
+            hint.style.display = 'none';
           }, 5000);
         });
 
-        // BOTÃO DE PÂNICO (Failsafe para a apresentação)
+        // BOTÃO DE PÂNICO (Failsafe)
         document.getElementById('btn-forcar-holograma').addEventListener('click', () => {
           modeloWrapper.setAttribute('visible', 'false');
           modeloHud.setAttribute('visible', 'true');
