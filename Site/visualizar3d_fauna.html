@@ -64,12 +64,6 @@
       width: 90%; max-width: 400px; font-family: 'Courier New', monospace; font-size: 0.85rem; 
       display: flex; flex-direction: column; gap: 10px; align-items: center;
     }
-    
-    #btn-forcar-holograma {
-      background: #ffcb05; color: #000; border: none; padding: 8px 12px;
-      border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.75rem;
-      width: 100%;
-    }
 
     #ar-image-overlay {
       display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -85,7 +79,6 @@
 <body>
   <div class="hint" id="hint">
     <span id="hint-texto">📷 Aponte para o QR Code...</span>
-    <button id="btn-forcar-holograma">Mostrar Animal na Tela</button>
   </div>
 
   <div id="ar-image-overlay">
@@ -202,18 +195,18 @@
               <a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item>
             </a-assets>
 
-            <!-- LUZES GLOBAIS -->
             <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
             <a-entity position="0 5 2" light="type: directional; color: #ffffff; intensity: 1.5"></a-entity>
             <a-entity position="-2 2 1" light="type: point; color: #ffffff; intensity: 0.8"></a-entity>
 
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-            <!-- MUDANÇA AQUI: Holograma mais perto (-1.5) e com escala aumentada (1.5x) -->
+            <!-- MODO HOLOGRAMA (Fica preso na tela) -->
             <a-entity id="modelo-hud" visible="false" position="0 -0.2 -1.5" scale="1.5 1.5 1.5" drag-rotate>
               <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
             </a-entity>
 
+            <!-- MARCADOR QR CODE -->
             <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-ar" src="#modelo-animal"></a-gltf-model>
@@ -246,29 +239,27 @@
         ajustarModelo(document.getElementById('animal-hud'));
 
         let timerPerda = null;
+        let jaEncontrouUmaVez = false;
 
         marcador.addEventListener('markerFound', () => {
-          clearTimeout(timerPerda);
-          modeloHud.setAttribute('visible', 'false');
-          modeloWrapper.setAttribute('visible', 'true');
+          jaEncontrouUmaVez = true;
+          clearTimeout(timerPerda); // Cancela a ida pro holograma se o QR voltar
+          
+          modeloHud.setAttribute('visible', 'false'); // Esconde o holograma
+          modeloWrapper.setAttribute('visible', 'true'); // Mostra no chão
           painel.style.display = 'flex';
           hint.style.display = 'none';
         });
 
         marcador.addEventListener('markerLost', () => {
-          timerPerda = setTimeout(() => {
-            modeloWrapper.setAttribute('visible', 'false');
-            modeloHud.setAttribute('visible', 'true');
-            hint.style.display = 'none';
-          }, 5000);
-        });
+          if (!jaEncontrouUmaVez) return; // Só ativa se já tiver achado o QR pelo menos uma vez
 
-        // BOTÃO DE PÂNICO
-        document.getElementById('btn-forcar-holograma').addEventListener('click', () => {
-          modeloWrapper.setAttribute('visible', 'false');
-          modeloHud.setAttribute('visible', 'true');
-          painel.style.display = 'flex';
-          hint.style.display = 'none';
+          // Dá 1 segundo de tolerância. Se o QR não voltar, ativa o holograma sozinho.
+          timerPerda = setTimeout(() => {
+            modeloWrapper.setAttribute('visible', 'false'); // Esconde do chão
+            modeloHud.setAttribute('visible', 'true');      // Mostra na tela
+            hint.style.display = 'none';
+          }, 1000); 
         });
 
       } catch (erro) {
