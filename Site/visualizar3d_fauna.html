@@ -3,379 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Realidade Aumentada — Projeto Mew</title>
+  <title>Realidade Aumentada (World Tracking) — Projeto Mew</title>
   
-  <script src="https://aframe.io/releases/1.4.0/aframe.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+  <!-- Usando a versão mais recente do A-Frame que possui o componente ar-hit-test -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100dvh; overflow: hidden; background: transparent !important; touch-action: none; font-family: 'Segoe UI', sans-serif; }
-    
-    #scene-container { position: fixed; inset: 0; width: 100vw; height: 100dvh; z-index: 0; }
-
-    /* --- POPUP DE INFORMAÇÕES (MENOR) --- */
-    #painel-info {
-      position: fixed;
-      bottom: 15px; left: 15px; right: 15px;
-      background: rgba(5, 30, 15, 0.95);
-      border: 2px solid #7ee898;
-      border-radius: 12px;
-      padding: 12px 15px;
-      z-index: 1000;
-      display: none; 
-      flex-direction: column;
-      gap: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(63, 185, 80, 0.3);
-      backdrop-filter: blur(8px);
-      max-height: 45vh;
-      overflow-y: auto;
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; overflow: hidden; background: #000; }
+    #ui-overlay {
+      position: fixed; bottom: 20px; left: 0; width: 100%;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      z-index: 1000; pointer-events: none;
     }
-
-    #painel-info h2 { color: #7ee898; font-family: 'Courier New', monospace; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 2px; border-bottom: 1px dashed rgba(126,232,152,0.3); padding-bottom: 6px; }
-    #painel-info .cientifico { font-style: italic; color: #a8d8b8; font-size: 0.75rem; margin-bottom: 8px; }
-
-    .btn-hotspot {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(126, 232, 152, 0.1);
-      border: 1px solid rgba(126, 232, 152, 0.4);
-      color: #d5ffdd;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem; font-weight: 600;
-      cursor: pointer; text-align: left;
-      transition: all 0.2s;
+    #btn-ar {
+      background: #7ee898; color: #051020; font-size: 1.1rem; font-weight: bold;
+      padding: 15px 30px; border: 2px solid #fff; border-radius: 30px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5); cursor: pointer; pointer-events: auto;
+      text-transform: uppercase; letter-spacing: 1px; transition: transform 0.2s;
     }
-    .btn-hotspot:active { background: rgba(126, 232, 152, 0.3); border-color: #7ee898; transform: scale(0.98); }
-    .btn-hotspot .icone { font-size: 1rem; }
-
-    .btn-fechar {
-      background: linear-gradient(135deg, #dc0a2d, #a3081f);
-      color: white; border: none; padding: 10px; border-radius: 8px;
-      font-weight: bold; font-size: 0.85rem; cursor: pointer; margin-top: 5px;
-      text-transform: uppercase; letter-spacing: 1px;
-      box-shadow: 0 4px 12px rgba(220,10,45,0.4);
+    #btn-ar:active { transform: scale(0.95); }
+    #instrucao {
+      background: rgba(0,0,0,0.7); color: #fff; padding: 8px 15px;
+      border-radius: 20px; font-size: 0.8rem; display: none;
     }
-
-    /* --- HINT (AVISO INICIAL) --- */
-    .hint { 
-      position: fixed; top: 15px; left: 50%; transform: translateX(-50%); 
-      background: rgba(0,0,0,0.8); color: #ffcb05; padding: 8px 15px; border-radius: 15px; 
-      font-weight: bold; z-index: 999; border: 2px solid #ffcb05; text-align: center; 
-      width: 90%; max-width: 350px; font-family: 'Courier New', monospace; font-size: 0.75rem; 
-    }
-
-    /* --- IMAGEM DO HOTSPOT --- */
-    #ar-image-overlay {
-      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      z-index: 9999; width: 80vw; max-width: 350px;
-      border-radius: 12px; overflow: hidden; border: 3px solid #7ee898;
-      box-shadow: 0 0 40px rgba(0,0,0,0.9); background: #0a1a0c;
-      pointer-events: none; animation: popIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-    }
-    #ar-image-overlay img { width: 100%; display: block; }
-    @keyframes popIn { from{ opacity: 0; transform: translate(-50%, -40%) scale(0.9); } to{ opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-
-    /* --- MENU DE SELEÇÃO DE ANIMAIS --- */
-    #menu-animais {
-      display: none; position: fixed; inset: 0;
-      background: rgba(5, 15, 10, 0.95); z-index: 10000;
-      flex-direction: column; padding: 20px;
-      backdrop-filter: blur(10px);
-    }
-    .menu-header { text-align: center; margin-bottom: 15px; }
-    .menu-header h2 { color: #7ee898; font-family: 'Courier New', monospace; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
-    .menu-header p { color: #a8d8b8; font-size: 0.8rem; margin-top: 5px; }
-    
-    .menu-grid {
-      flex: 1; overflow-y: auto;
-      display: grid; grid-template-columns: 1fr; gap: 10px; padding-bottom: 15px;
-    }
-    
-    .menu-item {
-      background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(126, 232, 152, 0.3);
-      border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center;
-    }
-    .menu-nome { color: #e0f4ff; font-weight: bold; font-size: 0.9rem; }
-    
-    .menu-acoes { display: flex; gap: 8px; }
-    .btn-acao {
-      border: none; padding: 8px 12px; border-radius: 8px;
-      font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
-    }
-    .btn-3d { background: #7ee898; color: #051020; }
-    .btn-3d:active { background: #5cdb79; }
-    .btn-info { background: #00e0ff; color: #051020; }
-    .btn-info:active { background: #00b8d4; }
-
-    #btn-voltar-ar { margin-top: 10px; background: #ffcb05; color: #000; font-size: 0.9rem; padding: 12px; }
   </style>
 </head>
 <body>
-  <div class="hint" id="hint">
-    <span id="hint-texto">📷 Iniciando câmera...</span>
+
+  <div id="ui-overlay">
+    <div id="instrucao">Toque na tela para colocar o animal no chão</div>
+    <button id="btn-ar">Entrar no Modo AR</button>
   </div>
 
-  <div id="ar-image-overlay">
-    <img id="ar-image-content" src="" alt="Hotspot">
-  </div>
-
-  <!-- POPUP DE INFO DO ANIMAL -->
-  <div id="painel-info">
-    <h2 id="info-nome">Carregando...</h2>
-    <div class="cientifico" id="info-cientifico"></div>
+  <!-- CENA A-FRAME CONFIGURADA PARA WEBXR -->
+  <a-scene 
+    webxr="optionalFeatures: hit-test, local-floor;"
+    ar-hit-test="target: #animal-wrapper;"
+    renderer="antialias: true; colorManagement: true;"
+    background="transparent: true;"
+    style="width: 100vw; height: 100vh; display: block;">
     
-    <button class="btn-hotspot" id="btn-oque"><span class="icone">❓</span> O que é?</button>
-    <button class="btn-hotspot" id="btn-alimentacao"><span class="icone">🥩</span> Alimentação</button>
-    <button class="btn-hotspot" id="btn-habitat"><span class="icone">🌿</span> Habitat</button>
-    <button class="btn-hotspot" id="btn-ameacas"><span class="icone">⚠️</span> Ameaças</button>
-    
-    <button class="btn-fechar" id="btn-fechar">Fechar e Ver Outros Animais</button>
-  </div>
+    <!-- O animal que será colocado no chão. A classe "clickable" permite que ele seja girado -->
+    <a-entity id="animal-wrapper" visible="false">
+      <a-gltf-model 
+        id="modelo-3d" 
+        src="assets/modelo/peixe_boi_med.glb" 
+        scale="0.5 0.5 0.5" 
+        position="0 0 0">
+      </a-gltf-model>
+    </a-entity>
 
-  <!-- MENU DE SELEÇÃO DE ANIMAIS -->
-  <div id="menu-animais">
-    <div class="menu-header">
-      <h2>Escolha um Animal</h2>
-      <p>Toque em 🔮 para ver em 3D ou 📖 para ler detalhes</p>
-    </div>
-    <div class="menu-grid" id="menu-grid"></div>
-    <button class="btn-fechar" id="btn-voltar-ar">Voltar para o AR</button>
-  </div>
+    <!-- Luzes para o modelo não ficar preto -->
+    <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
+    <a-entity position="0 5 2" light="type: directional; color: #ffffff; intensity: 1.5"></a-entity>
 
-  <div id="scene-container"></div>
+  </a-scene>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const animalId = params.get('id') || 'pe-1'; 
-    const isHologramMode = params.get('hologram') === 'true'; // Verifica se veio do menu
+    const btnAR = document.getElementById('btn-ar');
+    const instrucao = document.getElementById('instrucao');
+    const sceneEl = document.querySelector('a-scene');
+    const animalWrapper = document.getElementById('animal-wrapper');
 
-    const synth = window.speechSynthesis;
-    function falar(texto) {
-      synth.cancel(); 
-      const utterance = new SpeechSynthesisUtterance(texto);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 1.0; 
-      const vozes = synth.getVoices();
-      const vozPt = vozes.find(v => v.lang.includes('pt-BR'));
-      if (vozPt) utterance.voice = vozPt;
-      synth.speak(utterance);
-    }
-
-    const modelosMap = {
-      'pe-1': 'assets/modelo/peixe_boi_med.glb',
-      'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
-      'pe-3': 'assets/modelo/tatu_bola_do_nordeste_med.glb',
-      'pe-4': 'assets/modelo/saira_pintor_med.glb',
-      'pe-5': 'assets/modelo/limpa_folha_do_nordeste_med.glb',
-      'pe-6': 'assets/modelo/gato_maracaja_med.glb',
-      'pe-7': 'assets/modelo/jaguatirica_med.glb',
-      'pe-8': 'assets/modelo/tartaruga_de_pente_med.glb',
-      'pe-9': 'assets/modelo/tartaruga_de_couro_med.glb',
-      'pe-10': 'assets/modelo/galo_de_campina_novo.glb'
-    };
-
-    const imagensMap = {
-      'pe-1': { oque: 'assets/hotspots/costeiro_peixeboi_animal.jpg', alimentacao: 'assets/hotspots/costeiro_peixeboi_capim.jpg', habitat: 'assets/hotspots/costeiro_peixeboi_estuario.jpg', ameacas: 'assets/hotspots/costeiro_peixeboi_boia.jpg' },
-      'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' },
-      'pe-3': { oque: 'assets/hotspots/caatinga_tatu_animal.jpg', alimentacao: 'assets/hotspots/caatinga_tatu_formigueiro.jpg', habitat: 'assets/hotspots/caatinga_tatu_bioma.jpg', ameacas: 'assets/hotspots/caatinga_tatu_ameacas.jpg' }
-    };
-
-    // LISTA PARA O MENU
-    const listaAnimais = [
-      { id: 'pe-1', nome: 'Peixe-boi-marinho' },
-      { id: 'pe-2', nome: 'Tamanduá-bandeira' },
-      { id: 'pe-3', nome: 'Tatu-bola-do-nordeste' },
-      { id: 'pe-4', nome: 'Saíra-pintor' },
-      { id: 'pe-5', nome: 'Limpa-folha-do-nordeste' },
-      { id: 'pe-6', nome: 'Gato-maracajá' },
-      { id: 'pe-7', nome: 'Jaguatirica' },
-      { id: 'pe-8', nome: 'Tartaruga-de-pente' },
-      { id: 'pe-9', nome: 'Tartaruga-de-couro' },
-      { id: 'pe-10', nome: 'Galo-de-Campina' }
-    ];
-
-    // PREENCHE O MENU
-    document.getElementById('menu-grid').innerHTML = listaAnimais.map(a => `
-      <div class="menu-item">
-        <span class="menu-nome">${a.nome}</span>
-        <div class="menu-acoes">
-          <button class="btn-acao btn-3d" onclick="irPara3D('${a.id}')">🔮 3D</button>
-          <button class="btn-acao btn-info" onclick="irParaInfo('${a.id}')">📖 Info</button>
-        </div>
-      </div>
-    `).join('');
-
-    window.irPara3D = (id) => { window.location.href = `visualizar3d_fauna.html?id=${id}&hologram=true`; };
-    window.irParaInfo = (id) => { window.location.href = `detalhes.html?id=${id}`; };
-
-    // CONTROLE DOS BOTÕES DO POPUP
-    document.getElementById('btn-fechar').addEventListener('click', () => {
-      document.getElementById('painel-info').style.display = 'none';
-      document.getElementById('menu-animais').style.display = 'flex';
+    // Lógica do botão de entrar no AR
+    btnAR.addEventListener('click', () => {
+      if (!sceneEl.hasLoaded) return;
+      
+      // Entra no modo imersivo de AR
+      sceneEl.enterVR(); 
+      
+      // Esconde o botão e mostra a instrução
+      btnAR.style.display = 'none';
+      instrucao.style.display = 'block';
     });
 
-    document.getElementById('btn-voltar-ar').addEventListener('click', () => {
-      document.getElementById('menu-animais').style.display = 'none';
-      document.getElementById('painel-info').style.display = 'flex';
+    // Lógica do componente ar-hit-test
+    // Ele dispara o evento 'ar-hit-test-start' quando um plano é encontrado e tocado
+    sceneEl.addEventListener('ar-hit-test-start', () => {
+      console.log('Hit-test iniciado');
     });
 
-    AFRAME.registerComponent('drag-rotate', {
-      init: function () {
-        this.isDragging = false;
-        this.previousMousePosition = { x: 0, y: 0 };
-        this.el.sceneEl.canvas.addEventListener('touchstart', (e) => {
-          if(e.touches.length === 1) { this.isDragging = true; this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }
-        }, { passive: true });
-        this.el.sceneEl.canvas.addEventListener('touchmove', (e) => {
-          if (!this.isDragging || e.touches.length !== 1) return;
-          const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
-          const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
-          this.el.object3D.rotation.y += deltaX * 0.01;
-          this.el.object3D.rotation.x += deltaY * 0.01;
-          this.el.object3D.rotation.x = Math.max(-0.5, Math.min(0.5, this.el.object3D.rotation.x));
-          this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-          if(e.cancelable) e.preventDefault();
-        }, { passive: false });
-        this.el.sceneEl.canvas.addEventListener('touchend', () => { this.isDragging = false; });
-      }
+    sceneEl.addEventListener('ar-hit-test-end', () => {
+      // Quando o usuário toca na tela e o hit-test encontra o chão
+      // O componente posiciona a entidade alvo automaticamente
+      animalWrapper.setAttribute('visible', 'true');
+      instrucao.textContent = 'Animal fixado! Mova o celular ao redor.';
+      
+      // Opcional: Tocar no animal faz ele girar
+      animalWrapper.classList.add('clickable');
     });
 
-    let timeoutImagem;
-    function falarEMostrar(texto, imagemSrc) {
-      falar(texto);
-      if (imagemSrc) {
-        const overlay = document.getElementById('ar-image-overlay');
-        const img = document.getElementById('ar-image-content');
-        img.src = imagemSrc;
-        overlay.style.display = 'block';
-        clearTimeout(timeoutImagem);
-        timeoutImagem = setTimeout(() => { overlay.style.display = 'none'; }, 15000);
-      }
-    }
+    // Se o usuário sair do modo AR, volta a mostrar o botão
+    sceneEl.addEventListener('exit-vr', () => {
+      btnAR.style.display = 'block';
+      instrucao.style.display = 'none';
+      animalWrapper.setAttribute('visible', 'false');
+    });
 
-    async function iniciarAR() {
-      try {
-        const res = await fetch('fauna_pe.json');
-        const data = await res.json();
-        const animal = data.especies_ameacadas.find(a => a.id === animalId);
-
-        document.getElementById('info-nome').textContent = animal.nome_popular;
-        document.getElementById('info-cientifico').textContent = animal.nome_cientifico;
-
-        const textoOque = `${animal.classe}. ${animal.caracteristicas.comportamento}.`;
-        const textoAlimentacao = `Alimenta-se de ${animal.alimentacao.join(', ')}.`;
-        const textoHabitat = `Encontrado em ${animal.habitat.join(', ')}.`;
-        const textoAmeacas = `As principais ameaças são: ${animal.principais_ameacas.join(', ')}.`;
-
-        document.getElementById('btn-oque').onclick = () => falarEMostrar(textoOque, imagensMap[animalId]?.oque);
-        document.getElementById('btn-alimentacao').onclick = () => falarEMostrar(textoAlimentacao, imagensMap[animalId]?.alimentacao);
-        document.getElementById('btn-habitat').onclick = () => falarEMostrar(textoHabitat, imagensMap[animalId]?.habitat);
-        document.getElementById('btn-ameacas').onclick = () => falarEMostrar(textoAmeacas, imagensMap[animalId]?.ameacas);
-
-        const modeloPath = modelosMap[animalId] || animal.modelo_gltf;
-        const container = document.getElementById('scene-container');
-        
-        container.innerHTML = `
-          <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" renderer="alpha: true; antialias: true;" vr-mode-ui="enabled: false" loading-screen="enabled: false">
-            <a-assets>
-              <a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item>
-            </a-assets>
-
-            <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
-            <a-entity position="0 5 2" light="type: directional; color: #ffffff; intensity: 1.5"></a-entity>
-            <a-entity position="-2 2 1" light="type: point; color: #ffffff; intensity: 0.8"></a-entity>
-
-            <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-            <!-- HOLOGRAMA (Ajustado para escala 1.0) -->
-            <a-entity id="modelo-hud" visible="false" position="0 -0.2 -1.5" scale="1.0 1.0 1.0" drag-rotate>
-              <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
-            </a-entity>
-
-            <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-              <a-entity id="modelo-wrapper" visible="false" drag-rotate>
-                <a-gltf-model id="animal-ar" src="#modelo-animal"></a-gltf-model>
-              </a-entity>
-            </a-marker>
-          </a-scene>
-        `;
-
-        const marcador = container.querySelector('#marcador');
-        const modeloWrapper = container.querySelector('#modelo-wrapper');
-        const modeloHud = container.querySelector('#modelo-hud');
-        const painel = document.getElementById('painel-info');
-        const hint = document.getElementById('hint');
-
-        let timerAutoHud = null;
-        let timerPerda = null;
-
-        const ajustarModelo = (el) => {
-          el.addEventListener('model-loaded', () => {
-            document.getElementById('hint-texto').textContent = "✅ Modelo Carregado!";
-            const mesh = el.getObject3D('mesh');
-            if (!mesh) return;
-            const box = new THREE.Box3().setFromObject(mesh);
-            const size = box.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            
-            // AJUSTE DE TAMANHO: Diminuído de 1.5 para 1.0
-            const escala = 1.0 / maxDim; 
-            mesh.scale.set(escala, escala, escala);
-            mesh.position.set(0, 0, 0);
-            if (el.id === 'animal-ar') { mesh.position.y = (size.y * escala) / 2; }
-
-            // Se o modelo do HUD carregou e veio do menu de escolha
-            if (el.id === 'animal-hud') {
-              if (isHologramMode) {
-                // Se foi escolhido "Ver 3D", já abre o Holograma direto
-                modeloHud.setAttribute('visible', 'true');
-                painel.style.display = 'flex';
-                hint.style.display = 'none';
-              } else {
-                // Comportamento padrão (espera 3s e ativa o resgate)
-                clearTimeout(timerAutoHud);
-                timerAutoHud = setTimeout(() => {
-                  if (!marcador.object3D.visible) {
-                    modeloHud.setAttribute('visible', 'true');
-                    painel.style.display = 'flex';
-                    hint.style.display = 'none';
-                  }
-                }, 3000); 
-              }
-            }
-          });
-        };
-        ajustarModelo(document.getElementById('animal-ar'));
-        ajustarModelo(document.getElementById('animal-hud'));
-
-        // Se estiver no modo Holograma via menu, ignora a câmera do QR Code
-        if (isHologramMode) return; 
-
-        marcador.addEventListener('markerFound', () => {
-          clearTimeout(timerAutoHud); 
-          clearTimeout(timerPerda);
-          modeloHud.setAttribute('visible', 'false');
-          modeloWrapper.setAttribute('visible', 'true');
-          painel.style.display = 'flex';
-          hint.style.display = 'none';
-        });
-
-        marcador.addEventListener('markerLost', () => {
-          timerPerda = setTimeout(() => {
-            modeloWrapper.setAttribute('visible', 'false');
-            modeloHud.setAttribute('visible', 'true');
-            hint.style.display = 'none';
-          }, 1000); 
-        });
-
-      } catch (erro) {
-        console.error(erro);
-        document.getElementById('hint-texto').textContent = "❌ Erro no JSON.";
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', iniciarAR);
+    // Adiciona um leve giro automático para o animal não ficar totalmente estático
+    // (Só funciona depois que ele é colocado no chão)
+    animalWrapper.addEventListener('model-loaded', () => {
+      // Ajuste fino de escala se o modelo estiver muito grande/pequeno
+      // O valor '0.5' no HTML pode ser ajustado aqui via JS se necessário
+    });
   </script>
 </body>
 </html>
