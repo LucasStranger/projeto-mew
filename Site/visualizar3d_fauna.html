@@ -10,70 +10,105 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100dvh; overflow: hidden; background: transparent !important; touch-action: none; }
+    html, body { width: 100%; height: 100dvh; overflow: hidden; background: transparent !important; touch-action: none; font-family: 'Segoe UI', sans-serif; }
     
     #scene-container { position: fixed; inset: 0; width: 100vw; height: 100dvh; z-index: 0; }
 
+    /* --- POPUP DE INFORMAÇÕES (MENOR) --- */
     #painel-info {
       position: fixed;
-      bottom: 20px; left: 20px; right: 20px;
+      bottom: 15px; left: 15px; right: 15px;
       background: rgba(5, 30, 15, 0.95);
       border: 2px solid #7ee898;
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 12px;
+      padding: 12px 15px;
       z-index: 1000;
       display: none; 
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(63, 185, 80, 0.3);
       backdrop-filter: blur(8px);
-      max-height: 55vh;
+      max-height: 45vh;
       overflow-y: auto;
     }
 
-    #painel-info h2 { color: #7ee898; font-family: 'Courier New', monospace; text-transform: uppercase; font-size: 1.1rem; margin-bottom: 2px; border-bottom: 1px dashed rgba(126,232,152,0.3); padding-bottom: 8px; }
-    #painel-info .cientifico { font-style: italic; color: #a8d8b8; font-size: 0.85rem; margin-bottom: 10px; }
+    #painel-info h2 { color: #7ee898; font-family: 'Courier New', monospace; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 2px; border-bottom: 1px dashed rgba(126,232,152,0.3); padding-bottom: 6px; }
+    #painel-info .cientifico { font-style: italic; color: #a8d8b8; font-size: 0.75rem; margin-bottom: 8px; }
 
     .btn-hotspot {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 8px;
       background: rgba(126, 232, 152, 0.1);
       border: 1px solid rgba(126, 232, 152, 0.4);
       color: #d5ffdd;
-      padding: 12px 15px;
-      border-radius: 10px;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: 0.9rem; font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem; font-weight: 600;
       cursor: pointer; text-align: left;
       transition: all 0.2s;
     }
     .btn-hotspot:active { background: rgba(126, 232, 152, 0.3); border-color: #7ee898; transform: scale(0.98); }
-    .btn-hotspot .icone { font-size: 1.1rem; }
+    .btn-hotspot .icone { font-size: 1rem; }
 
     .btn-fechar {
       background: linear-gradient(135deg, #dc0a2d, #a3081f);
-      color: white; border: none; padding: 14px; border-radius: 10px;
-      font-weight: bold; font-size: 0.95rem; cursor: pointer; margin-top: 10px;
+      color: white; border: none; padding: 10px; border-radius: 8px;
+      font-weight: bold; font-size: 0.85rem; cursor: pointer; margin-top: 5px;
       text-transform: uppercase; letter-spacing: 1px;
       box-shadow: 0 4px 12px rgba(220,10,45,0.4);
     }
 
+    /* --- HINT (AVISO INICIAL) --- */
     .hint { 
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); 
-      background: rgba(0,0,0,0.8); color: #ffcb05; padding: 10px 20px; border-radius: 20px; 
+      position: fixed; top: 15px; left: 50%; transform: translateX(-50%); 
+      background: rgba(0,0,0,0.8); color: #ffcb05; padding: 8px 15px; border-radius: 15px; 
       font-weight: bold; z-index: 999; border: 2px solid #ffcb05; text-align: center; 
-      width: 90%; max-width: 400px; font-family: 'Courier New', monospace; font-size: 0.85rem; 
-      display: flex; flex-direction: column; gap: 10px; align-items: center;
+      width: 90%; max-width: 350px; font-family: 'Courier New', monospace; font-size: 0.75rem; 
     }
 
+    /* --- IMAGEM DO HOTSPOT --- */
     #ar-image-overlay {
       display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      z-index: 9999; width: 85vw; max-width: 400px;
-      border-radius: 16px; overflow: hidden; border: 3px solid #7ee898;
+      z-index: 9999; width: 80vw; max-width: 350px;
+      border-radius: 12px; overflow: hidden; border: 3px solid #7ee898;
       box-shadow: 0 0 40px rgba(0,0,0,0.9); background: #0a1a0c;
       pointer-events: none; animation: popIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
     }
     #ar-image-overlay img { width: 100%; display: block; }
     @keyframes popIn { from{ opacity: 0; transform: translate(-50%, -40%) scale(0.9); } to{ opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+    /* --- MENU DE SELEÇÃO DE ANIMAIS --- */
+    #menu-animais {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5, 15, 10, 0.95); z-index: 10000;
+      flex-direction: column; padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+    .menu-header { text-align: center; margin-bottom: 15px; }
+    .menu-header h2 { color: #7ee898; font-family: 'Courier New', monospace; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
+    .menu-header p { color: #a8d8b8; font-size: 0.8rem; margin-top: 5px; }
+    
+    .menu-grid {
+      flex: 1; overflow-y: auto;
+      display: grid; grid-template-columns: 1fr; gap: 10px; padding-bottom: 15px;
+    }
+    
+    .menu-item {
+      background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(126, 232, 152, 0.3);
+      border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .menu-nome { color: #e0f4ff; font-weight: bold; font-size: 0.9rem; }
+    
+    .menu-acoes { display: flex; gap: 8px; }
+    .btn-acao {
+      border: none; padding: 8px 12px; border-radius: 8px;
+      font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
+    }
+    .btn-3d { background: #7ee898; color: #051020; }
+    .btn-3d:active { background: #5cdb79; }
+    .btn-info { background: #00e0ff; color: #051020; }
+    .btn-info:active { background: #00b8d4; }
+
+    #btn-voltar-ar { margin-top: 10px; background: #ffcb05; color: #000; font-size: 0.9rem; padding: 12px; }
   </style>
 </head>
 <body>
@@ -85,6 +120,7 @@
     <img id="ar-image-content" src="" alt="Hotspot">
   </div>
 
+  <!-- POPUP DE INFO DO ANIMAL -->
   <div id="painel-info">
     <h2 id="info-nome">Carregando...</h2>
     <div class="cientifico" id="info-cientifico"></div>
@@ -94,7 +130,17 @@
     <button class="btn-hotspot" id="btn-habitat"><span class="icone">🌿</span> Habitat</button>
     <button class="btn-hotspot" id="btn-ameacas"><span class="icone">⚠️</span> Ameaças</button>
     
-    <button class="btn-fechar" id="btn-fechar">Fechar</button>
+    <button class="btn-fechar" id="btn-fechar">Fechar e Ver Outros Animais</button>
+  </div>
+
+  <!-- MENU DE SELEÇÃO DE ANIMAIS -->
+  <div id="menu-animais">
+    <div class="menu-header">
+      <h2>Escolha um Animal</h2>
+      <p>Toque em 🔮 para ver em 3D ou 📖 para ler detalhes</p>
+    </div>
+    <div class="menu-grid" id="menu-grid"></div>
+    <button class="btn-fechar" id="btn-voltar-ar">Voltar para o AR</button>
   </div>
 
   <div id="scene-container"></div>
@@ -102,6 +148,7 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const animalId = params.get('id') || 'pe-1'; 
+    const isHologramMode = params.get('hologram') === 'true'; // Verifica se veio do menu
 
     const synth = window.speechSynthesis;
     function falar(texto) {
@@ -130,8 +177,48 @@
 
     const imagensMap = {
       'pe-1': { oque: 'assets/hotspots/costeiro_peixeboi_animal.jpg', alimentacao: 'assets/hotspots/costeiro_peixeboi_capim.jpg', habitat: 'assets/hotspots/costeiro_peixeboi_estuario.jpg', ameacas: 'assets/hotspots/costeiro_peixeboi_boia.jpg' },
-      'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' }
+      'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' },
+      'pe-3': { oque: 'assets/hotspots/caatinga_tatu_animal.jpg', alimentacao: 'assets/hotspots/caatinga_tatu_formigueiro.jpg', habitat: 'assets/hotspots/caatinga_tatu_bioma.jpg', ameacas: 'assets/hotspots/caatinga_tatu_ameacas.jpg' }
     };
+
+    // LISTA PARA O MENU
+    const listaAnimais = [
+      { id: 'pe-1', nome: 'Peixe-boi-marinho' },
+      { id: 'pe-2', nome: 'Tamanduá-bandeira' },
+      { id: 'pe-3', nome: 'Tatu-bola-do-nordeste' },
+      { id: 'pe-4', nome: 'Saíra-pintor' },
+      { id: 'pe-5', nome: 'Limpa-folha-do-nordeste' },
+      { id: 'pe-6', nome: 'Gato-maracajá' },
+      { id: 'pe-7', nome: 'Jaguatirica' },
+      { id: 'pe-8', nome: 'Tartaruga-de-pente' },
+      { id: 'pe-9', nome: 'Tartaruga-de-couro' },
+      { id: 'pe-10', nome: 'Galo-de-Campina' }
+    ];
+
+    // PREENCHE O MENU
+    document.getElementById('menu-grid').innerHTML = listaAnimais.map(a => `
+      <div class="menu-item">
+        <span class="menu-nome">${a.nome}</span>
+        <div class="menu-acoes">
+          <button class="btn-acao btn-3d" onclick="irPara3D('${a.id}')">🔮 3D</button>
+          <button class="btn-acao btn-info" onclick="irParaInfo('${a.id}')">📖 Info</button>
+        </div>
+      </div>
+    `).join('');
+
+    window.irPara3D = (id) => { window.location.href = `visualizar3d_fauna.html?id=${id}&hologram=true`; };
+    window.irParaInfo = (id) => { window.location.href = `detalhes.html?id=${id}`; };
+
+    // CONTROLE DOS BOTÕES DO POPUP
+    document.getElementById('btn-fechar').addEventListener('click', () => {
+      document.getElementById('painel-info').style.display = 'none';
+      document.getElementById('menu-animais').style.display = 'flex';
+    });
+
+    document.getElementById('btn-voltar-ar').addEventListener('click', () => {
+      document.getElementById('menu-animais').style.display = 'none';
+      document.getElementById('painel-info').style.display = 'flex';
+    });
 
     AFRAME.registerComponent('drag-rotate', {
       init: function () {
@@ -201,12 +288,11 @@
 
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-            <!-- MODO HOLOGRAMA (Flutuando na frente) -->
-            <a-entity id="modelo-hud" visible="false" position="0 -0.2 -1.5" scale="1.5 1.5 1.5" drag-rotate>
+            <!-- HOLOGRAMA (Ajustado para escala 1.0) -->
+            <a-entity id="modelo-hud" visible="false" position="0 -0.2 -1.5" scale="1.0 1.0 1.0" drag-rotate>
               <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
             </a-entity>
 
-            <!-- MARCADOR QR CODE -->
             <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-ar" src="#modelo-animal"></a-gltf-model>
@@ -232,34 +318,43 @@
             const box = new THREE.Box3().setFromObject(mesh);
             const size = box.getSize(new THREE.Vector3());
             const maxDim = Math.max(size.x, size.y, size.z);
-            const escala = 1.5 / maxDim; 
+            
+            // AJUSTE DE TAMANHO: Diminuído de 1.5 para 1.0
+            const escala = 1.0 / maxDim; 
             mesh.scale.set(escala, escala, escala);
             mesh.position.set(0, 0, 0);
             if (el.id === 'animal-ar') { mesh.position.y = (size.y * escala) / 2; }
 
-            // Se o modelo do HUD carregou, começamos a contagem de 3 segundos
-            // Se a câmera não achar o QR Code nesse tempo, o HUD aparece sozinho
+            // Se o modelo do HUD carregou e veio do menu de escolha
             if (el.id === 'animal-hud') {
-              clearTimeout(timerAutoHud);
-              timerAutoHud = setTimeout(() => {
-                // Só ativa se o marcador não estiver visível no momento
-                if (!marcador.object3D.visible) {
-                  modeloHud.setAttribute('visible', 'true');
-                  painel.style.display = 'flex';
-                  hint.style.display = 'none';
-                  document.getElementById('hint-texto').textContent = "🔮 Modo Holograma Ativado (Aponte para o QR Code)";
-                }
-              }, 3000); // 3 segundos de tolerância
+              if (isHologramMode) {
+                // Se foi escolhido "Ver 3D", já abre o Holograma direto
+                modeloHud.setAttribute('visible', 'true');
+                painel.style.display = 'flex';
+                hint.style.display = 'none';
+              } else {
+                // Comportamento padrão (espera 3s e ativa o resgate)
+                clearTimeout(timerAutoHud);
+                timerAutoHud = setTimeout(() => {
+                  if (!marcador.object3D.visible) {
+                    modeloHud.setAttribute('visible', 'true');
+                    painel.style.display = 'flex';
+                    hint.style.display = 'none';
+                  }
+                }, 3000); 
+              }
             }
           });
         };
         ajustarModelo(document.getElementById('animal-ar'));
         ajustarModelo(document.getElementById('animal-hud'));
 
+        // Se estiver no modo Holograma via menu, ignora a câmera do QR Code
+        if (isHologramMode) return; 
+
         marcador.addEventListener('markerFound', () => {
-          clearTimeout(timerAutoHud); // Cancelou o auto-resgate
+          clearTimeout(timerAutoHud); 
           clearTimeout(timerPerda);
-          
           modeloHud.setAttribute('visible', 'false');
           modeloWrapper.setAttribute('visible', 'true');
           painel.style.display = 'flex';
@@ -267,7 +362,6 @@
         });
 
         marcador.addEventListener('markerLost', () => {
-          // Dá 1 segundo de tolerância. Se o QR não voltar, ativa o holograma.
           timerPerda = setTimeout(() => {
             modeloWrapper.setAttribute('visible', 'false');
             modeloHud.setAttribute('visible', 'true');
@@ -280,10 +374,6 @@
         document.getElementById('hint-texto').textContent = "❌ Erro no JSON.";
       }
     }
-
-    document.getElementById('btn-fechar').addEventListener('click', () => {
-      window.location.reload();
-    });
 
     window.addEventListener('DOMContentLoaded', iniciarAR);
   </script>
