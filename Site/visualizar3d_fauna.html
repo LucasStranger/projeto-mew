@@ -122,7 +122,6 @@
       synth.speak(utterance);
     }
 
-    // LISTA COMPLETA RESTAURADA
     const modelosMap = {
       'pe-1': 'assets/modelo/peixe_boi_med.glb',
       'pe-2': 'assets/modelo/tamandua_bandeira_med.glb',
@@ -138,8 +137,7 @@
 
     const imagensMap = {
       'pe-1': { oque: 'assets/hotspots/costeiro_peixeboi_animal.jpg', alimentacao: 'assets/hotspots/costeiro_peixeboi_capim.jpg', habitat: 'assets/hotspots/costeiro_peixeboi_estuario.jpg', ameacas: 'assets/hotspots/costeiro_peixeboi_boia.jpg' },
-      'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' },
-      // (outras imagens mantidas para não quebrar)
+      'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' }
     };
 
     AFRAME.registerComponent('drag-rotate', {
@@ -204,20 +202,18 @@
               <a-asset-item id="modelo-animal" src="${modeloPath}"></a-asset-item>
             </a-assets>
 
-            <!-- LUZES GLOBAIS (Agora iluminam tudo na tela, inclusive o Holograma) -->
+            <!-- LUZES GLOBAIS -->
             <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
             <a-entity position="0 5 2" light="type: directional; color: #ffffff; intensity: 1.5"></a-entity>
             <a-entity position="-2 2 1" light="type: point; color: #ffffff; intensity: 0.8"></a-entity>
 
-            <!-- CAMERA -->
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-            <!-- MODO HOLOGRAMA (Fica preso na frente da tela) -->
-            <a-entity id="modelo-hud" visible="false" position="0 -0.5 -3" drag-rotate>
+            <!-- MUDANÇA AQUI: Holograma mais perto (-1.5) e com escala aumentada (1.5x) -->
+            <a-entity id="modelo-hud" visible="false" position="0 -0.2 -1.5" scale="1.5 1.5 1.5" drag-rotate>
               <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
             </a-entity>
 
-            <!-- MARCADOR QR CODE -->
             <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-ar" src="#modelo-animal"></a-gltf-model>
@@ -240,7 +236,7 @@
             const box = new THREE.Box3().setFromObject(mesh);
             const size = box.getSize(new THREE.Vector3());
             const maxDim = Math.max(size.x, size.y, size.z);
-            const escala = 1.5 / maxDim; // Tamanho fixo para não virar um monstro preto
+            const escala = 1.5 / maxDim; 
             mesh.scale.set(escala, escala, escala);
             mesh.position.set(0, 0, 0);
             if (el.id === 'animal-ar') { mesh.position.y = (size.y * escala) / 2; }
@@ -267,7 +263,7 @@
           }, 5000);
         });
 
-        // BOTÃO DE PÂNICO (Failsafe)
+        // BOTÃO DE PÂNICO
         document.getElementById('btn-forcar-holograma').addEventListener('click', () => {
           modeloWrapper.setAttribute('visible', 'false');
           modeloHud.setAttribute('visible', 'true');
