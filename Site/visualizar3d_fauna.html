@@ -78,7 +78,7 @@
 </head>
 <body>
   <div class="hint" id="hint">
-    <span id="hint-texto">📷 Aponte para o QR Code...</span>
+    <span id="hint-texto">📷 Iniciando câmera...</span>
   </div>
 
   <div id="ar-image-overlay">
@@ -201,7 +201,7 @@
 
             <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-            <!-- MODO HOLOGRAMA (Fica preso na tela) -->
+            <!-- MODO HOLOGRAMA (Flutuando na frente) -->
             <a-entity id="modelo-hud" visible="false" position="0 -0.2 -1.5" scale="1.5 1.5 1.5" drag-rotate>
               <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
             </a-entity>
@@ -221,6 +221,9 @@
         const painel = document.getElementById('painel-info');
         const hint = document.getElementById('hint');
 
+        let timerAutoHud = null;
+        let timerPerda = null;
+
         const ajustarModelo = (el) => {
           el.addEventListener('model-loaded', () => {
             document.getElementById('hint-texto').textContent = "✅ Modelo Carregado!";
@@ -233,31 +236,41 @@
             mesh.scale.set(escala, escala, escala);
             mesh.position.set(0, 0, 0);
             if (el.id === 'animal-ar') { mesh.position.y = (size.y * escala) / 2; }
+
+            // Se o modelo do HUD carregou, começamos a contagem de 3 segundos
+            // Se a câmera não achar o QR Code nesse tempo, o HUD aparece sozinho
+            if (el.id === 'animal-hud') {
+              clearTimeout(timerAutoHud);
+              timerAutoHud = setTimeout(() => {
+                // Só ativa se o marcador não estiver visível no momento
+                if (!marcador.object3D.visible) {
+                  modeloHud.setAttribute('visible', 'true');
+                  painel.style.display = 'flex';
+                  hint.style.display = 'none';
+                  document.getElementById('hint-texto').textContent = "🔮 Modo Holograma Ativado (Aponte para o QR Code)";
+                }
+              }, 3000); // 3 segundos de tolerância
+            }
           });
         };
         ajustarModelo(document.getElementById('animal-ar'));
         ajustarModelo(document.getElementById('animal-hud'));
 
-        let timerPerda = null;
-        let jaEncontrouUmaVez = false;
-
         marcador.addEventListener('markerFound', () => {
-          jaEncontrouUmaVez = true;
-          clearTimeout(timerPerda); // Cancela a ida pro holograma se o QR voltar
+          clearTimeout(timerAutoHud); // Cancelou o auto-resgate
+          clearTimeout(timerPerda);
           
-          modeloHud.setAttribute('visible', 'false'); // Esconde o holograma
-          modeloWrapper.setAttribute('visible', 'true'); // Mostra no chão
+          modeloHud.setAttribute('visible', 'false');
+          modeloWrapper.setAttribute('visible', 'true');
           painel.style.display = 'flex';
           hint.style.display = 'none';
         });
 
         marcador.addEventListener('markerLost', () => {
-          if (!jaEncontrouUmaVez) return; // Só ativa se já tiver achado o QR pelo menos uma vez
-
-          // Dá 1 segundo de tolerância. Se o QR não voltar, ativa o holograma sozinho.
+          // Dá 1 segundo de tolerância. Se o QR não voltar, ativa o holograma.
           timerPerda = setTimeout(() => {
-            modeloWrapper.setAttribute('visible', 'false'); // Esconde do chão
-            modeloHud.setAttribute('visible', 'true');      // Mostra na tela
+            modeloWrapper.setAttribute('visible', 'false');
+            modeloHud.setAttribute('visible', 'true');
             hint.style.display = 'none';
           }, 1000); 
         });
