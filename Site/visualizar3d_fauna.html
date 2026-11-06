@@ -117,7 +117,15 @@
 
     const imagensMap = {
       'pe-1': { oque: 'assets/hotspots/costeiro_peixeboi_animal.jpg', alimentacao: 'assets/hotspots/costeiro_peixeboi_capim.jpg', habitat: 'assets/hotspots/costeiro_peixeboi_estuario.jpg', ameacas: 'assets/hotspots/costeiro_peixeboi_boia.jpg' },
-      // ... (restante das imagens omitido para focar na lógica)
+      'pe-2': { oque: 'assets/hotspots/cerrado_tamandua_animal.jpg', alimentacao: 'assets/hotspots/cerrado_tamandua_cupinzeiro.jpg', habitat: 'assets/hotspots/cerrado_tamandua_bioma.jpg', ameacas: 'assets/hotspots/cerrado_tamandua_ameacas.jpg' },
+      'pe-3': { oque: 'assets/hotspots/caatinga_tatu_animal.jpg', alimentacao: 'assets/hotspots/caatinga_tatu_formigueiro.jpg', habitat: 'assets/hotspots/caatinga_tatu_bioma.jpg', ameacas: 'assets/hotspots/caatinga_tatu_ameacas.jpg' },
+      'pe-4': { oque: 'assets/hotspots/mata_saira_ave.jpg', alimentacao: 'assets/hotspots/mata_saira_frutifera.jpg', habitat: 'assets/hotspots/mata_saira_bioma.jpg', ameacas: 'assets/hotspots/mata_saira_trafico.jpg' },
+      'pe-5': { oque: 'assets/hotspots/altitude_limpafolha_ave.jpg', alimentacao: 'assets/hotspots/altitude_limpafolha_folhico.jpg', habitat: 'assets/hotspots/altitude_limpafolha_bioma.jpg', ameacas: 'assets/hotspots/altitude_limpafolha_fragmentacao.jpg' },
+      'pe-6': { oque: 'assets/hotspots/noite_maracaja_animal.jpg', alimentacao: 'assets/hotspots/noite_maracaja_vagalumes.jpg', habitat: 'assets/hotspots/noite_maracaja_copa.jpg', ameacas: 'assets/hotspots/noite_maracaja_ameacas.jpg' },
+      'pe-7': { oque: 'assets/hotspots/transicao_jaguatirica_animal.jpg', alimentacao: 'assets/hotspots/transicao_jaguatirica_mataciliar.jpg', habitat: 'assets/hotspots/transicao_jaguatirica_caatinga.jpg', ameacas: 'assets/hotspots/transicao_jaguatirica_rodovia.jpg' },
+      'pe-8': { oque: 'assets/hotspots/recife_pente_animal.jpg', alimentacao: 'assets/hotspots/recife_pente_esponjas.jpg', habitat: 'assets/hotspots/recife_pente_corais.jpg', ameacas: 'assets/hotspots/recife_pente_ameacas.jpg' },
+      'pe-9': { oque: 'assets/hotspots/oceano_couro_animal.jpg', alimentacao: 'assets/hotspots/oceano_couro_aguaviva.jpg', habitat: 'assets/hotspots/oceano_couro_altomar.jpg', ameacas: 'assets/hotspots/oceano_couro_sacola.jpg' },
+      'pe-10': { oque: 'assets/hotspots/caatinga_galo_ave.jpg', alimentacao: 'assets/hotspots/caatinga_galo_bioma.jpg', habitat: 'assets/hotspots/caatinga_galo_juazeiro.jpg', ameacas: 'assets/hotspots/caatinga_galo_cupinzeiro.jpg' }
     };
 
     AFRAME.registerComponent('drag-rotate', {
@@ -189,17 +197,17 @@
             </a-assets>
 
             <a-camera position="0 0 0" look-controls="enabled: false">
-              <!-- MODELO HOLOGRAFICO (Fica preso na câmera) -->
               <a-entity id="modelo-hud" visible="false" position="0 -0.5 -2" drag-rotate>
                 <a-gltf-model id="animal-hud" src="#modelo-animal"></a-gltf-model>
               </a-entity>
             </a-camera>
 
             <a-marker type="barcode" value="7" id="marcador" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
-              <!-- MODELO REALIDADE AUMENTADA (Preso ao QR Code) -->
+              
               <a-entity id="modelo-wrapper" visible="false" drag-rotate>
                 <a-gltf-model id="animal-ar" src="#modelo-animal"></a-gltf-model>
               </a-entity>
+
               <a-entity light="type: ambient; color: #ffffff; intensity: 1.2"></a-entity>
               <a-entity position="0 2 1" light="type: directional; color: #ffffff; intensity: 1.0"></a-entity>
             </a-marker>
@@ -212,7 +220,6 @@
         const painel = document.getElementById('painel-info');
         const hint = document.getElementById('hint');
 
-        // Ajuste de escala para os dois modelos
         const ajustarModelo = (el) => {
           el.addEventListener('model-loaded', () => {
             const mesh = el.getObject3D('mesh');
@@ -231,7 +238,6 @@
         ajustarModelo(document.getElementById('animal-ar'));
         ajustarModelo(document.getElementById('animal-hud'));
 
-        // Lógica do Timer
         let timerPerda = null;
 
         marcador.addEventListener('markerFound', () => {
@@ -239,17 +245,14 @@
           modeloWrapper.setAttribute('visible', 'true');
           painel.style.display = 'flex';
           
-          // Se o QR Code voltar, cancela o Modo Holograma
           clearTimeout(timerPerda);
           modeloHud.setAttribute('visible', 'false');
         });
 
         marcador.addEventListener('markerLost', () => {
-          // Inicia contagem de 5 segundos
           timerPerda = setTimeout(() => {
-            // Se o QR Code não voltar em 5s, ativa o Modo Holograma
-            modeloWrapper.setAttribute('visible', 'false'); // Esconde o do chão
-            modeloHud.setAttribute('visible', 'true');      // Mostra o na tela
+            modeloWrapper.setAttribute('visible', 'false');
+            modeloHud.setAttribute('visible', 'true');
             
             hint.style.display = 'block';
             hint.textContent = "🔮 Modo Holograma (Aponte para o QR Code para fixar no chão)";
